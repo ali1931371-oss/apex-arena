@@ -1,4 +1,5 @@
 
+   
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -46,6 +47,23 @@
       border-radius: 14px;
       background: #191919;
     }
+    .tournament {
+      border: 1px solid #80652e;
+      border-radius: 10px;
+      padding: 18px;
+      margin: 15px 0;
+      text-align: right;
+      background: #202020;
+    }
+    .tournament h3 {
+      color: #e4c46e;
+    }
+    .status {
+      color: #d8b45a;
+      font-size: 14px;
+    }
+    .error { color: #ff8c8c; }
+    .empty { color: #aaa; }
     footer {
       padding: 25px;
       color: #a99b79;
@@ -77,6 +95,14 @@
     </section>
 
     <section class="section">
+      <h2>تورنمنت‌های آماده ثبت‌نام</h2>
+      <p id="connection-status" class="status">
+        در حال دریافت اطلاعات تورنمنت‌ها...
+      </p>
+      <div id="tournament-list"></div>
+    </section>
+
+    <section class="section">
       <h2>رقابت، اعتبار، ماندگاری</h2>
       <p>
         مسیر پیشرفت بازیکنان از طریق عملکرد و نتایج
@@ -88,5 +114,85 @@
   <footer>
     © APEX ARENA — All Rights Reserved
   </footer>
+
+  <script>
+    const SUPABASE_URL =
+      "https://vzythswxlvubytzmvhep.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+
+    async function loadTournaments() {
+      const status = document.getElementById("connection-status");
+      const list = document.getElementById("tournament-list");
+
+      try {
+        const response = await fetch(
+          SUPABASE_URL + "/rest/v1/rpc/get_open_tournaments",
+          {
+            method: "POST",
+            headers: {
+              "apikey": SUPABASE_KEY,
+              "Authorization": "Bearer " + SUPABASE_KEY,
+              "Content-Type": "application/json"
+            },
+            body: "{}"
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("خطا در دریافت اطلاعات: " + response.status);
+        }
+
+        const tournaments = await response.json();
+
+        status.textContent = "اتصال به پایگاه داده برقرار شد.";
+
+        if (!Array.isArray(tournaments) || tournaments.length === 0) {
+          list.innerHTML =
+            '<p class="empty">در حال حاضر تورنمنت بازی برای ثبت‌نام وجود ندارد.</p>';
+          return;
+        }
+
+        list.replaceChildren();
+
+        tournaments.forEach(function(tournament) {
+          const card = document.createElement("div");
+          card.className = "tournament";
+
+          const title = document.createElement("h3");
+          title.textContent = tournament.tournament_name;
+
+          const description = document.createElement("p");
+          description.textContent =
+            tournament.tournament_description || "توضیحاتی ثبت نشده است.";
+
+          const capacity = document.createElement("p");
+          capacity.textContent =
+            "ظرفیت کل: " + tournament.max_players;
+
+          const approved = document.createElement("p");
+          approved.textContent =
+            "بازیکنان تأییدشده: " + tournament.approved_players;
+
+          const available = document.createElement("p");
+          available.textContent =
+            "ظرفیت باقی‌مانده: " + tournament.available_slots;
+
+          card.append(title, description, capacity, approved, available);
+          list.appendChild(card);
+        });
+
+      } catch (error) {
+        status.textContent =
+          "دریافت اطلاعات با مشکل مواجه شد. لطفاً بعداً تلاش کنید.";
+        status.classList.add("error");
+        console.error(error);
+      }
+    }
+
+    loadTournaments();
+  </script>
 </body>
 </html>
+ 
