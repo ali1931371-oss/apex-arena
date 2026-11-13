@@ -1,11 +1,11 @@
 
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101010">
+  <meta name="description" content="APEX ARENA؛ ورزشگاه رقابت‌های حرفه‌ای مافیا صوتی و آکادمی آموزش">
   <title>APEX ARENA | ورزشگاه رقابت</title>
 
   <style>
@@ -30,16 +30,16 @@
       font-size: 32px;
     }
 
-    .hero {
-      padding: 75px 20px;
-      background: radial-gradient(circle, #382b12, #101010 70%);
-    }
-
     h2 { font-size: 25px; }
 
     p {
       color: #d0c8b5;
       line-height: 2;
+    }
+
+    .hero {
+      padding: 75px 20px;
+      background: radial-gradient(circle, #382b12, #101010 70%);
     }
 
     .tagline {
@@ -49,7 +49,7 @@
     }
 
     .section {
-      max-width: 750px;
+      max-width: 900px;
       margin: 25px auto;
       padding: 25px;
       border: 1px solid #59451e;
@@ -66,23 +66,29 @@
       background: #202020;
     }
 
-    .tournament h3 { color: #e4c46e; }
+    .tournament h3,
+    .academy-card h3 {
+      color: #e4c46e;
+    }
 
     .status {
       color: #d8b45a;
       font-size: 14px;
     }
 
-    .error { color: #ff8c8c; }
+    .error { color: #ff8c8c !important; }
+    .success { color: #8be0a2 !important; }
     .empty { color: #aaa; }
 
     .admin-box {
-      max-width: 430px;
+      max-width: 600px;
       margin: 20px auto;
       text-align: right;
     }
 
-    .admin-box input {
+    input,
+    textarea,
+    select {
       display: block;
       width: 100%;
       margin: 12px 0;
@@ -91,7 +97,24 @@
       border-radius: 8px;
       background: #101010;
       color: white;
+      font-family: inherit;
       font-size: 15px;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 2;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      color: #e4c46e;
     }
 
     button {
@@ -102,9 +125,28 @@
       border-radius: 8px;
       background: #d8b45a;
       color: #17120a;
-      font-size: 16px;
+      font-family: inherit;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
+    }
+
+    button:hover { opacity: .88; }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .secondary-button {
+      background: #343434;
+      color: #f5f0df;
+      border: 1px solid #80652e;
+    }
+
+    .danger-button {
+      background: #7d2828;
+      color: white;
     }
 
     .text-button {
@@ -124,12 +166,115 @@
       margin-top: 15px;
     }
 
-    .hidden { display: none; }
+    .hidden { display: none !important; }
+
+    .academy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-top: 25px;
+    }
+
+    .academy-card {
+      border: 1px solid #80652e;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: right;
+      background: #202020;
+      overflow: hidden;
+    }
+
+    .academy-card img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .academy-card p {
+      overflow-wrap: anywhere;
+    }
+
+    .academy-card .post-summary {
+      color: #e4c46e;
+    }
+
+    .academy-card .post-date {
+      color: #a99b79;
+      font-size: 12px;
+    }
+
+    .post-body {
+      white-space: pre-wrap;
+      text-align: right;
+      line-height: 2.2;
+      overflow-wrap: anywhere;
+      color: #e5dece;
+    }
+
+    .post-video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .post-actions button {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .admin-panel {
+      border: 1px solid #b18b3c;
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 20px;
+      background: #151515;
+    }
+
+    .admin-post {
+      text-align: right;
+      border: 1px solid #59451e;
+      padding: 14px;
+      margin: 12px 0;
+      border-radius: 8px;
+      background: #202020;
+    }
+
+    .admin-post strong {
+      color: #e4c46e;
+    }
+
+    .preview-image {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
 
     footer {
       padding: 25px;
       color: #a99b79;
       font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      .section {
+        margin: 15px 10px;
+        padding: 17px;
+      }
+
+      .hero { padding: 50px 15px; }
+      h1 { font-size: 27px; }
+      h2 { font-size: 21px; }
     }
   </style>
 </head>
@@ -167,7 +312,22 @@
       <div id="tournament-list"></div>
     </section>
 
-    <section class="section">
+    <!-- آکادمی عمومی -->
+    <section class="section" id="academy-section">
+      <h2>آکادمی APEX ARENA</h2>
+      <p>
+        دانش، تجربه و مهارت؛ مسیر تبدیل شدن به یک بازیکن حرفه‌ای.
+      </p>
+
+      <p id="academy-status" class="status">
+        در حال دریافت مطالب آکادمی...
+      </p>
+
+      <div id="academy-list" class="academy-grid"></div>
+    </section>
+
+    <!-- ورود مدیریت -->
+    <section class="section" id="admin-section">
       <h2>ورود مدیریت APEX ARENA</h2>
 
       <div class="admin-box" id="login-box">
@@ -237,6 +397,97 @@
       </div>
 
       <p id="auth-message" class="message"></p>
+
+      <!-- پنل مدیریت آکادمی -->
+      <div id="admin-dashboard" class="admin-panel hidden">
+
+        <h2>پنل مدیریت آکادمی</h2>
+        <p class="success">دسترسی مدیر تأیید شد.</p>
+
+        <div class="admin-box">
+          <h3 id="form-title">افزودن مطلب جدید</h3>
+
+          <input type="hidden" id="edit-post-id">
+
+          <label for="post-title">عنوان مطلب</label>
+          <input
+            id="post-title"
+            type="text"
+            maxlength="180"
+            placeholder="عنوان آموزش یا مقاله"
+          >
+
+          <label for="post-slug">آدرس کوتاه مطلب (اختیاری)</label>
+          <input
+            id="post-slug"
+            type="text"
+            maxlength="180"
+            placeholder="مثلاً: amoozesh-negotiator"
+          >
+
+          <label for="post-summary">خلاصه مطلب</label>
+          <textarea
+            id="post-summary"
+            maxlength="1000"
+            placeholder="خلاصه‌ای کوتاه برای نمایش در صفحه آکادمی"
+          ></textarea>
+
+          <label for="post-body">متن کامل مطلب</label>
+          <textarea
+            id="post-body"
+            placeholder="متن آموزش یا مقاله را اینجا وارد کن..."
+          ></textarea>
+
+          <label for="post-type">نوع محتوا</label>
+          <select id="post-type">
+            <option value="article">مقاله یا آموزش متنی</option>
+            <option value="video">ویدئو</option>
+            <option value="mixed">ترکیبی (متن، تصویر و ویدئو)</option>
+          </select>
+
+          <label for="post-image">تصویر مطلب</label>
+          <input
+            id="post-image"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+          >
+          <img id="image-preview" class="preview-image hidden" alt="پیش‌نمایش تصویر">
+
+          <label for="post-video">لینک ویدئوی YouTube</label>
+          <input
+            id="post-video"
+            type="url"
+            placeholder="https://www.youtube.com/watch?v=..."
+          >
+
+          <button id="save-post-button">ذخیره پیش‌نویس</button>
+
+          <button
+            id="publish-post-button"
+            class="secondary-button"
+          >
+            ذخیره و انتشار
+          </button>
+
+          <button
+            id="cancel-edit-button"
+            class="secondary-button hidden"
+          >
+            لغو ویرایش
+          </button>
+
+          <p id="academy-admin-message" class="message"></p>
+        </div>
+
+        <hr style="border-color:#59451e;margin:25px 0;">
+
+        <h3>مدیریت مطالب ثبت‌شده</h3>
+        <div id="admin-post-list"></div>
+
+        <button id="logout-button" class="danger-button">
+          خروج از حساب مدیریت
+        </button>
+      </div>
     </section>
 
     <section class="section">
@@ -256,11 +507,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
+    "use strict";
+
+    // تنظیمات اتصال
     const SUPABASE_URL =
       "https://vzythswxlvubytzmvhep.supabase.co";
 
     const SUPABASE_KEY =
       "sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+
+    const BUCKET_NAME = "apex-education";
 
     const supabaseClient = window.supabase.createClient(
       SUPABASE_URL,
@@ -272,12 +528,40 @@
     const recoveryBox = document.getElementById("recovery-box");
     const newPasswordBox =
       document.getElementById("new-password-box");
+    const adminDashboard =
+      document.getElementById("admin-dashboard");
+
+    let currentAdmin = null;
+    let currentImagePath = null;
 
     function showMessage(text, isError = false) {
       message.textContent = text;
       message.classList.toggle("error", isError);
+      message.classList.toggle("success", !isError && !!text);
     }
 
+    function showAcademyAdminMessage(text, isError = false) {
+      const target =
+        document.getElementById("academy-admin-message");
+
+      target.textContent = text;
+      target.classList.toggle("error", isError);
+      target.classList.toggle("success", !isError && !!text);
+    }
+
+    function setButtonLoading(button, loading, loadingText) {
+      if (loading) {
+        button.dataset.originalText = button.textContent;
+        button.textContent = loadingText || "لطفاً صبر کنید...";
+        button.disabled = true;
+      } else {
+        button.textContent =
+          button.dataset.originalText || button.textContent;
+        button.disabled = false;
+      }
+    }
+
+    // دریافت تورنمنت‌های آماده ثبت‌نام
     async function loadTournaments() {
       const status =
         document.getElementById("connection-status");
@@ -309,6 +593,8 @@
 
         status.textContent =
           "اتصال به پایگاه داده برقرار شد.";
+
+        status.classList.remove("error");
 
         if (
           !Array.isArray(tournaments) ||
@@ -367,6 +653,630 @@
       }
     }
 
+    // تبدیل لینک YouTube به آدرس قابل نمایش
+    function getYouTubeEmbedUrl(input) {
+      if (!input) return null;
+
+      try {
+        const url = new URL(input.trim());
+        const host = url.hostname.replace(/^www\./, "");
+        let videoId = "";
+
+        if (host === "youtu.be") {
+          videoId = url.pathname.split("/").filter(Boolean)[0] || "";
+        } else if (
+          host === "youtube.com" ||
+          host === "m.youtube.com" ||
+          host === "youtube-nocookie.com"
+        ) {
+          if (url.pathname === "/watch") {
+            videoId = url.searchParams.get("v") || "";
+          } else if (
+            url.pathname.startsWith("/embed/") ||
+            url.pathname.startsWith("/shorts/")
+          ) {
+            videoId = url.pathname.split("/")[2] || "";
+          }
+        } else {
+          return null;
+        }
+
+        if (!/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+          return null;
+        }
+
+        return "https://www.youtube-nocookie.com/embed/" + videoId;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function makeElement(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined && text !== null) {
+        element.textContent = text;
+      }
+      return element;
+    }
+
+    // نمایش عمومی مطالب منتشرشده
+    async function loadAcademyPosts() {
+      const status = document.getElementById("academy-status");
+      const list = document.getElementById("academy-list");
+
+      status.textContent = "در حال دریافت مطالب آکادمی...";
+      list.replaceChildren();
+
+      try {
+        const { data, error } = await supabaseClient
+          .from("educational_posts")
+          .select(
+            "id,title,slug,summary,body,content_type,image_path,video_url,published_at,created_at"
+          )
+          .eq("is_published", true)
+          .order("published_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          status.textContent = "هنوز مطلبی در آکادمی منتشر نشده است.";
+          return;
+        }
+
+        status.textContent = "مطالب منتشرشده آکادمی";
+
+        data.forEach(function(post) {
+          const card = makeElement("article", "academy-card");
+
+          if (post.image_path) {
+            const { data: imageData } =
+              supabaseClient.storage
+                .from(BUCKET_NAME)
+                .getPublicUrl(post.image_path);
+
+            if (imageData && imageData.publicUrl) {
+              const image = makeElement("img");
+              image.src = imageData.publicUrl;
+              image.alt = post.title || "تصویر آکادمی";
+              image.loading = "lazy";
+              card.appendChild(image);
+            }
+          }
+
+          card.appendChild(
+            makeElement("h3", "", post.title)
+          );
+
+          if (post.summary) {
+            card.appendChild(
+              makeElement("p", "post-summary", post.summary)
+            );
+          }
+
+          const videoUrl = getYouTubeEmbedUrl(post.video_url);
+
+          if (videoUrl) {
+            const iframe = makeElement("iframe", "post-video");
+            iframe.src = videoUrl;
+            iframe.title = post.title || "ویدئوی آموزشی";
+            iframe.loading = "lazy";
+            iframe.allow =
+              "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+            iframe.allowFullscreen = true;
+            card.appendChild(iframe);
+          }
+
+          if (post.body) {
+            const body = makeElement(
+              "p",
+              "post-body",
+              post.body
+            );
+            card.appendChild(body);
+          }
+
+          if (post.published_at) {
+            const date = new Date(post.published_at);
+
+            card.appendChild(
+              makeElement(
+                "p",
+                "post-date",
+                "تاریخ انتشار: " +
+                date.toLocaleDateString("fa-IR")
+              )
+            );
+          }
+
+          list.appendChild(card);
+        });
+
+      } catch (error) {
+        status.textContent =
+          "دریافت مطالب آکادمی با مشکل مواجه شد.";
+
+        status.classList.add("error");
+        console.error("Academy public loading error:", error);
+      }
+    }
+
+    // بررسی دسترسی مدیر از جدول profiles
+    async function verifyAdmin(user) {
+      if (!user) return false;
+
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("id,role,display_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Admin verification error:", error);
+        return false;
+      }
+
+      return !!data && data.role === "admin";
+    }
+
+    async function updateAdminInterface(user) {
+      if (!user) {
+        currentAdmin = null;
+        adminDashboard.classList.add("hidden");
+        loginBox.classList.remove("hidden");
+        return;
+      }
+
+      const isAdmin = await verifyAdmin(user);
+
+      if (!isAdmin) {
+        currentAdmin = null;
+        adminDashboard.classList.add("hidden");
+        loginBox.classList.remove("hidden");
+        showMessage(
+          "این حساب دسترسی مدیریت APEX ARENA را ندارد.",
+          true
+        );
+
+        await supabaseClient.auth.signOut();
+        return;
+      }
+
+      currentAdmin = user;
+      loginBox.classList.add("hidden");
+      recoveryBox.classList.add("hidden");
+      newPasswordBox.classList.add("hidden");
+      adminDashboard.classList.remove("hidden");
+
+      showMessage("ورود مدیر با موفقیت انجام شد.");
+      await loadAdminPosts();
+    }
+
+    // نمایش مطالب در پنل مدیر
+    async function loadAdminPosts() {
+      const list = document.getElementById("admin-post-list");
+      list.replaceChildren();
+
+      const { data, error } = await supabaseClient
+        .from("educational_posts")
+        .select(
+          "id,title,content_type,is_published,created_at,published_at,image_path,video_url,summary,body,slug"
+        )
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        list.textContent =
+          "خطا در دریافت مطالب: " + error.message;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        list.appendChild(
+          makeElement("p", "empty", "هنوز مطلبی ثبت نشده است.")
+        );
+        return;
+      }
+
+      data.forEach(function(post) {
+        const item = makeElement("div", "admin-post");
+
+        item.appendChild(
+          makeElement("strong", "", post.title)
+        );
+
+        item.appendChild(
+          makeElement(
+            "p",
+            "",
+            "وضعیت: " +
+            (post.is_published ? "منتشرشده" : "پیش‌نویس")
+          )
+        );
+
+        item.appendChild(
+          makeElement(
+            "p",
+            "",
+            "نوع محتوا: " + postTypeLabel(post.content_type)
+          )
+        );
+
+        const actions = makeElement("div", "post-actions");
+
+        const editButton = makeElement("button", "", "ویرایش");
+        editButton.className = "secondary-button";
+        editButton.type = "button";
+        editButton.addEventListener("click", function() {
+          fillEditForm(post);
+        });
+
+        const deleteButton = makeElement("button", "", "حذف");
+        deleteButton.className = "danger-button";
+        deleteButton.type = "button";
+        deleteButton.addEventListener("click", function() {
+          deletePost(post);
+        });
+
+        const toggleButton = makeElement(
+          "button",
+          "",
+          post.is_published ? "انتقال به پیش‌نویس" : "انتشار"
+        );
+        toggleButton.className = "secondary-button";
+        toggleButton.type = "button";
+        toggleButton.addEventListener("click", function() {
+          togglePublish(post);
+        });
+
+        actions.append(editButton, toggleButton, deleteButton);
+        item.appendChild(actions);
+        list.appendChild(item);
+      });
+    }
+
+    function postTypeLabel(type) {
+      if (type === "video") return "ویدئو";
+      if (type === "mixed") return "ترکیبی";
+      return "مقاله و آموزش متنی";
+    }
+
+    // بارگذاری اطلاعات مطلب برای ویرایش
+    function fillEditForm(post) {
+      document.getElementById("edit-post-id").value = post.id;
+      document.getElementById("post-title").value = post.title || "";
+      document.getElementById("post-slug").value = post.slug || "";
+      document.getElementById("post-summary").value = post.summary || "";
+      document.getElementById("post-body").value = post.body || "";
+      document.getElementById("post-type").value =
+        post.content_type || "article";
+      document.getElementById("post-video").value =
+        post.video_url || "";
+
+      currentImagePath = post.image_path || null;
+
+      const preview = document.getElementById("image-preview");
+
+      if (currentImagePath) {
+        const { data } = supabaseClient.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(currentImagePath);
+
+        preview.src = data.publicUrl;
+        preview.classList.remove("hidden");
+      } else {
+        preview.removeAttribute("src");
+        preview.classList.add("hidden");
+      }
+
+      document.getElementById("form-title").textContent =
+        "ویرایش مطلب";
+
+      document.getElementById("cancel-edit-button")
+        .classList.remove("hidden");
+
+      showAcademyAdminMessage(
+        "اطلاعات مطلب برای ویرایش بارگذاری شد."
+      );
+
+      document.getElementById("admin-dashboard")
+        .scrollIntoView({ behavior: "smooth" });
+    }
+
+    function resetPostForm() {
+      document.getElementById("edit-post-id").value = "";
+      document.getElementById("post-title").value = "";
+      document.getElementById("post-slug").value = "";
+      document.getElementById("post-summary").value = "";
+      document.getElementById("post-body").value = "";
+      document.getElementById("post-type").value = "article";
+      document.getElementById("post-video").value = "";
+      document.getElementById("post-image").value = "";
+
+      currentImagePath = null;
+
+      const preview = document.getElementById("image-preview");
+      preview.removeAttribute("src");
+      preview.classList.add("hidden");
+
+      document.getElementById("form-title").textContent =
+        "افزودن مطلب جدید";
+
+      document.getElementById("cancel-edit-button")
+        .classList.add("hidden");
+    }
+
+    // بارگذاری تصویر در Supabase Storage
+    async function uploadPostImage(file) {
+      if (!file) return currentImagePath;
+
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif"
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error("فرمت تصویر باید JPG، PNG، WEBP یا GIF باشد.");
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error("حجم تصویر نباید بیشتر از ۵ مگابایت باشد.");
+      }
+
+      const extensionMap = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif"
+      };
+
+      const extension = extensionMap[file.type];
+      const path =
+        currentAdmin.id + "/" +
+        Date.now() + "-" +
+        Math.random().toString(36).slice(2) +
+        "." + extension;
+
+      const { data, error } = await supabaseClient.storage
+        .from(BUCKET_NAME)
+        .upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        });
+
+      if (error) throw error;
+
+      return data.path;
+    }
+
+    // ذخیره یا انتشار مطلب
+    async function savePost(publish) {
+      if (!currentAdmin) {
+        showAcademyAdminMessage(
+          "ابتدا باید با حساب مدیر وارد شوید.",
+          true
+        );
+        return;
+      }
+
+      const title =
+        document.getElementById("post-title").value.trim();
+
+      const slug =
+        document.getElementById("post-slug").value.trim();
+
+      const summary =
+        document.getElementById("post-summary").value.trim();
+
+      const body =
+        document.getElementById("post-body").value.trim();
+
+      const contentType =
+        document.getElementById("post-type").value;
+
+      const videoUrl =
+        document.getElementById("post-video").value.trim();
+
+      const imageFile =
+        document.getElementById("post-image").files[0];
+
+      const editId =
+        document.getElementById("edit-post-id").value;
+
+      if (!title) {
+        showAcademyAdminMessage(
+          "لطفاً عنوان مطلب را وارد کن.",
+          true
+        );
+        return;
+      }
+
+      if (!body && !videoUrl && !imageFile && !currentImagePath) {
+        showAcademyAdminMessage(
+          "برای مطلب، متن یا ویدئو یا تصویر وارد کن.",
+          true
+        );
+        return;
+      }
+
+      if (videoUrl && !getYouTubeEmbedUrl(videoUrl)) {
+        showAcademyAdminMessage(
+          "لینک ویدئو معتبر نیست. لطفاً لینک YouTube را وارد کن.",
+          true
+        );
+        return;
+      }
+
+      const saveButton = document.getElementById(
+        publish ? "publish-post-button" : "save-post-button"
+      );
+
+      setButtonLoading(saveButton, true, "در حال ذخیره...");
+
+      try {
+        let imagePath = currentImagePath;
+
+        if (imageFile) {
+          imagePath = await uploadPostImage(imageFile);
+        }
+
+        const now = new Date().toISOString();
+
+        const record = {
+          title: title,
+          slug: slug || null,
+          summary: summary || null,
+          body: body || null,
+          content_type: contentType,
+          image_path: imagePath || null,
+          video_url: videoUrl || null,
+          is_published: !!publish,
+          published_at: publish ? now : null,
+          updated_at: now
+        };
+
+        if (!editId) {
+          record.created_by = currentAdmin.id;
+          record.created_at = now;
+
+          const { error } = await supabaseClient
+            .from("educational_posts")
+            .insert(record);
+
+          if (error) throw error;
+
+        } else {
+          const { error } = await supabaseClient
+            .from("educational_posts")
+            .update(record)
+            .eq("id", editId);
+
+          if (error) throw error;
+        }
+
+        showAcademyAdminMessage(
+          publish
+            ? "مطلب با موفقیت ذخیره و منتشر شد."
+            : "مطلب با موفقیت به‌عنوان پیش‌نویس ذخیره شد."
+        );
+
+        resetPostForm();
+        await loadAdminPosts();
+        await loadAcademyPosts();
+
+      } catch (error) {
+        console.error("Save post error:", error);
+        showAcademyAdminMessage(
+          "ذخیره مطلب انجام نشد: " + error.message,
+          true
+        );
+      } finally {
+        setButtonLoading(saveButton, false);
+      }
+    }
+
+    // انتشار یا بازگرداندن به پیش‌نویس
+    async function togglePublish(post) {
+      if (!currentAdmin) return;
+
+      const nextState = !post.is_published;
+
+      const { error } = await supabaseClient
+        .from("educational_posts")
+        .update({
+          is_published: nextState,
+          published_at: nextState
+            ? new Date().toISOString()
+            : null,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", post.id);
+
+      if (error) {
+        showAcademyAdminMessage(
+          "تغییر وضعیت انجام نشد: " + error.message,
+          true
+        );
+        return;
+      }
+
+      showAcademyAdminMessage(
+        nextState ? "مطلب منتشر شد." : "مطلب به پیش‌نویس منتقل شد."
+      );
+
+      await loadAdminPosts();
+      await loadAcademyPosts();
+    }
+
+    // حذف مطلب و تصویر مرتبط
+    async function deletePost(post) {
+      if (!currentAdmin) return;
+
+      const confirmed = window.confirm(
+        "آیا از حذف این مطلب مطمئن هستی؟"
+      );
+
+      if (!confirmed) return;
+
+      const { error } = await supabaseClient
+        .from("educational_posts")
+        .delete()
+        .eq("id", post.id);
+
+      if (error) {
+        showAcademyAdminMessage(
+          "حذف مطلب انجام نشد: " + error.message,
+          true
+        );
+        return;
+      }
+
+      if (post.image_path) {
+        const { error: storageError } =
+          await supabaseClient.storage
+            .from(BUCKET_NAME)
+            .remove([post.image_path]);
+
+        if (storageError) {
+          console.warn(
+            "Image could not be deleted:",
+            storageError
+          );
+        }
+      }
+
+      showAcademyAdminMessage("مطلب حذف شد.");
+      await loadAdminPosts();
+      await loadAcademyPosts();
+    }
+
+    // پیش‌نمایش تصویر انتخاب‌شده
+    document.getElementById("post-image").addEventListener(
+      "change",
+      function(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById("image-preview");
+
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+          showAcademyAdminMessage(
+            "فایل انتخاب‌شده تصویر نیست.",
+            true
+          );
+          event.target.value = "";
+          return;
+        }
+
+        const objectUrl = URL.createObjectURL(file);
+        preview.src = objectUrl;
+        preview.classList.remove("hidden");
+      }
+    );
+
+    // دکمه‌های ورود و بازیابی
     document.getElementById("show-recovery").onclick =
       function() {
         loginBox.classList.add("hidden");
@@ -393,10 +1303,7 @@
             .value.trim();
 
         if (!email) {
-          showMessage(
-            "لطفاً ایمیل مدیر را وارد کنید.",
-            true
-          );
+          showMessage("لطفاً ایمیل مدیر را وارد کنید.", true);
           return;
         }
 
@@ -431,32 +1338,32 @@
           document.getElementById("admin-password").value;
 
         if (!email || !password) {
-          showMessage(
-            "ایمیل و رمز عبور را وارد کنید.",
-            true
-          );
+          showMessage("ایمیل و رمز عبور را وارد کنید.", true);
           return;
         }
 
-        const { error } =
-          await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-          });
+        const button = document.getElementById("login-button");
+        setButtonLoading(button, true, "در حال ورود...");
 
-        if (error) {
-          showMessage(
-            "ورود ناموفق بود: " + error.message,
-            true
-          );
-          return;
+        try {
+          const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+              email: email,
+              password: password
+            });
+
+          if (error) throw error;
+
+          await updateAdminInterface(data.user);
+
+        } catch (error) {
+          showMessage("ورود ناموفق بود: " + error.message, true);
+        } finally {
+          setButtonLoading(button, false);
         }
-
-        showMessage(
-          "ورود انجام شد. بررسی دسترسی مدیر و ساخت پنل مدیریت در مرحله بعد انجام می‌شود."
-        );
       };
 
+    // تغییر رمز پس از بازیابی
     supabaseClient.auth.onAuthStateChange(
       function(event) {
         if (event === "PASSWORD_RECOVERY") {
@@ -464,9 +1371,7 @@
           recoveryBox.classList.add("hidden");
           newPasswordBox.classList.remove("hidden");
 
-          showMessage(
-            "لطفاً رمز عبور جدید خود را وارد کنید."
-          );
+          showMessage("لطفاً رمز عبور جدید خود را وارد کنید.");
         }
       }
     );
@@ -514,15 +1419,84 @@
 
         newPasswordBox.classList.add("hidden");
         loginBox.classList.remove("hidden");
-        recoveryBox.classList.add("hidden");
 
         document.getElementById("admin-password").value = "";
         document.getElementById("new-password").value = "";
         document.getElementById("confirm-password").value = "";
       };
 
+    // خروج مدیر
+    document.getElementById("logout-button").onclick =
+      async function() {
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+          showMessage("خروج انجام نشد: " + error.message, true);
+          return;
+        }
+
+        currentAdmin = null;
+        adminDashboard.classList.add("hidden");
+        loginBox.classList.remove("hidden");
+        showMessage("از حساب مدیریت خارج شدی.");
+      };
+
+    // دکمه‌های فرم آکادمی
+    document.getElementById("save-post-button").onclick =
+      function() {
+        savePost(false);
+      };
+
+    document.getElementById("publish-post-button").onclick =
+      function() {
+        savePost(true);
+      };
+
+    document.getElementById("cancel-edit-button").onclick =
+      function() {
+        resetPostForm();
+        showAcademyAdminMessage("ویرایش لغو شد.");
+      };
+
+    // بازیابی نشست قبلی و بررسی مدیر بودن
+    async function checkExistingSession() {
+      const { data, error } =
+        await supabaseClient.auth.getSession();
+
+      if (error) {
+        console.error("Session check error:", error);
+        return;
+      }
+
+      if (data.session && data.session.user) {
+        await updateAdminInterface(data.session.user);
+      }
+    }
+
+    // پیگیری تغییر وضعیت ورود
+    supabaseClient.auth.onAuthStateChange(
+      function(event, session) {
+        if (event === "SIGNED_OUT") {
+          currentAdmin = null;
+          adminDashboard.classList.add("hidden");
+          loginBox.classList.remove("hidden");
+        }
+
+        if (event === "SIGNED_IN" && session && session.user) {
+          setTimeout(function() {
+            updateAdminInterface(session.user);
+          }, 0);
+        }
+      }
+    );
+
+    // شروع برنامه
     loadTournaments();
+    loadAcademyPosts();
+    checkExistingSession();
+
   </script>
 
 </body>
 </html>
+
