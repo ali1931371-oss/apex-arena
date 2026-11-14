@@ -312,6 +312,41 @@
       <div id="tournament-list"></div>
     </section>
 
+<!-- فرم ثبت‌نام بازیکنان -->
+<section class="section" id="player-registration">
+  <h2>ثبت‌نام بازیکنان</h2>
+  <p>اطلاعات خود را با دقت وارد کنید. درخواست ثبت‌نام پس از بررسی مدیر تأیید می‌شود.</p>
+
+  <form id="registration-form" class="admin-box">
+    <label for="reg-tournament">انتخاب تورنمنت</label>
+    <select id="reg-tournament" required>
+      <option value="">در حال دریافت تورنمنت‌ها...</option>
+    </select>
+
+    <label for="reg-full-name">نام و نام خانوادگی</label>
+    <input id="reg-full-name" type="text" minlength="3" maxlength="120" required>
+
+    <label for="reg-audio-id">آیدی بازیکن در اپلیکیشن صوتی</label>
+    <input id="reg-audio-id" type="text" minlength="2" maxlength="120" required>
+
+    <label for="reg-phone">شماره تماس</label>
+    <input id="reg-phone" type="tel" inputmode="tel" maxlength="25" required>
+
+    <label for="reg-username">نام کاربری انگلیسی</label>
+    <input id="reg-username" type="text" minlength="3" maxlength="30"
+      pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,29}" required>
+
+    <label for="reg-password">رمز عبور</label>
+    <input id="reg-password" type="password" minlength="12" maxlength="128" required>
+
+    <button id="registration-button" type="submit" disabled>
+      ارسال درخواست ثبت‌نام
+    </button>
+
+    <p id="registration-message" class="message" role="status"></p>
+  </form>
+</section>
+
     <!-- آکادمی عمومی -->
     <section class="section" id="academy-section">
       <h2>آکادمی APEX ARENA</h2>
@@ -590,7 +625,7 @@
         }
 
         const tournaments = await response.json();
-
+        updateRegistrationTournamentOptions(tournaments);
         status.textContent =
           "اتصال به پایگاه داده برقرار شد.";
 
@@ -652,6 +687,131 @@
         console.error(error);
       }
     }
+
+function updateRegistrationTournamentOptions(tournaments) {
+  const select = document.getElementById("reg-tournament");
+  const button = document.getElementById("registration-button");
+  const items = Array.isArray(tournaments) ? tournaments : [];
+
+  select.replaceChildren();
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = items.length
+    ? "یک تورنمنت انتخاب کنید"
+    : "تورنمنتی برای ثبت‌نام وجود ندارد";
+  select.appendChild(placeholder);
+
+  items.forEach(function(tournament) {
+    if (!tournament.tournament_id) return;
+
+    const option = document.createElement("option");
+    option.value = tournament.tournament_id;
+    option.textContent = tournament.tournament_name +
+      " — ظرفیت باقی‌مانده: " + tournament.available_slots;
+    select.appendChild(option);
+  });
+
+  button.disabled = select.options.length <= 1;
+}
+
+function normalizeRegistrationPhone(value) {
+  return value
+    .replace(/[۰-۹]/g, d => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[٠-٩]/g, d => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+}
+
+document.getElementById("registration-form").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  const button = document.getElementById("registration-button");
+  const status = document.getElementById("registration-message");
+
+  const tournamentId = document.getElementById("reg-tournament").value;
+  const fullName = document.getElementById("reg-full-name").value.trim();
+  const audioPlayerId = document.getElementById("reg-audio-id").value.trim();
+  const phone = normalizeRegistrationPhone(document.getElementById("reg-phone").value.trim());
+  const username = document.getElementById("reg-username").value.trim().toLowerCase();
+  const password = document.getElementById("reg-password").value;
+
+  status.textContent = "";
+  status.className = "message";
+
+  if (!tournamentId) {
+    status.textContent = "لطفاً یک تورنمنت انتخاب کنید.";
+    status.classList.add("error");
+    return;
+  }
+
+  if (fullName.length < 3 || audioPlayerId.length < 2) {
+    status.textContent = "نام و آیدی بازیکن را بررسی کنید.";
+    status.classList.add("error");
+    return;
+  }
+
+  if (!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(username)) {
+    status.textContent = "نام کاربری باید ۳ تا ۳۰ نویسه انگلیسی باشد.";
+    status.classList.add("error");
+    return;
+  }
+
+  if (password.length < 12 || password.length > 128) {
+    status.textContent = "رمز عبور باید بین ۱۲ تا ۱۲۸ نویسه باشد.";
+    status.classList.add("error");
+    return;
+  }
+
+  const phoneDigits = phone.replace(/[^0-9]/g, "");
+  if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+    status.textContent = "شماره تماس معتبر وارد کنید.";
+    status.classList.add("error");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "در حال ارسال...";
+
+  try {
+    const response = await fetch(SUPABASE_URL + "/functions/v1/register-player", {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        full_name: fullName,
+        audio_player_id: audioPlayerId,
+        phone: phoneDigits,
+        username: username,
+        password: password,
+        tournament_id: tournamentId
+      })
+    });
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.message || result.error || "ثبت‌نام ناموفق بود.");
+    }
+
+    status.textContent = result.message ||
+      "درخواست شما ارسال شد و در انتظار تأیید مدیر است.";
+    status.classList.add("success");
+    form.reset();
+
+  } catch (error) {
+    console.error("Registration error:", error);
+    status.textContent = error.message || "ارتباط با سامانه برقرار نشد.";
+    status.classList.add("error");
+
+  } finally {
+    button.disabled =
+      document.getElementById("reg-tournament").options.length <= 1;
+    button.textContent = "ارسال درخواست ثبت‌نام";
+  }
+});
 
     // تبدیل لینک YouTube به آدرس قابل نمایش
     function getYouTubeEmbedUrl(input) {
