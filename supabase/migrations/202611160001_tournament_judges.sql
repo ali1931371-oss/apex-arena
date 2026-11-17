@@ -353,12 +353,12 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
   SELECT t.id, t.name, t.status
   FROM public.tournaments t
   WHERE public.is_apex_manager()
   ORDER BY t.created_at DESC;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.get_tournament_judge_candidates(p_tournament_id uuid)
 RETURNS TABLE(user_id uuid, display_name text, player_code text, username text)
@@ -366,7 +366,7 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
   SELECT p.id, p.display_name, pl.player_code, p.username
   FROM public.profiles p
   JOIN public.players pl ON pl.user_id = p.id
@@ -385,7 +385,7 @@ AS $
         AND tj.is_player_restored = false
     )
   ORDER BY p.display_name;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.get_tournament_judges(p_tournament_id uuid)
 RETURNS TABLE(
@@ -400,7 +400,7 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
   SELECT p.id, p.display_name, pl.player_code, tj.is_active, tj.is_player_restored, tj.created_at
   FROM public.tournament_judges tj
   JOIN public.profiles p ON p.id = tj.judge_id
@@ -408,7 +408,7 @@ AS $
   WHERE public.is_apex_manager()
     AND tj.tournament_id = p_tournament_id
   ORDER BY tj.is_active DESC, p.display_name;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.get_tournament_matches(p_tournament_id uuid)
 RETURNS TABLE(
@@ -423,7 +423,7 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
   SELECT
     m.id,
     m.match_number,
@@ -447,7 +447,7 @@ AS $
   WHERE public.is_apex_manager()
     AND m.tournament_id = p_tournament_id
   ORDER BY m.match_number, m.created_at;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.get_my_judge_assignments()
 RETURNS TABLE(
@@ -463,7 +463,7 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
   SELECT m.id, m.tournament_id, t.name, m.match_number, m.status, m.stage_id, m.group_id
   FROM public.judge_assignments ja
   JOIN public.matches m ON m.id = ja.match_id
@@ -474,7 +474,7 @@ AS $
    AND tj.is_active = true
   WHERE ja.judge_id = (SELECT auth.uid())
   ORDER BY t.name, m.match_number;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.get_judge_match_details(p_match_id uuid)
 RETURNS jsonb
@@ -482,7 +482,7 @@ LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
 DECLARE
   v_result jsonb;
 BEGIN
@@ -559,7 +559,7 @@ BEGIN
 
   RETURN v_result;
 END;
-$;
+$$;
 
 GRANT EXECUTE ON FUNCTION public.get_manageable_tournaments() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_tournament_judge_candidates(uuid) TO authenticated;
@@ -577,7 +577,7 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
   SELECT EXISTS (
     SELECT 1
     FROM public.players pl
@@ -587,7 +587,7 @@ AS $
      AND tj.is_active = true
     WHERE pl.id = p_player_id
   );
-$;
+$$;
 
 GRANT EXECUTE ON FUNCTION public.is_tournament_judge_player(uuid, uuid) TO anon, authenticated;
 
@@ -952,7 +952,7 @@ RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
 DECLARE
   v_request public.tournament_registration_requests%ROWTYPE;
 BEGIN
@@ -987,7 +987,7 @@ BEGIN
 
   RETURN true;
 END;
-$;
+$$;
 
 -- Audit appointment and match-assignment changes using the existing audit function.
 DROP TRIGGER IF EXISTS audit_tournament_judges ON public.tournament_judges;
