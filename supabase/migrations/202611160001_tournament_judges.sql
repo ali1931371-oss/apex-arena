@@ -142,6 +142,17 @@ BEGIN
     RAISE EXCEPTION 'این حساب بازیکن تأییدشده این تورنمنت نیست.';
   END IF;
 
+  IF EXISTS (
+    SELECT 1
+    FROM public.match_players mp
+    JOIN public.matches m ON m.id = mp.match_id
+    JOIN public.players pl ON pl.id = mp.player_id
+    WHERE m.tournament_id = p_tournament_id
+      AND pl.user_id = p_judge_id
+  ) THEN
+    RAISE EXCEPTION 'این بازیکن در مسابقه‌های این تورنمنت شرکت‌کننده است؛ ابتدا وضعیت شرکت او را تعیین تکلیف کنید.';
+  END IF;
+
   INSERT INTO public.tournament_judges (
     tournament_id, judge_id, appointed_by, is_active, is_player_restored,
     created_at, revoked_by, revoked_at
