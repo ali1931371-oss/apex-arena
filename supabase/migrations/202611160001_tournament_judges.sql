@@ -295,6 +295,253 @@ ON public.match_players
 FOR EACH ROW
 EXECUTE FUNCTION public.prevent_tournament_judge_as_match_player();
 
+-- Manager-only read APIs keep private profile fields out of the browser.
+CREATE OR REPLACE FUNCTION public.get_manageable_tournaments()
+RETURNS TABLE(tournament_id uuid, tournament_name text, tournament_status text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+  SELECT t.id, t.name, t.status
+  FROM public.tournaments t
+  WHERE public.is_apex_manager()
+  ORDER BY t.created_at DESC;
+$;
+
+CREATE OR REPLACE FUNCTION public.get_tournament_judge_candidates(p_tournament_id uuid)
+RETURNS TABLE(user_id uuid, display_name text, player_code text, username text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+  SELECT p.id, p.display_name, pl.player_code, p.username
+  FROM public.profiles p
+  JOIN public.players pl ON pl.user_id = p.id
+  WHERE public.is_apex_manager()
+    AND p.role = 'player'
+    AND EXISTS (
+      SELECT 1 FROM public.tournament_registration_requests r
+      WHERE r.user_id = p.id
+        AND r.tournament_id = p_tournament_id
+        AND r.status = 'approved'
+    )
+    AND NOT EXISTS (
+      SELECT 1 FROM public.tournament_judges tj
+      WHERE tj.tournament_id = p_tournament_id
+        AND tj.judge_id = p.id
+        AND tj.is_active = true
+    )
+  ORDER BY p.display_name;
+$;
+
+CREATE OR REPLACE FUNCTION public.get_tournament_judges(p_tournament_id uuid)
+RETURNS TABLE(
+  user_id uuid,
+  display_name text,
+  player_code text,
+  is_active boolean,
+  appointed_at timestamptz
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+  SELECT p.id, p.display_name, pl.player_code, tj.is_active, tj.created_at
+  FROM public.tournament_judges tj
+  JOIN public.profiles p ON p.id = tj.judge_id
+  LEFT JOIN public.players pl ON pl.user_id = p.id
+  WHERE public.is_apex_manager()
+    AND tj.tournament_id = p_tournament_id
+  ORDER BY tj.is_active DESC, p.display_name;
+$;
+
+CREATE OR REPLACE FUNCTION public.get_tournament_matches(p_tournament_id uuid)
+RETURNS TABLE(
+  match_id uuid,
+  match_number integer,
+  match_status text,
+  stage_id uuid,
+  group_id uuid,
+  assigned_judges jsonb
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+  SELECT
+    m.id,
+    m.match_number,
+    m.status,
+    m.stage_id,
+    m.group_id,
+    COALESCE((
+      SELECT jsonb_agg(jsonb_build_object(
+        'user_id', p.id,
+        'display_name', p.display_name
+      ) ORDER BY p.display_name)
+      FROM public.judge_assignments ja
+      JOIN public.profiles p ON p.id = ja.judge_id
+      JOIN public.tournament_judges tj
+        ON tj.tournament_id = m.tournament_id
+       AND tj.judge_id = ja.judge_id
+       AND tj.is_active = true
+      WHERE ja.match_id = m.id
+    ), '[]'::jsonb)
+  FROM public.matches m
+  WHERE public.is_apex_manager()
+    AND m.tournament_id = p_tournament_id
+  ORDER BY m.match_number, m.created_at;
+$;
+
+CREATE OR REPLACE FUNCTION public.get_my_judge_assignments()
+RETURNS TABLE(
+  match_id uuid,
+  tournament_id uuid,
+  tournament_name text,
+  match_number integer,
+  match_status text,
+  stage_id uuid,
+  group_id uuid
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+  SELECT m.id, m.tournament_id, t.name, m.match_number, m.status, m.stage_id, m.group_id
+  FROM public.judge_assignments ja
+  JOIN public.matches m ON m.id = ja.match_id
+  JOIN public.tournaments t ON t.id = m.tournament_id
+  JOIN public.tournament_judges tj
+    ON tj.tournament_id = m.tournament_id
+   AND tj.judge_id = ja.judge_id
+   AND tj.is_active = true
+  WHERE ja.judge_id = (SELECT auth.uid())
+  ORDER BY t.name, m.match_number;
+$;
+
+CREATE OR REPLACE FUNCTION public.get_judge_match_details(p_match_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+DECLARE
+  v_result jsonb;
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_assigned_tournament_judge(p_match_id) THEN
+    RAISE EXCEPTION 'شما داور این مسابقه نیستید.';
+  END IF;
+
+  SELECT jsonb_build_object(
+    'match', jsonb_build_object(
+      'id', m.id,
+      'tournament_id', m.tournament_id,
+      'match_number', m.match_number,
+      'status', m.status,
+      'stage_id', m.stage_id,
+      'group_id', m.group_id
+    ),
+    'players', COALESCE((
+      SELECT jsonb_agg(jsonb_build_object(
+        'player_id', pl.id,
+        'display_name', pl.display_name,
+        'player_code', pl.player_code,
+        'audio_player_id', pl.audio_player_id
+      ) ORDER BY mp.seat_number)
+      FROM public.match_players mp
+      JOIN public.players pl ON pl.id = mp.player_id
+      WHERE mp.match_id = m.id
+        AND NOT EXISTS (
+          SELECT 1 FROM public.tournament_judges tj
+          WHERE tj.tournament_id = m.tournament_id
+            AND tj.judge_id = pl.user_id
+            AND tj.is_active = true
+        )
+    ), '[]'::jsonb),
+    'criteria', COALESCE((
+      SELECT jsonb_agg(jsonb_build_object(
+        'id', tc.id,
+        'criterion_name', tc.criterion_name,
+        'description', tc.description,
+        'min_points', tc.min_points,
+        'max_points', tc.max_points,
+        'weight', tc.weight,
+        'score_type', tc.score_type,
+        'calculation_type', tc.calculation_type,
+        'aggregation_method', tc.aggregation_method,
+        'display_order', tc.display_order
+      ) ORDER BY tc.display_order)
+      FROM public.tournament_criteria tc
+      WHERE tc.tournament_id = m.tournament_id
+        AND tc.is_active = true
+    ), '[]'::jsonb),
+    'submissions', COALESCE((
+      SELECT jsonb_agg(jsonb_build_object(
+        'id', ss.id,
+        'player_id', ss.player_id,
+        'status', ss.status,
+        'items', COALESCE((
+          SELECT jsonb_agg(jsonb_build_object(
+            'criterion_id', si.criterion_id,
+            'raw_points', si.raw_points,
+            'notes', si.notes
+          ))
+          FROM public.score_items si
+          WHERE si.submission_id = ss.id
+        ), '[]'::jsonb)
+      ))
+      FROM public.score_submissions ss
+      WHERE ss.match_id = m.id
+        AND ss.judge_id = auth.uid()
+    ), '[]'::jsonb)
+  )
+  INTO v_result
+  FROM public.matches m
+  WHERE m.id = p_match_id;
+
+  RETURN v_result;
+END;
+$;
+
+GRANT EXECUTE ON FUNCTION public.get_manageable_tournaments() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_tournament_judge_candidates(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_tournament_judges(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_tournament_matches(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_my_judge_assignments() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_judge_match_details(uuid) TO authenticated;
+
+-- Hide appointed tournament judges from the public participant roster.
+DROP POLICY IF EXISTS public_view_match_players ON public.match_players;
+CREATE POLICY public_view_match_players
+ON public.match_players
+FOR SELECT
+TO anon, authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM public.matches m
+    JOIN public.tournaments t ON t.id = m.tournament_id
+    WHERE m.id = match_players.match_id
+      AND m.status <> 'cancelled'
+      AND t.status IN ('registration', 'active', 'completed')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM public.players pl
+        JOIN public.tournament_judges tj
+          ON tj.judge_id = pl.user_id
+         AND tj.tournament_id = m.tournament_id
+         AND tj.is_active = true
+        WHERE pl.id = match_players.player_id
+      )
+  )
+);
+
 -- Judge can read only their own submissions and create submissions for assigned matches.
 DROP POLICY IF EXISTS judge_read_own_score_submissions ON public.score_submissions;
 CREATE POLICY judge_read_own_score_submissions
