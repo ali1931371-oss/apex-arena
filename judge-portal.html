@@ -73,7 +73,9 @@ function renderPlayers(){
  if(!players.length){box.append(node("p","برای این مسابقه بازیکنی ثبت نشده است.","muted"));return}
  if(!criteria.length){box.append(node("p","برای این تورنمنت معیار امتیازدهی فعال تعریف نشده است. با مدیر تماس بگیر.","error"));return}
  players.forEach(player=>{
-  const existing=submissions.find(s=>s.player_id===player.player_id),locked=existing&&existing.status!=="draft";
+  const found=submissions.find(s=>s.player_id===player.player_id);
+  const existing=found?{...found,items:[...(found.items||[])]}:{id:null,player_id:player.player_id,status:"draft",items:[]};
+  const locked=existing.status!=="draft";
   const card=node("article",undefined,"card"),head=node("div",undefined,"player-title");
   head.append(node("h3",player.display_name+" — "+(player.player_code||"بدون کد")),node("span",locked?"ارسال‌شده":"پیش‌نویس / جدید","pill"));card.append(head);
   const inputMap=new Map(),existingItems=(existing?.items)||[];
@@ -87,14 +89,14 @@ function renderPlayers(){
   const actions=node("div",undefined,"actions");
   const save=node("button","ذخیره پیش‌نویس");save.className="secondary";save.disabled=!!locked;
   const submit=node("button","ارسال نهایی امتیاز");submit.disabled=!!locked;
-  save.onclick=()=>saveScore(player,inputMap,existing,false,save,submit);
-  submit.onclick=()=>{if(confirm("پس از ارسال نهایی، این امتیاز برای داور قفل می‌شود. ارسال شود؟"))saveScore(player,inputMap,existing,true,save,submit)};
+  save.onclick=()=>saveScore(player,inputMap,existing,false,save,submit,card);
+  submit.onclick=()=>{if(confirm("پس از ارسال نهایی، این امتیاز برای داور قفل می‌شود. ارسال شود؟"))saveScore(player,inputMap,existing,true,save,submit,card)};
   actions.append(save,submit);card.append(actions);
   if(locked)card.append(node("p","این ارزیابی ارسال شده و دیگر قابل ویرایش نیست.","success"));
   box.append(card);
  });
 }
-async function saveScore(player,inputMap,existing,finalize,saveButton,submitButton){
+async function saveScore(player,inputMap,existing,finalize,saveButton,submitButton,card){
  const match=currentDetails.match;
  if(!["live","submitted"].includes(match.status)){setStatus("pageStatus","ثبت امتیاز فقط هنگام اجرای مسابقه یا مرحله ثبت نتایج مجاز است.",true);return}
  const criteria=currentDetails.criteria||[],items=[];
@@ -107,20 +109,25 @@ async function saveScore(player,inputMap,existing,finalize,saveButton,submitButt
  }
  saveButton.disabled=true;submitButton.disabled=true;
  try{
-  let submissionId=existing?.id;
+  let submissionId=existing.id;
   if(!submissionId){
    const {data,error}=await db.from("score_submissions").insert({id:crypto.randomUUID(),match_id:match.id,player_id:player.player_id,judge_id:user.id,status:"draft"}).select("id").single();
-   if(error)throw error;submissionId=data.id;
+   if(error)throw error;submissionId=data.id;existing.id=submissionId;
   }else if(existing.status!=="draft"){throw new Error("این ارزیابی قبلاً ارسال شده است.")}
   const del=await db.from("score_items").delete().eq("submission_id",submissionId);if(del.error)throw del.error;
   const rows=items.map(item=>({id:item.id,submission_id:submissionId,criterion_id:item.criterion_id,raw_points:item.raw_points,notes:item.notes}));
   const ins=await db.from("score_items").insert(rows);if(ins.error)throw ins.error;
   if(finalize){
-   const upd=await db.from("score_submissions").update({status:"submitted",submitted_at:new Date().toISOString()}).eq("id",submissionId).eq("status","draft");
+   const upd=await db.from("score_submissions").update({status:"submitted",submitted_at:new Date().toISOString()}).eq("id",submissionId).eq("status","draft").select("id").single();
    if(upd.error)throw upd.error;
   }
+  existing.items=items.map(item=>({criterion_id:item.criterion_id,raw_points:item.raw_points,notes:item.notes}));
+  existing.status=finalize?"submitted":"draft";
+  const savedIndex=currentDetails.submissions.findIndex(s=>s.player_id===player.player_id);
+  if(savedIndex>=0)currentDetails.submissions[savedIndex]=existing;else currentDetails.submissions.push(existing);
+  const pill=card.querySelector(".pill");if(pill)pill.textContent=finalize?"ارسال‌شده":"پیش‌نویس ذخیره‌شده";
   setStatus("pageStatus",finalize?"امتیاز این بازیکن با موفقیت ارسال و قفل شد.":"پیش‌نویس امتیاز این بازیکن ذخیره شد.");
-  await loadMatch(match.id);
+  if(finalize){card.querySelectorAll("input,button").forEach(control=>control.disabled=true);card.append(node("p","این ارزیابی ارسال شده و دیگر قابل ویرایش نیست.","success"))}
  }catch(e){setStatus("pageStatus","ذخیره امتیاز انجام نشد: "+e.message,true);saveButton.disabled=false;submitButton.disabled=false}
 }
 $("loginButton").addEventListener("click",signIn);
