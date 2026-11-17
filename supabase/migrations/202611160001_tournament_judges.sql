@@ -10,13 +10,19 @@ CREATE TABLE IF NOT EXISTS public.tournament_judges (
   judge_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
   appointed_by uuid NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
   is_active boolean NOT NULL DEFAULT true,
+  is_player_restored boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now(),
   revoked_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   revoked_at timestamptz,
   UNIQUE (tournament_id, judge_id),
   CONSTRAINT tournament_judges_revocation_check
-    CHECK ((is_active AND revoked_at IS NULL) OR (NOT is_active AND revoked_at IS NOT NULL))
+    CHECK ((is_active AND revoked_at IS NULL) OR (NOT is_active AND revoked_at IS NOT NULL)),
+  CONSTRAINT tournament_judges_restoration_check
+    CHECK (NOT (is_active AND is_player_restored))
 );
+
+ALTER TABLE public.tournament_judges
+  ADD COLUMN IF NOT EXISTS is_player_restored boolean NOT NULL DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS tournament_judges_active_lookup
   ON public.tournament_judges (tournament_id, judge_id)
@@ -137,13 +143,15 @@ BEGIN
   END IF;
 
   INSERT INTO public.tournament_judges (
-    tournament_id, judge_id, appointed_by, is_active, created_at, revoked_by, revoked_at
+    tournament_id, judge_id, appointed_by, is_active, is_player_restored,
+    created_at, revoked_by, revoked_at
   )
-  VALUES (p_tournament_id, p_judge_id, auth.uid(), true, now(), NULL, NULL)
+  VALUES (p_tournament_id, p_judge_id, auth.uid(), true, false, now(), NULL, NULL)
   ON CONFLICT (tournament_id, judge_id)
   DO UPDATE SET
     appointed_by = EXCLUDED.appointed_by,
     is_active = true,
+    is_player_restored = false,
     created_at = now(),
     revoked_by = NULL,
     revoked_at = NULL
@@ -153,29 +161,72 @@ BEGIN
 END;
 $$;
 
+DROP FUNCTION IF EXISTS public.revoke_tournament_judge(uuid, uuid);
+
 CREATE OR REPLACE FUNCTION public.revoke_tournament_judge(
   p_tournament_id uuid,
-  p_judge_id uuid
+  p_judge_id uuid,
+  p_restore_as_player boolean DEFAULT false
 )
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $$
+DECLARE
+  v_settings record;
+  v_player_count integer;
 BEGIN
   IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
     RAISE EXCEPTION 'فقط مدیر یا مسئول مجاز می‌تواند انتصاب داور را لغو کند.';
   END IF;
 
+  IF p_restore_as_player THEN
+    SELECT s.* INTO v_settings
+    FROM public.tournament_registration_settings s
+    WHERE s.tournament_id = p_tournament_id
+    FOR UPDATE;
+
+    IF FOUND AND v_settings.registration_open THEN
+      SELECT count(DISTINCT r.user_id)::integer INTO v_player_count
+      FROM public.tournament_registration_requests r
+      JOIN public.profiles p ON p.id = r.user_id AND p.role = 'player'
+      JOIN public.players pl ON pl.user_id = r.user_id
+      WHERE r.tournament_id = p_tournament_id
+        AND r.status = 'approved'
+        AND NOT EXISTS (
+          SELECT 1 FROM public.tournament_judges tj
+          WHERE tj.tournament_id = r.tournament_id
+            AND tj.judge_id = r.user_id
+            AND tj.is_player_restored = false
+        );
+
+      IF v_player_count >= v_settings.max_players THEN
+        RAISE EXCEPTION 'ظرفیت بازیکنان تکمیل است؛ بازگردانی به بازیکن ممکن نیست.';
+      END IF;
+    END IF;
+  END IF;
+
   UPDATE public.tournament_judges
   SET is_active = false,
+      is_player_restored = p_restore_as_player,
       revoked_by = auth.uid(),
       revoked_at = now()
   WHERE tournament_id = p_tournament_id
     AND judge_id = p_judge_id
     AND is_active = true;
 
-  RETURN FOUND;
+  IF NOT FOUND THEN
+    RETURN false;
+  END IF;
+
+  DELETE FROM public.judge_assignments ja
+  USING public.matches m
+  WHERE ja.match_id = m.id
+    AND m.tournament_id = p_tournament_id
+    AND ja.judge_id = p_judge_id;
+
+  RETURN true;
 END;
 $$;
 
@@ -255,7 +306,7 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.appoint_tournament_judge(uuid, uuid) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.revoke_tournament_judge(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.revoke_tournament_judge(uuid, uuid, boolean) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.assign_judge_to_match(uuid, uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.unassign_judge_from_match(uuid, uuid) TO authenticated;
 
@@ -331,7 +382,7 @@ AS $
       SELECT 1 FROM public.tournament_judges tj
       WHERE tj.tournament_id = p_tournament_id
         AND tj.judge_id = p.id
-        AND tj.is_active = true
+        AND tj.is_player_restored = false
     )
   ORDER BY p.display_name;
 $;
@@ -342,6 +393,7 @@ RETURNS TABLE(
   display_name text,
   player_code text,
   is_active boolean,
+  is_player_restored boolean,
   appointed_at timestamptz
 )
 LANGUAGE sql
@@ -349,7 +401,7 @@ STABLE
 SECURITY DEFINER
 SET search_path = ''
 AS $
-  SELECT p.id, p.display_name, pl.player_code, tj.is_active, tj.created_at
+  SELECT p.id, p.display_name, pl.player_code, tj.is_active, tj.is_player_restored, tj.created_at
   FROM public.tournament_judges tj
   JOIN public.profiles p ON p.id = tj.judge_id
   LEFT JOIN public.players pl ON pl.user_id = p.id
@@ -461,7 +513,7 @@ BEGIN
           SELECT 1 FROM public.tournament_judges tj
           WHERE tj.tournament_id = m.tournament_id
             AND tj.judge_id = pl.user_id
-            AND tj.is_active = true
+            AND tj.is_player_restored = false
         )
     ), '[]'::jsonb),
     'criteria', COALESCE((
@@ -727,7 +779,7 @@ AS $$
           FROM public.tournament_judges tj
           WHERE tj.tournament_id = t.id
             AND tj.judge_id = r.user_id
-            AND tj.is_active = true
+            AND tj.is_player_restored = false
         )
     ),
     greatest(
