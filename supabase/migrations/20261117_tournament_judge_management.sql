@@ -796,6 +796,39 @@ create trigger audit_judge_assignments
 after insert or update or delete on public.judge_assignments
 for each row execute function public.log_score_changes();
 
+
+create or replace function public.get_tournament_judge_roster(p_tournament_id uuid)
+returns table (
+  user_id uuid,
+  display_name text,
+  player_code text,
+  audio_player_id text,
+  assigned_at timestamptz,
+  revoked_at timestamptz,
+  note text
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $
+begin
+  if not public.is_apex_manager() then
+    raise exception 'اجازه مشاهده فهرست داوران را ندارید.';
+  end if;
+
+  return query
+  select tj.user_id, p.display_name, pl.player_code, pl.audio_player_id,
+         tj.assigned_at, tj.revoked_at, tj.note
+  from public.tournament_judges tj
+  join public.profiles p on p.id = tj.user_id
+  left join public.players pl on pl.user_id = tj.user_id
+  where tj.tournament_id = p_tournament_id
+  order by tj.revoked_at nulls first, p.display_name;
+end;
+$;
+
+revoke all on function public.get_tournament_judge_roster(uuid) from public;
 revoke all on function public.get_eligible_tournament_judges(uuid) from public;
 revoke all on function public.appoint_tournament_judge(uuid, uuid, text) from public;
 revoke all on function public.assign_judge_to_match(uuid, uuid) from public;
@@ -806,6 +839,7 @@ revoke all on function public.get_open_tournaments() from public;
 revoke all on function public.review_registration(uuid, text, text) from public;
 revoke all on function public.approve_player_registration(uuid) from public;
 
+grant execute on function public.get_tournament_judge_roster(uuid) to authenticated;
 grant execute on function public.get_eligible_tournament_judges(uuid) to authenticated;
 grant execute on function public.appoint_tournament_judge(uuid, uuid, text) to authenticated;
 grant execute on function public.assign_judge_to_match(uuid, uuid) to authenticated;
