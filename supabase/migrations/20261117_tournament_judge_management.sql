@@ -42,11 +42,11 @@ alter table public.judge_assignments
 alter table public.tournament_judges enable row level security;
 
 drop policy if exists tournament_judges_manager_access on public.tournament_judges;
-create policy tournament_judges_manager_access
+drop policy if exists tournament_judges_manager_read on public.tournament_judges;
+create policy tournament_judges_manager_read
 on public.tournament_judges
-for all to authenticated
-using ((select public.is_apex_manager()))
-with check ((select public.is_apex_manager()));
+for select to authenticated
+using ((select public.is_apex_manager()));
 
 drop policy if exists tournament_judges_read_own on public.tournament_judges;
 create policy tournament_judges_read_own
@@ -56,11 +56,11 @@ using (user_id = (select auth.uid()));
 
 drop policy if exists apex_admin_full_access on public.judge_assignments;
 drop policy if exists judge_assignments_manager_access on public.judge_assignments;
-create policy judge_assignments_manager_access
+drop policy if exists judge_assignments_manager_read on public.judge_assignments;
+create policy judge_assignments_manager_read
 on public.judge_assignments
-for all to authenticated
-using ((select public.is_apex_manager()))
-with check ((select public.is_apex_manager()));
+for select to authenticated
+using ((select public.is_apex_manager()));
 
 drop policy if exists judge_assignments_read_own_active on public.judge_assignments;
 create policy judge_assignments_read_own_active
