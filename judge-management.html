@@ -1,56 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101010">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
 <title>مدیریت داوران | APEX ARENA</title>
 <style>
-:root{color-scheme:dark;--bg:#101010;--panel:#191919;--line:#59451e;--gold:#d8b45a;--text:#f5f0df;--muted:#c0b69e;--green:#8be0a2;--red:#ff8c8c}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0,#30240e,#101010 60%);color:var(--text);font-family:Tahoma,Arial,sans-serif;line-height:2}
-main{max-width:1000px;margin:auto;padding:24px 14px 60px}header,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1,h2,h3{color:var(--gold);margin-top:0}h1{font-size:25px}h2{font-size:19px}p{color:var(--muted)}
-input,select,textarea{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font:inherit}
-button,.button{display:inline-block;padding:10px 15px;border:0;border-radius:8px;background:var(--gold);color:#17120a;font:inherit;font-weight:bold;text-decoration:none;cursor:pointer}
-button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;color:var(--text);border:1px solid var(--line)}.danger{background:#7d2828;color:white}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{border:1px solid #51401e;border-radius:10px;padding:14px;margin:10px 0;background:#202020}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.muted{font-size:13px;color:var(--muted)}.status{white-space:pre-wrap}.error{color:var(--red)}.success{color:var(--green)}.hidden{display:none!important}.pill{display:inline-block;padding:2px 9px;border-radius:30px;background:#342a16;color:#f1d68e;font-size:12px}.revoked{opacity:.65}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:120px}
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+header,.panel{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+main{max-width:1050px;margin:auto;padding:18px 14px 55px}h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:23px}h2{font-size:19px}p{color:#cfc6b2}
+label{display:block;color:#e4c46e;margin:12px 0 6px}input,select{width:100%;padding:12px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font:inherit}
+button,.link{display:inline-block;padding:11px 14px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 0}
+button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;color:#f5f0df;border:1px solid #80652e}.danger{background:#7d2828;color:white}
+.hidden{display:none!important}.muted{color:#aaa;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}.card{border:1px solid #51401f;border-radius:10px;padding:14px;margin:10px 0;background:#202020}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:180px}
+.chip{display:inline-block;border:1px solid #80652e;border-radius:30px;padding:3px 10px;font-size:12px;margin:3px}.assigned{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media(max-width:600px){header{display:block;text-align:center}.actions button{width:100%}}
 </style>
 </head>
 <body>
 <main>
-<header>
-  <div><h1>APEX ARENA</h1><div class="muted">پنل امن مدیریت داوران تورنمنت</div></div>
-  <div class="row" style="flex:0 1 auto"><a class="button secondary" href="index.html">بازگشت به سایت</a><button id="logout" class="danger hidden" type="button">خروج</button></div>
-</header>
+<header><div><h1>APEX ARENA | مدیریت داوران</h1><div class="muted">انتصاب تورنمنت‌محور و تخصیص امن مسابقه‌ها</div></div><a class="link secondary" href="index.html">بازگشت به سایت</a></header>
 <section id="loginPanel" class="panel">
-  <h2>ورود مدیر یا مدیر اجرایی</h2>
-  <p>برای مدیریت انتصاب داوران، با حساب دارای نقش مدیر یا مدیر اجرایی وارد شوید.</p>
-  <label for="email">ایمیل</label><input id="email" type="email" autocomplete="username">
-  <label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
-  <button id="login" type="button">ورود</button>
-  <p id="loginStatus" class="status" role="status"></p>
+<h2>ورود مدیر یا مسئول مسابقه</h2><p>فقط حساب دارای نقش admin یا manager اجازه مدیریت داوران را دارد.</p>
+<label for="email">ایمیل</label><input id="email" type="email" autocomplete="username">
+<label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
+<button id="loginButton">ورود</button><p id="loginStatus" class="status" role="status"></p>
 </section>
-<section id="managerPanel" class="hidden">
-  <section class="panel">
-    <h2>انتخاب تورنمنت</h2>
-    <select id="tournamentSelect"><option value="">در حال دریافت تورنمنت‌ها...</option></select>
-    <p class="muted">انتصاب داور در این نسخه مخصوص همان تورنمنت است؛ نقش عمومی حساب کاربر تغییر نمی‌کند.</p>
-    <p id="pageStatus" class="status" role="status"></p>
-  </section>
-  <section class="panel">
-    <h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2>
-    <p>فقط بازیکنان تأییدشده‌ای نمایش داده می‌شوند که هنوز در ترکیب هیچ مسابقه‌ای از این تورنمنت ثبت نشده‌اند.</p>
-    <div id="eligibleList"></div>
-  </section>
-  <section class="panel">
-    <h2>داوران منصوب‌شده</h2>
-    <div id="judgeList"></div>
-  </section>
-  <section class="panel">
-    <h2>تخصیص مسابقه‌ها</h2>
-    <p>هر داور فقط مسابقه‌هایی را می‌بیند که به او تخصیص داده شده‌اند. لغو تخصیص، دسترسی بعدی او به آن مسابقه را می‌بندد و سوابق قبلی را حذف نمی‌کند.</p>
-    <div id="assignmentList"></div>
-  </section>
+<section id="dashboard" class="hidden">
+<section class="panel"><div class="grid"><div><h2>انتخاب تورنمنت</h2><p class="muted">نقش داور فقط در همین تورنمنت اعمال می‌شود؛ نقش عمومی حساب تغییر نمی‌کند.</p></div><div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select></div><div><button id="refreshButton" class="secondary">به‌روزرسانی</button><button id="logoutButton" class="danger">خروج</button></div></div><p id="dashboardStatus" class="status" role="status"></p></section>
+<section class="panel"><h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2><p>فقط بازیکن تأییدشده همان تورنمنت قابل انتخاب است. پیش از انتصاب، نباید در مسابقه‌های آن تورنمنت به‌عنوان بازیکن ثبت شده باشد.</p><div class="grid"><div><label for="candidateSelect">بازیکن واجد شرایط</label><select id="candidateSelect"><option value="">انتخاب بازیکن</option></select></div><div><button id="appointButton">انتصاب به‌عنوان داور</button></div></div><p id="candidateStatus" class="status"></p></section>
+<section class="panel"><h2>داوران تورنمنت</h2><p class="muted">هنگام لغو داوری، می‌توانی تعیین کنی شخص به فهرست بازیکنان همین تورنمنت برگردد یا خیر.</p><div id="judgeList"></div></section>
+<section class="panel"><h2>تخصیص مسابقه به داور</h2><p>داور فقط به مسابقه‌هایی دسترسی دارد که اینجا به او تخصیص داده شده‌اند.</p><div id="matchList"></div></section>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -60,125 +41,101 @@ const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
 const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
-let currentUser=null, tournaments=[], eligible=[], judges=[], matches=[], assignments=[];
-function el(tag,text,className){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n}
-function status(text,error=false){$("pageStatus").textContent=text||"";$("pageStatus").className="status "+(error?"error":"success")}
-function showLogin(text,error=false){$("loginStatus").textContent=text||"";$("loginStatus").className="status "+(error?"error":"success")}
-function addButton(parent,label,handler,cls=""){const b=el("button",label,cls);b.type="button";b.addEventListener("click",handler);parent.appendChild(b);return b}
-async function authorize(user){
-  if(!user){currentUser=null;$("managerPanel").classList.add("hidden");$("loginPanel").classList.remove("hidden");$("logout").classList.add("hidden");return false}
-  const {data,error}=await db.from("profiles").select("role,display_name").eq("id",user.id).maybeSingle();
-  if(error||!data||!["admin","manager"].includes(data.role)){
-    currentUser=null;$("managerPanel").classList.add("hidden");$("loginPanel").classList.remove("hidden");$("logout").classList.toggle("hidden",!user);
-    showLogin(error?"بررسی نقش حساب انجام نشد: "+error.message:"این حساب مجوز مدیریت داوران ندارد.",true);return false;
-  }
-  currentUser=user;$("loginPanel").classList.add("hidden");$("managerPanel").classList.remove("hidden");$("logout").classList.remove("hidden");
-  await loadTournaments();return true;
+let tournaments=[],judges=[],matches=[];
+function node(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function setStatus(id,text,error=false){$(id).textContent=text||"";$(id).className="status "+(error?"error":text?"success":"")}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+async function checkManager(user){
+ const {data,error}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
+ if(error)throw error;if(!data||!["admin","manager"].includes(data.role))throw new Error("این حساب مجوز مدیریت داوران را ندارد.");
+}
+async function signIn(){
+ const b=$("loginButton");b.disabled=true;setStatus("loginStatus","در حال ورود...");
+ try{const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;await checkManager(data.user);$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");await loadTournaments()}
+ catch(e){await db.auth.signOut();setStatus("loginStatus",e.message,true)}
+ finally{b.disabled=false}
 }
 async function loadTournaments(){
-  status("در حال دریافت تورنمنت‌ها...");
-  const {data,error}=await db.from("tournaments").select("id,name,status").order("created_at",{ascending:false});
-  if(error){status("دریافت تورنمنت‌ها ناموفق بود: "+error.message,true);return}
-  tournaments=data||[];$("tournamentSelect").replaceChildren(el("option","انتخاب تورنمنت"));$("tournamentSelect").firstChild.value="";
-  tournaments.forEach(t=>{const o=el("option",t.name+" — "+t.status);o.value=t.id;$("tournamentSelect").appendChild(o)});
-  status(tournaments.length?"تورنمنت را انتخاب کن.":"تورنمنتی پیدا نشد.",!tournaments.length);
+ setStatus("dashboardStatus","در حال دریافت تورنمنت‌ها...");
+ try{tournaments=await rpc("get_manageable_tournaments");const s=$("tournamentSelect");s.replaceChildren(node("option","انتخاب تورنمنت"));s.firstChild.value="";(tournaments||[]).forEach(t=>{const o=node("option",t.tournament_name+" — "+t.tournament_status);o.value=t.tournament_id;s.append(o)});if(tournaments.length){s.value=tournaments[0].tournament_id;await loadTournamentData()}else{clearLists();setStatus("dashboardStatus","تورنمنتی برای مدیریت وجود ندارد.",true)}}
+ catch(e){setStatus("dashboardStatus","خطا در دریافت تورنمنت‌ها: "+e.message,true)}
 }
+function clearLists(){$("candidateSelect").replaceChildren(node("option","تورنمنتی انتخاب نشده"));$("judgeList").replaceChildren();$("matchList").replaceChildren()}
 async function loadTournamentData(){
-  const tid=$("tournamentSelect").value;
-  $("eligibleList").replaceChildren();$("judgeList").replaceChildren();$("assignmentList").replaceChildren();
-  if(!tid){status("ابتدا یک تورنمنت انتخاب کن.");return}
-  status("در حال دریافت فهرست داوران و مسابقه‌ها...");
-  const [e,j,m]=await Promise.all([
-    db.rpc("list_eligible_tournament_judges",{p_tournament_id:tid}),
-    db.rpc("list_tournament_judges",{p_tournament_id:tid}),
-    db.from("matches").select("id,match_number,status").eq("tournament_id",tid).neq("status","cancelled").order("match_number")
-  ]);
-  if(e.error||j.error||m.error){status("دریافت اطلاعات کامل نشد: "+[e.error,j.error,m.error].filter(Boolean).map(x=>x.message).join(" | "),true);return}
-  eligible=e.data||[];judges=j.data||[];matches=m.data||[];
-  const active=judges.filter(x=>x.status==="active");
-  const matchIds=matches.map(x=>x.id);
-  if(matchIds.length){
-    const a=await db.from("judge_assignments").select("match_id,judge_id,assigned_at").in("match_id",matchIds);
-    if(a.error){status("دریافت تخصیص مسابقه‌ها ناموفق بود: "+a.error.message,true);return}
-    assignments=a.data||[];
-  }else assignments=[];
-  renderEligible();renderJudges();renderAssignments();
-  status("اطلاعات به‌روزرسانی شد. "+eligible.length+" بازیکن واجد شرایط، "+active.length+" داور فعال و "+matches.length+" مسابقه.");
+ const tid=$("tournamentSelect").value;if(!tid){clearLists();return}
+ setStatus("dashboardStatus","در حال دریافت اطلاعات...");
+ try{const [c,j,m]=await Promise.all([
+  rpc("get_tournament_judge_candidates",{p_tournament_id:tid}),
+  rpc("get_tournament_judges",{p_tournament_id:tid}),
+  rpc("get_tournament_matches",{p_tournament_id:tid})
+ ]);judges=j||[];matches=m||[];renderCandidates(c||[]);renderJudges();renderMatches();setStatus("dashboardStatus","اطلاعات به‌روزرسانی شد. "+(c||[]).length+" بازیکن واجد شرایط، "+judges.filter(x=>x.is_active).length+" داور فعال و "+matches.length+" مسابقه.");}
+ catch(e){setStatus("dashboardStatus","خطا در دریافت اطلاعات: "+e.message,true)}
 }
-function renderEligible(){
-  const box=$("eligibleList");box.replaceChildren();
-  if(!eligible.length){box.appendChild(el("p","بازیکن واجد شرایطی برای انتصاب وجود ندارد.","muted"));return}
-  eligible.forEach(person=>{
-    const card=el("article",undefined,"card");
-    card.appendChild(el("h3",person.display_name||"بدون نام"));
-    card.appendChild(el("p","کد بازیکن: "+(person.player_code||"—"),"muted"));
-    card.appendChild(el("p","آیدی صوتی: "+(person.audio_player_id||"—"),"muted"));
-    addButton(card,"انتصاب به‌عنوان داور",async()=>{
-      if(!confirm("این بازیکن برای همین تورنمنت داور می‌شود و دیگر در ظرفیت بازیکنان این تورنمنت شمرده نخواهد شد. ادامه می‌دهی؟"))return;
-      const {error}=await db.rpc("assign_tournament_judge",{p_tournament_id:$("tournamentSelect").value,p_judge_id:person.judge_id});
-      if(error){status("انتصاب انجام نشد: "+error.message,true);return}await loadTournamentData();
-    });
-    box.appendChild(card);
-  });
+function renderCandidates(rows){
+ const s=$("candidateSelect");s.replaceChildren(node("option","انتخاب بازیکن"));
+ rows.forEach(p=>{const o=node("option",p.display_name+" — "+(p.player_code||"بدون کد"));o.value=p.user_id;s.append(o)});
+ if(!rows.length)s.append(node("option","بازیکن واجد شرایطی وجود ندارد"));
+ setStatus("candidateStatus",rows.length?rows.length+" بازیکن واجد شرایط پیدا شد.":"بازیکن واجد شرایطی برای انتصاب وجود ندارد.");
 }
 function renderJudges(){
-  const box=$("judgeList");box.replaceChildren();
-  if(!judges.length){box.appendChild(el("p","هنوز داوری برای این تورنمنت منصوب نشده است.","muted"));return}
-  judges.forEach(person=>{
-    const card=el("article",undefined,"card"+(person.status==="revoked"?" revoked":""));
-    const title=el("div",undefined,"row");title.append(el("h3",person.display_name||"بدون نام"),el("span",person.status==="revoked"?"لغوشده":"داور فعال","pill"));card.appendChild(title);
-    card.appendChild(el("p","کد بازیکن: "+(person.player_code||"—"),"muted"));
-    card.appendChild(el("p","تعداد بازی‌های تخصیص‌یافته: "+(person.assigned_match_count||0),"muted"));
-    if(person.status==="revoked")card.appendChild(el("p",person.restore_as_player?"پس از عزل به فهرست بازیکنان بازگشته است.":"پس از عزل از فهرست بازیکنان خارج مانده است.","muted"));
-    if(person.status==="active")addButton(card,"لغو انتصاب در این تورنمنت",async()=>{
-      if(!confirm("انتصاب این داور و تمام تخصیص‌های فعال او در این تورنمنت لغو شود؟ سوابق قبلی حذف نمی‌شوند."))return;
-      const restore=confirm("آیا پس از عزل، این فرد دوباره بازیکن همین تورنمنت محسوب شود؟\nتأیید = بازگشت به بازیکنی؛ لغو = باقی‌ماندن خارج از فهرست بازیکنان.");
-      const {data,error}=await db.rpc("revoke_tournament_judge",{p_tournament_id:$("tournamentSelect").value,p_judge_id:person.judge_id,p_restore_as_player:restore});
-      if(error){status("لغو انتصاب ناموفق بود: "+error.message,true);return}
-      await loadTournamentData();
-    },"danger");
-    box.appendChild(card);
-  });
+ const box=$("judgeList");box.replaceChildren();
+ if(!judges.length){box.append(node("p","هنوز داوری منصوب نشده است.","muted"));return}
+ judges.forEach(j=>{
+  const card=node("article",undefined,"card");card.append(node("h3",j.display_name+" — "+(j.player_code||"بدون کد")));
+  card.append(node("span",j.is_active?"داور فعال":"داوری لغو شده","chip"));
+  if(!j.is_active&&j.is_player_restored)card.append(node("p","وضعیت بازیکن بازگردانده شده است.","success"));
+  if(j.is_active){const actions=node("div",undefined,"actions");
+   const restore=node("button","لغو داوری و بازگردانی به بازیکن");restore.className="secondary";restore.onclick=()=>revoke(j,true);
+   const suspend=node("button","لغو داوری بدون بازگردانی");suspend.className="danger";suspend.onclick=()=>revoke(j,false);
+   actions.append(restore,suspend);card.append(actions);
+  }else if(!j.is_player_restored){const b=node("button","انتصاب مجدد به‌عنوان داور");b.onclick=()=>reappoint(j);card.append(b)}
+  box.append(card);
+ });
 }
-function renderAssignments(){
-  const box=$("assignmentList");box.replaceChildren();
-  const activeJudges=judges.filter(j=>j.status==="active");
-  if(!activeJudges.length){box.appendChild(el("p","ابتدا یک داور منصوب کن.","muted"));return}
-  if(!matches.length){box.appendChild(el("p","برای این تورنمنت مسابقه‌ای ثبت نشده است.","muted"));return}
-  activeJudges.forEach(judge=>{
-    const card=el("article",undefined,"card");card.appendChild(el("h3",judge.display_name||"داور"));
-    const select=el("select");select.appendChild(el("option","انتخاب مسابقه"));select.firstChild.value="";
-    matches.filter(match=>!assignments.some(a=>a.judge_id===judge.judge_id&&a.match_id===match.id)).forEach(match=>{const o=el("option","مسابقه "+match.match_number+" — "+match.status);o.value=match.id;select.appendChild(o)});
-    card.appendChild(select);
-    addButton(card,"تخصیص مسابقه به داور",async()=>{
-      if(!select.value){status("ابتدا مسابقه را انتخاب کن.",true);return}
-      const {error}=await db.rpc("assign_judge_to_match",{p_match_id:select.value,p_judge_id:judge.judge_id});
-      if(error){status("تخصیص انجام نشد: "+error.message,true);return}await loadTournamentData();
-    });
-    const assigned=assignments.filter(a=>a.judge_id===judge.judge_id);
-    assigned.forEach(a=>{
-      const match=matches.find(m=>m.id===a.match_id);
-      const row=el("div",undefined,"row");
-      row.append(el("span","مسابقه "+(match?match.match_number:"—")+" · "+("فعال"),"muted"));
-      addButton(row,"لغو",async()=>{
-        const {error}=await db.rpc("unassign_judge_from_match",{p_match_id:a.match_id,p_judge_id:judge.judge_id});
-        if(error){status("لغو تخصیص ناموفق بود: "+error.message,true);return}await loadTournamentData();
-      },"danger");
-      card.appendChild(row);
-    });
-    box.appendChild(card);
-  });
+function renderMatches(){
+ const box=$("matchList");box.replaceChildren();
+ if(!matches.length){box.append(node("p","برای این تورنمنت مسابقه‌ای ثبت نشده است.","muted"));return}
+ matches.forEach(m=>{
+  const card=node("article",undefined,"card"),head=node("div",undefined,"row");
+  head.append(node("strong","مسابقه شماره "+m.match_number),node("span",m.match_status,"chip"));card.append(head);
+  const assigned=node("div",undefined,"assigned");
+  (m.assigned_judges||[]).forEach(j=>{const chip=node("span",j.display_name,"chip");const b=node("button","×");b.className="danger";b.style.padding="2px 8px";b.onclick=()=>unassign(m.match_id,j.user_id);chip.append(b);assigned.append(chip)});
+  if(!(m.assigned_judges||[]).length)assigned.append(node("span","داوری تخصیص داده نشده است.","muted"));card.append(assigned);
+  const active=judges.filter(j=>j.is_active);
+  if(active.length){const row=node("div",undefined,"grid"),s=node("select");s.append(node("option","انتخاب داور"));s.firstChild.value="";active.forEach(j=>{const o=node("option",j.display_name);o.value=j.user_id;s.append(o)});const b=node("button","تخصیص داور به مسابقه");b.onclick=()=>assign(m.match_id,s.value);row.append(s,b);card.append(row)}
+  else card.append(node("p","برای تخصیص مسابقه ابتدا داور فعال منصوب کن.","muted"));
+  box.append(card);
+ });
 }
-$("login").addEventListener("click",async()=>{
-  const b=$("login");b.disabled=true;showLogin("در حال ورود...");
-  const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
-  b.disabled=false;if(error){showLogin("ورود ناموفق بود: "+error.message,true);return}
-  await authorize(data.user);
-});
-$("logout").addEventListener("click",async()=>{await db.auth.signOut();await authorize(null)});
+async function appoint(){
+ const tid=$("tournamentSelect").value,jid=$("candidateSelect").value;if(!tid||!jid){setStatus("candidateStatus","ابتدا بازیکن را انتخاب کن.",true);return}
+ if(!confirm("این بازیکن فقط در همین تورنمنت داور می‌شود و از شمارش بازیکنان آن تورنمنت خارج خواهد شد. ادامه می‌دهی؟"))return;
+ $("appointButton").disabled=true;try{await rpc("appoint_tournament_judge",{p_tournament_id:tid,p_judge_id:jid});setStatus("candidateStatus","انتصاب داور انجام شد.");await loadTournamentData()}catch(e){setStatus("candidateStatus","انتصاب انجام نشد: "+e.message,true)}finally{$("appointButton").disabled=false}
+}
+async function revoke(j,restore){
+ const prompt=restore?"داوری لغو و شخص به فهرست بازیکنان همین تورنمنت بازگردانده شود؟":"داوری لغو شود، بدون بازگرداندن شخص به فهرست بازیکنان؟";
+ if(!confirm(prompt))return;
+ try{await rpc("revoke_tournament_judge",{p_tournament_id:$("tournamentSelect").value,p_judge_id:j.user_id,p_restore_as_player:restore});await loadTournamentData()}catch(e){setStatus("dashboardStatus","لغو داوری انجام نشد: "+e.message,true)}
+}
+async function reappoint(j){
+ if(!confirm("این شخص دوباره داور فعال شود؟"))return;
+ try{await rpc("appoint_tournament_judge",{p_tournament_id:$("tournamentSelect").value,p_judge_id:j.user_id});await loadTournamentData()}catch(e){setStatus("dashboardStatus","انتصاب مجدد انجام نشد: "+e.message,true)}
+}
+async function assign(matchId,judgeId){
+ if(!judgeId){setStatus("dashboardStatus","ابتدا داور را انتخاب کن.",true);return}
+ try{await rpc("assign_judge_to_match",{p_match_id:matchId,p_judge_id:judgeId});await loadTournamentData()}catch(e){setStatus("dashboardStatus","تخصیص مسابقه انجام نشد: "+e.message,true)}
+}
+async function unassign(matchId,judgeId){
+ if(!confirm("تخصیص این داور از مسابقه لغو شود؟"))return;
+ try{await rpc("unassign_judge_from_match",{p_match_id:matchId,p_judge_id:judgeId});await loadTournamentData()}catch(e){setStatus("dashboardStatus","لغو تخصیص انجام نشد: "+e.message,true)}
+}
+$("loginButton").addEventListener("click",signIn);
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",loadTournamentData);
-db.auth.getSession().then(({data})=>authorize(data.session?.user||null));
-db.auth.onAuthStateChange((_event,session)=>{if(session?.user)authorize(session.user);else authorize(null)});
+$("appointButton").addEventListener("click",appoint);
+$("refreshButton").addEventListener("click",loadTournamentData);
+$("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden")});
+db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
 </script>
 </body>
 </html>
