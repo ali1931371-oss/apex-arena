@@ -684,4 +684,138 @@ create trigger audit_judge_assignments
 after insert or update or delete on public.judge_assignments
 for each row execute function public.log_score_changes();
 
+
+-- Compatibility RPCs consumed by the existing dedicated judge-management.html page.
+create or replace function public.get_manageable_tournaments()
+returns table (
+  tournament_id uuid,
+  tournament_name text,
+  tournament_status text
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $function$
+begin
+  if auth.uid() is null or not public.is_apex_manager() then
+    raise exception 'اجازه مشاهده تورنمنت‌ها را ندارید.';
+  end if;
+
+  return query
+  select t.id, t.name, t.status
+  from public.tournaments t
+  order by t.created_at desc;
+end;
+$function$;
+
+create or replace function public.get_tournament_judge_candidates(p_tournament_id uuid)
+returns table (
+  user_id uuid,
+  display_name text,
+  player_code text,
+  audio_player_id text
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $function$
+begin
+  return query
+  select e.judge_id, e.display_name, e.player_code, e.audio_player_id
+  from public.list_eligible_tournament_judges(p_tournament_id) e;
+end;
+$function$;
+
+create or replace function public.get_tournament_judges(p_tournament_id uuid)
+returns table (
+  user_id uuid,
+  display_name text,
+  player_code text,
+  is_active boolean,
+  is_player_restored boolean
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $function$
+begin
+  return query
+  select
+    j.judge_id,
+    j.display_name,
+    j.player_code,
+    j.status = 'active',
+    j.restore_as_player
+  from public.list_tournament_judges(p_tournament_id) j;
+end;
+$function$;
+
+create or replace function public.get_tournament_matches(p_tournament_id uuid)
+returns table (
+  match_id uuid,
+  match_number integer,
+  match_status text,
+  assigned_judges jsonb
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $function$
+begin
+  if auth.uid() is null or not public.is_apex_manager() then
+    raise exception 'اجازه مشاهده مسابقه‌ها را ندارید.';
+  end if;
+
+  return query
+  select
+    m.id,
+    m.match_number,
+    m.status,
+    coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'user_id', ja.judge_id,
+          'display_name', p.display_name
+        )
+        order by p.display_name
+      )
+      from public.judge_assignments ja
+      join public.profiles p on p.id = ja.judge_id
+      where ja.match_id = m.id
+    ), '[]'::jsonb)
+  from public.matches m
+  where m.tournament_id = p_tournament_id
+    and m.status <> 'cancelled'
+  order by m.match_number;
+end;
+$function$;
+
+create or replace function public.appoint_tournament_judge(
+  p_tournament_id uuid,
+  p_judge_id uuid
+)
+returns jsonb
+language sql
+security definer
+set search_path = ''
+as $function$
+  select public.assign_tournament_judge(p_tournament_id, p_judge_id);
+$function$;
+
+revoke all on function public.get_manageable_tournaments() from public;
+revoke all on function public.get_tournament_judge_candidates(uuid) from public;
+revoke all on function public.get_tournament_judges(uuid) from public;
+revoke all on function public.get_tournament_matches(uuid) from public;
+revoke all on function public.appoint_tournament_judge(uuid, uuid) from public;
+
+grant execute on function public.get_manageable_tournaments() to authenticated;
+grant execute on function public.get_tournament_judge_candidates(uuid) to authenticated;
+grant execute on function public.get_tournament_judges(uuid) to authenticated;
+grant execute on function public.get_tournament_matches(uuid) to authenticated;
+grant execute on function public.appoint_tournament_judge(uuid, uuid) to authenticated;
+
 commit;
