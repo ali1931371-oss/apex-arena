@@ -643,6 +643,11 @@ WITH CHECK (
     WHERE mp.match_id = score_submissions.match_id
       AND mp.player_id = score_submissions.player_id
   )
+  AND EXISTS (
+    SELECT 1 FROM public.matches m
+    WHERE m.id = score_submissions.match_id
+      AND m.status IN ('live', 'submitted')
+  )
 );
 
 DROP POLICY IF EXISTS judge_update_own_draft_score_submission ON public.score_submissions;
@@ -654,6 +659,11 @@ USING (
   judge_id = (SELECT auth.uid())
   AND status = 'draft'
   AND public.is_assigned_tournament_judge(match_id)
+  AND EXISTS (
+    SELECT 1 FROM public.matches m
+    WHERE m.id = score_submissions.match_id
+      AND m.status IN ('live', 'submitted')
+  )
 )
 WITH CHECK (
   judge_id = (SELECT auth.uid())
@@ -664,6 +674,11 @@ WITH CHECK (
     FROM public.match_players mp
     WHERE mp.match_id = score_submissions.match_id
       AND mp.player_id = score_submissions.player_id
+  )
+  AND EXISTS (
+    SELECT 1 FROM public.matches m
+    WHERE m.id = score_submissions.match_id
+      AND m.status IN ('live', 'submitted')
   )
 );
 
@@ -753,6 +768,11 @@ USING (
       AND ss.judge_id = (SELECT auth.uid())
       AND ss.status = 'draft'
       AND public.is_assigned_tournament_judge(ss.match_id)
+      AND EXISTS (
+        SELECT 1 FROM public.matches m
+        WHERE m.id = ss.match_id
+          AND m.status IN ('live', 'submitted')
+      )
   )
 );
 
