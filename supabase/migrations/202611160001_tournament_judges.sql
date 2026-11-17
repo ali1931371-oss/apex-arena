@@ -1,0 +1,583 @@
+-- APEX ARENA: tournament-scoped judge management
+-- Apply manually in Supabase SQL Editor after reviewing this migration.
+-- This migration does NOT change profiles.role: a player can be a judge in one
+-- tournament and remain a player in another tournament.
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS public.tournament_judges (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tournament_id uuid NOT NULL REFERENCES public.tournaments(id) ON DELETE CASCADE,
+  judge_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
+  appointed_by uuid NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  revoked_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
+  revoked_at timestamptz,
+  UNIQUE (tournament_id, judge_id),
+  CONSTRAINT tournament_judges_revocation_check
+    CHECK ((is_active AND revoked_at IS NULL) OR (NOT is_active AND revoked_at IS NOT NULL))
+);
+
+CREATE INDEX IF NOT EXISTS tournament_judges_active_lookup
+  ON public.tournament_judges (tournament_id, judge_id)
+  WHERE is_active = true;
+
+ALTER TABLE public.tournament_judges ENABLE ROW LEVEL SECURITY;
+
+GRANT SELECT ON public.tournament_judges TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.is_apex_manager()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles p
+    WHERE p.id = (SELECT auth.uid())
+      AND p.role IN ('admin', 'manager')
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_active_tournament_judge(p_tournament_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.tournament_judges tj
+    WHERE tj.tournament_id = p_tournament_id
+      AND tj.judge_id = (SELECT auth.uid())
+      AND tj.is_active = true
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_assigned_tournament_judge(p_match_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.judge_assignments ja
+    JOIN public.matches m ON m.id = ja.match_id
+    JOIN public.tournament_judges tj
+      ON tj.tournament_id = m.tournament_id
+     AND tj.judge_id = ja.judge_id
+     AND tj.is_active = true
+    WHERE ja.match_id = p_match_id
+      AND ja.judge_id = (SELECT auth.uid())
+  );
+$$;
+
+GRANT EXECUTE ON FUNCTION public.is_apex_manager() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_active_tournament_judge(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_assigned_tournament_judge(uuid) TO authenticated;
+
+DROP POLICY IF EXISTS tournament_judges_read_own_or_manager ON public.tournament_judges;
+CREATE POLICY tournament_judges_read_own_or_manager
+ON public.tournament_judges
+FOR SELECT
+TO authenticated
+USING (judge_id = (SELECT auth.uid()) OR public.is_apex_manager());
+
+DROP POLICY IF EXISTS judge_assignments_read_own ON public.judge_assignments;
+CREATE POLICY judge_assignments_read_own
+ON public.judge_assignments
+FOR SELECT
+TO authenticated
+USING (judge_id = (SELECT auth.uid()) OR public.is_apex_manager());
+
+CREATE OR REPLACE FUNCTION public.appoint_tournament_judge(
+  p_tournament_id uuid,
+  p_judge_id uuid
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_role text;
+  v_id uuid;
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
+    RAISE EXCEPTION 'فقط مدیر یا مسئول مجاز می‌تواند داور منصوب کند.';
+  END IF;
+
+  SELECT p.role INTO v_role
+  FROM public.profiles p
+  WHERE p.id = p_judge_id;
+
+  IF v_role IS DISTINCT FROM 'player' THEN
+    RAISE EXCEPTION 'فقط حساب دارای نقش بازیکن قابل انتصاب به داوری است.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public.players pl WHERE pl.user_id = p_judge_id
+  ) THEN
+    RAISE EXCEPTION 'برای این حساب، پروفایل بازیکن تأییدشده وجود ندارد.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.tournament_registration_requests r
+    WHERE r.tournament_id = p_tournament_id
+      AND r.user_id = p_judge_id
+      AND r.status = 'approved'
+  ) THEN
+    RAISE EXCEPTION 'این حساب بازیکن تأییدشده این تورنمنت نیست.';
+  END IF;
+
+  INSERT INTO public.tournament_judges (
+    tournament_id, judge_id, appointed_by, is_active, created_at, revoked_by, revoked_at
+  )
+  VALUES (p_tournament_id, p_judge_id, auth.uid(), true, now(), NULL, NULL)
+  ON CONFLICT (tournament_id, judge_id)
+  DO UPDATE SET
+    appointed_by = EXCLUDED.appointed_by,
+    is_active = true,
+    created_at = now(),
+    revoked_by = NULL,
+    revoked_at = NULL
+  RETURNING id INTO v_id;
+
+  RETURN jsonb_build_object('success', true, 'appointment_id', v_id);
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.revoke_tournament_judge(
+  p_tournament_id uuid,
+  p_judge_id uuid
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
+    RAISE EXCEPTION 'فقط مدیر یا مسئول مجاز می‌تواند انتصاب داور را لغو کند.';
+  END IF;
+
+  UPDATE public.tournament_judges
+  SET is_active = false,
+      revoked_by = auth.uid(),
+      revoked_at = now()
+  WHERE tournament_id = p_tournament_id
+    AND judge_id = p_judge_id
+    AND is_active = true;
+
+  RETURN FOUND;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.assign_judge_to_match(
+  p_match_id uuid,
+  p_judge_id uuid
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_tournament_id uuid;
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
+    RAISE EXCEPTION 'فقط مدیر یا مسئول مجاز می‌تواند داور مسابقه تعیین کند.';
+  END IF;
+
+  SELECT m.tournament_id INTO v_tournament_id
+  FROM public.matches m
+  WHERE m.id = p_match_id
+  FOR UPDATE;
+
+  IF v_tournament_id IS NULL THEN
+    RAISE EXCEPTION 'مسابقه پیدا نشد.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.tournament_judges tj
+    WHERE tj.tournament_id = v_tournament_id
+      AND tj.judge_id = p_judge_id
+      AND tj.is_active = true
+  ) THEN
+    RAISE EXCEPTION 'این شخص برای این تورنمنت داور فعال نیست.';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.match_players mp
+    JOIN public.players pl ON pl.id = mp.player_id
+    WHERE mp.match_id = p_match_id
+      AND pl.user_id = p_judge_id
+  ) THEN
+    RAISE EXCEPTION 'این شخص در همین مسابقه بازیکن است و نمی‌تواند هم‌زمان داور باشد.';
+  END IF;
+
+  INSERT INTO public.judge_assignments (match_id, judge_id)
+  VALUES (p_match_id, p_judge_id)
+  ON CONFLICT (match_id, judge_id) DO NOTHING;
+
+  RETURN true;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.unassign_judge_from_match(
+  p_match_id uuid,
+  p_judge_id uuid
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
+    RAISE EXCEPTION 'فقط مدیر یا مسئول مجاز می‌تواند انتساب داور را لغو کند.';
+  END IF;
+
+  DELETE FROM public.judge_assignments
+  WHERE match_id = p_match_id
+    AND judge_id = p_judge_id;
+
+  RETURN FOUND;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.appoint_tournament_judge(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.revoke_tournament_judge(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.assign_judge_to_match(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.unassign_judge_from_match(uuid, uuid) TO authenticated;
+
+-- A tournament judge must never be inserted as a participant in that tournament.
+CREATE OR REPLACE FUNCTION public.prevent_tournament_judge_as_match_player()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM public.matches m
+    JOIN public.players pl ON pl.id = NEW.player_id
+    JOIN public.tournament_judges tj
+      ON tj.tournament_id = m.tournament_id
+     AND tj.judge_id = pl.user_id
+     AND tj.is_active = true
+    WHERE m.id = NEW.match_id
+  ) THEN
+    RAISE EXCEPTION 'داور فعال این تورنمنت نمی‌تواند شرکت‌کننده مسابقه باشد.';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS prevent_tournament_judge_match_player ON public.match_players;
+CREATE TRIGGER prevent_tournament_judge_match_player
+BEFORE INSERT OR UPDATE OF match_id, player_id
+ON public.match_players
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_tournament_judge_as_match_player();
+
+-- Judge can read only their own submissions and create submissions for assigned matches.
+DROP POLICY IF EXISTS judge_read_own_score_submissions ON public.score_submissions;
+CREATE POLICY judge_read_own_score_submissions
+ON public.score_submissions
+FOR SELECT
+TO authenticated
+USING (judge_id = (SELECT auth.uid()) OR public.is_apex_manager());
+
+DROP POLICY IF EXISTS judge_insert_assigned_score_submission ON public.score_submissions;
+CREATE POLICY judge_insert_assigned_score_submission
+ON public.score_submissions
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  judge_id = (SELECT auth.uid())
+  AND status = 'draft'
+  AND public.is_assigned_tournament_judge(match_id)
+  AND EXISTS (
+    SELECT 1
+    FROM public.match_players mp
+    WHERE mp.match_id = score_submissions.match_id
+      AND mp.player_id = score_submissions.player_id
+  )
+);
+
+DROP POLICY IF EXISTS judge_update_own_draft_score_submission ON public.score_submissions;
+CREATE POLICY judge_update_own_draft_score_submission
+ON public.score_submissions
+FOR UPDATE
+TO authenticated
+USING (
+  judge_id = (SELECT auth.uid())
+  AND status = 'draft'
+  AND public.is_assigned_tournament_judge(match_id)
+)
+WITH CHECK (
+  judge_id = (SELECT auth.uid())
+  AND status IN ('draft', 'submitted')
+  AND public.is_assigned_tournament_judge(match_id)
+);
+
+DROP POLICY IF EXISTS judge_read_own_score_items ON public.score_items;
+CREATE POLICY judge_read_own_score_items
+ON public.score_items
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM public.score_submissions ss
+    WHERE ss.id = score_items.submission_id
+      AND (ss.judge_id = (SELECT auth.uid()) OR public.is_apex_manager())
+  )
+);
+
+DROP POLICY IF EXISTS judge_insert_own_draft_score_items ON public.score_items;
+CREATE POLICY judge_insert_own_draft_score_items
+ON public.score_items
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM public.score_submissions ss
+    JOIN public.matches m ON m.id = ss.match_id
+    JOIN public.tournament_criteria tc
+      ON tc.id = score_items.criterion_id
+     AND tc.tournament_id = m.tournament_id
+    WHERE ss.id = score_items.submission_id
+      AND ss.judge_id = (SELECT auth.uid())
+      AND ss.status = 'draft'
+      AND public.is_assigned_tournament_judge(ss.match_id)
+  )
+);
+
+DROP POLICY IF EXISTS judge_update_own_draft_score_items ON public.score_items;
+CREATE POLICY judge_update_own_draft_score_items
+ON public.score_items
+FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM public.score_submissions ss
+    WHERE ss.id = score_items.submission_id
+      AND ss.judge_id = (SELECT auth.uid())
+      AND ss.status = 'draft'
+      AND public.is_assigned_tournament_judge(ss.match_id)
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM public.score_submissions ss
+    JOIN public.matches m ON m.id = ss.match_id
+    JOIN public.tournament_criteria tc
+      ON tc.id = score_items.criterion_id
+     AND tc.tournament_id = m.tournament_id
+    WHERE ss.id = score_items.submission_id
+      AND ss.judge_id = (SELECT auth.uid())
+      AND ss.status = 'draft'
+      AND public.is_assigned_tournament_judge(ss.match_id)
+  )
+);
+
+DROP POLICY IF EXISTS judge_delete_own_draft_score_items ON public.score_items;
+CREATE POLICY judge_delete_own_draft_score_items
+ON public.score_items
+FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM public.score_submissions ss
+    WHERE ss.id = score_items.submission_id
+      AND ss.judge_id = (SELECT auth.uid())
+      AND ss.status = 'draft'
+      AND public.is_assigned_tournament_judge(ss.match_id)
+  )
+);
+
+-- Keep public capacity accurate: count distinct approved players, never appointed judges.
+CREATE OR REPLACE FUNCTION public.get_open_tournaments()
+RETURNS TABLE(
+  tournament_id uuid,
+  tournament_name text,
+  tournament_slug text,
+  tournament_description text,
+  max_players integer,
+  approved_players bigint,
+  available_slots integer
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT
+    t.id,
+    t.name,
+    t.slug,
+    t.description,
+    s.max_players,
+    (
+      SELECT count(DISTINCT r.user_id)
+      FROM public.tournament_registration_requests r
+      JOIN public.profiles p ON p.id = r.user_id AND p.role = 'player'
+      JOIN public.players pl ON pl.user_id = r.user_id
+      WHERE r.tournament_id = t.id
+        AND r.status = 'approved'
+        AND NOT EXISTS (
+          SELECT 1
+          FROM public.tournament_judges tj
+          WHERE tj.tournament_id = t.id
+            AND tj.judge_id = r.user_id
+            AND tj.is_active = true
+        )
+    ),
+    greatest(
+      s.max_players - (
+        SELECT count(DISTINCT r.user_id)::integer
+        FROM public.tournament_registration_requests r
+        JOIN public.profiles p ON p.id = r.user_id AND p.role = 'player'
+        JOIN public.players pl ON pl.user_id = r.user_id
+        WHERE r.tournament_id = t.id
+          AND r.status = 'approved'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM public.tournament_judges tj
+            WHERE tj.tournament_id = t.id
+              AND tj.judge_id = r.user_id
+              AND tj.is_active = true
+          )
+      ),
+      0
+    )
+  FROM public.tournaments t
+  JOIN public.tournament_registration_settings s ON s.tournament_id = t.id
+  WHERE t.status = 'registration'
+    AND s.registration_open = true
+  ORDER BY t.created_at DESC;
+$$;
+
+-- Ensure the legacy approval function cannot create a player record for a judge.
+CREATE OR REPLACE FUNCTION public.approve_player_registration(p_request_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_request record;
+  v_actor_role text;
+  v_display_name text;
+  v_player_code text;
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RAISE EXCEPTION 'ابتدا باید وارد حساب کاربری شوید.';
+  END IF;
+
+  SELECT p.role INTO v_actor_role
+  FROM public.profiles p
+  WHERE p.id = auth.uid();
+
+  IF v_actor_role IS NULL OR v_actor_role NOT IN ('admin', 'manager') THEN
+    RAISE EXCEPTION 'شما اجازه تأیید ثبت‌نام را ندارید.';
+  END IF;
+
+  SELECT * INTO v_request
+  FROM public.tournament_registration_requests
+  WHERE id = p_request_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'درخواست ثبت‌نام پیدا نشد.';
+  END IF;
+
+  IF v_request.status <> 'pending' THEN
+    RAISE EXCEPTION 'این درخواست قبلاً بررسی شده است.';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM public.profiles p
+    WHERE p.id = v_request.user_id
+      AND p.role <> 'player'
+  ) THEN
+    RAISE EXCEPTION 'این حساب نقش بازیکن ندارد و قابل تأیید به‌عنوان بازیکن نیست.';
+  END IF;
+
+  v_display_name := coalesce(
+    nullif(trim(v_request.full_name), ''),
+    nullif(trim(v_request.requested_display_name), '')
+  );
+
+  IF v_display_name IS NULL THEN
+    RAISE EXCEPTION 'نام بازیکن ثبت نشده است.';
+  END IF;
+
+  INSERT INTO public.profiles (id, display_name, role, username, phone)
+  VALUES (v_request.user_id, v_display_name, 'player', v_request.username, v_request.phone)
+  ON CONFLICT (id) DO UPDATE
+  SET display_name = EXCLUDED.display_name,
+      username = coalesce(EXCLUDED.username, public.profiles.username),
+      phone = coalesce(EXCLUDED.phone, public.profiles.phone)
+  WHERE public.profiles.role = 'player';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'پروفایل موجود است و نقش آن قابل تبدیل به بازیکن نیست.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public.players pl WHERE pl.user_id = v_request.user_id
+  ) THEN
+    v_player_code := 'APX-' || nextval('public.player_code_seq')::text;
+
+    INSERT INTO public.players (user_id, player_code, display_name, audio_player_id)
+    VALUES (v_request.user_id, v_player_code, v_display_name, v_request.audio_player_id);
+  ELSE
+    SELECT pl.player_code INTO v_player_code
+    FROM public.players pl
+    WHERE pl.user_id = v_request.user_id;
+  END IF;
+
+  UPDATE public.tournament_registration_requests
+  SET status = 'approved',
+      reviewed_by = auth.uid(),
+      reviewed_at = now()
+  WHERE id = p_request_id;
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'message', 'ثبت‌نام بازیکن با موفقیت تأیید شد.',
+    'player_code', v_player_code,
+    'user_id', v_request.user_id
+  );
+END;
+$$;
+
+-- Audit appointment and match-assignment changes using the existing audit function.
+DROP TRIGGER IF EXISTS audit_tournament_judges ON public.tournament_judges;
+CREATE TRIGGER audit_tournament_judges
+AFTER INSERT OR UPDATE OR DELETE ON public.tournament_judges
+FOR EACH ROW EXECUTE FUNCTION public.log_score_changes();
+
+DROP TRIGGER IF EXISTS audit_judge_assignments ON public.judge_assignments;
+CREATE TRIGGER audit_judge_assignments
+AFTER INSERT OR UPDATE OR DELETE ON public.judge_assignments
+FOR EACH ROW EXECUTE FUNCTION public.log_score_changes();
+
+COMMIT;
