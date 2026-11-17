@@ -259,6 +259,10 @@ GRANT EXECUTE ON FUNCTION public.revoke_tournament_judge(uuid, uuid) TO authenti
 GRANT EXECUTE ON FUNCTION public.assign_judge_to_match(uuid, uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.unassign_judge_from_match(uuid, uuid) TO authenticated;
 
+GRANT SELECT ON public.judge_assignments TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.score_submissions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.score_items TO authenticated;
+
 -- A tournament judge must never be inserted as a participant in that tournament.
 CREATE OR REPLACE FUNCTION public.prevent_tournament_judge_as_match_player()
 RETURNS trigger
@@ -486,6 +490,8 @@ DECLARE
   v_actor_role text;
   v_display_name text;
   v_player_code text;
+  v_settings record;
+  v_approved_count integer;
 BEGIN
   IF auth.uid() IS NULL THEN
     RAISE EXCEPTION 'ابتدا باید وارد حساب کاربری شوید.';
@@ -510,6 +516,40 @@ BEGIN
 
   IF v_request.status <> 'pending' THEN
     RAISE EXCEPTION 'این درخواست قبلاً بررسی شده است.';
+  END IF;
+
+  SELECT s.* INTO v_settings
+  FROM public.tournament_registration_settings s
+  WHERE s.tournament_id = v_request.tournament_id
+  FOR UPDATE;
+
+  IF NOT FOUND OR NOT v_settings.registration_open THEN
+    RAISE EXCEPTION 'ثبت‌نام این تورنمنت بسته است یا تنظیمات آن وجود ندارد.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public.tournaments t
+    WHERE t.id = v_request.tournament_id
+      AND t.status = 'registration'
+  ) THEN
+    RAISE EXCEPTION 'وضعیت تورنمنت اجازه تأیید ثبت‌نام نمی‌دهد.';
+  END IF;
+
+  SELECT count(DISTINCT r.user_id)::integer INTO v_approved_count
+  FROM public.tournament_registration_requests r
+  JOIN public.profiles p ON p.id = r.user_id AND p.role = 'player'
+  JOIN public.players pl ON pl.user_id = r.user_id
+  WHERE r.tournament_id = v_request.tournament_id
+    AND r.status = 'approved'
+    AND NOT EXISTS (
+      SELECT 1 FROM public.tournament_judges tj
+      WHERE tj.tournament_id = r.tournament_id
+        AND tj.judge_id = r.user_id
+        AND tj.is_active = true
+    );
+
+  IF v_approved_count >= v_settings.max_players THEN
+    RAISE EXCEPTION 'ظرفیت تورنمنت تکمیل شده است.';
   END IF;
 
   IF EXISTS (
@@ -568,6 +608,53 @@ BEGIN
   );
 END;
 $$;
+
+-- Keep the legacy registration-review RPC on the same safe approval path.
+CREATE OR REPLACE FUNCTION public.review_registration(
+  p_request_id uuid,
+  p_decision text,
+  p_note text DEFAULT NULL::text
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $
+DECLARE
+  v_request public.tournament_registration_requests%ROWTYPE;
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
+    RAISE EXCEPTION 'اجازه انجام این عملیات را ندارید.';
+  END IF;
+
+  IF p_decision NOT IN ('approved', 'rejected') THEN
+    RAISE EXCEPTION 'وضعیت باید approved یا rejected باشد.';
+  END IF;
+
+  SELECT * INTO v_request
+  FROM public.tournament_registration_requests
+  WHERE id = p_request_id
+    AND status = 'pending'
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RETURN false;
+  END IF;
+
+  IF p_decision = 'approved' THEN
+    PERFORM public.approve_player_registration(p_request_id);
+  ELSE
+    UPDATE public.tournament_registration_requests
+    SET status = 'rejected',
+        reviewed_by = auth.uid(),
+        review_note = p_note,
+        reviewed_at = now()
+    WHERE id = p_request_id;
+  END IF;
+
+  RETURN true;
+END;
+$;
 
 -- Audit appointment and match-assignment changes using the existing audit function.
 DROP TRIGGER IF EXISTS audit_tournament_judges ON public.tournament_judges;
