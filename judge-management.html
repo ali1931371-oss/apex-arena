@@ -89,16 +89,16 @@ async function loadTournamentData(){
   if(!tid){status("ابتدا یک تورنمنت انتخاب کن.");return}
   status("در حال دریافت فهرست داوران و مسابقه‌ها...");
   const [e,j,m]=await Promise.all([
-    db.rpc("get_eligible_tournament_judges",{p_tournament_id:tid}),
-    db.rpc("get_tournament_judge_roster",{p_tournament_id:tid}),
+    db.rpc("list_eligible_tournament_judges",{p_tournament_id:tid}),
+    db.rpc("list_tournament_judges",{p_tournament_id:tid}),
     db.from("matches").select("id,match_number,status").eq("tournament_id",tid).neq("status","cancelled").order("match_number")
   ]);
   if(e.error||j.error||m.error){status("دریافت اطلاعات کامل نشد: "+[e.error,j.error,m.error].filter(Boolean).map(x=>x.message).join(" | "),true);return}
   eligible=e.data||[];judges=j.data||[];matches=m.data||[];
-  const active=judges.filter(x=>!x.revoked_at);
+  const active=judges.filter(x=>x.status==="active");
   const matchIds=matches.map(x=>x.id);
   if(matchIds.length){
-    const a=await db.from("judge_assignments").select("id,match_id,judge_id,assigned_at,revoked_at").in("match_id",matchIds);
+    const a=await db.from("judge_assignments").select("match_id,judge_id,assigned_at").in("match_id",matchIds);
     if(a.error){status("دریافت تخصیص مسابقه‌ها ناموفق بود: "+a.error.message,true);return}
     assignments=a.data||[];
   }else assignments=[];
@@ -115,7 +115,7 @@ function renderEligible(){
     card.appendChild(el("p","آیدی صوتی: "+(person.audio_player_id||"—"),"muted"));
     addButton(card,"انتصاب به‌عنوان داور",async()=>{
       if(!confirm("این بازیکن برای همین تورنمنت داور می‌شود و دیگر در ظرفیت بازیکنان این تورنمنت شمرده نخواهد شد. ادامه می‌دهی؟"))return;
-      const {error}=await db.rpc("appoint_tournament_judge",{p_tournament_id:$("tournamentSelect").value,p_user_id:person.user_id,p_note:null});
+      const {error}=await db.rpc("assign_tournament_judge",{p_tournament_id:$("tournamentSelect").value,p_judge_id:person.judge_id});
       if(error){status("انتصاب انجام نشد: "+error.message,true);return}await loadTournamentData();
     });
     box.appendChild(card);
@@ -125,13 +125,15 @@ function renderJudges(){
   const box=$("judgeList");box.replaceChildren();
   if(!judges.length){box.appendChild(el("p","هنوز داوری برای این تورنمنت منصوب نشده است.","muted"));return}
   judges.forEach(person=>{
-    const card=el("article",undefined,"card"+(person.revoked_at?" revoked":""));
-    const title=el("div",undefined,"row");title.append(el("h3",person.display_name||"بدون نام"),el("span",person.revoked_at?"لغوشده":"داور فعال","pill"));card.appendChild(title);
+    const card=el("article",undefined,"card"+(person.status==="revoked"?" revoked":""));
+    const title=el("div",undefined,"row");title.append(el("h3",person.display_name||"بدون نام"),el("span",person.status==="revoked"?"لغوشده":"داور فعال","pill"));card.appendChild(title);
     card.appendChild(el("p","کد بازیکن: "+(person.player_code||"—"),"muted"));
-    if(person.note)card.appendChild(el("p","یادداشت: "+person.note,"muted"));
-    if(!person.revoked_at)addButton(card,"لغو انتصاب در این تورنمنت",async()=>{
+    card.appendChild(el("p","تعداد بازی‌های تخصیص‌یافته: "+(person.assigned_match_count||0),"muted"));
+    if(person.status==="revoked")card.appendChild(el("p",person.restore_as_player?"پس از عزل به فهرست بازیکنان بازگشته است.":"پس از عزل از فهرست بازیکنان خارج مانده است.","muted"));
+    if(person.status==="active")addButton(card,"لغو انتصاب در این تورنمنت",async()=>{
       if(!confirm("انتصاب این داور و تمام تخصیص‌های فعال او در این تورنمنت لغو شود؟ سوابق قبلی حذف نمی‌شوند."))return;
-      const {data,error}=await db.rpc("revoke_tournament_judge",{p_tournament_id:$("tournamentSelect").value,p_user_id:person.user_id});
+      const restore=confirm("آیا پس از عزل، این فرد دوباره بازیکن همین تورنمنت محسوب شود؟\nتأیید = بازگشت به بازیکنی؛ لغو = باقی‌ماندن خارج از فهرست بازیکنان.");
+      const {data,error}=await db.rpc("revoke_tournament_judge",{p_tournament_id:$("tournamentSelect").value,p_judge_id:person.judge_id,p_restore_as_player:restore});
       if(error){status("لغو انتصاب ناموفق بود: "+error.message,true);return}
       await loadTournamentData();
     },"danger");
@@ -140,26 +142,26 @@ function renderJudges(){
 }
 function renderAssignments(){
   const box=$("assignmentList");box.replaceChildren();
-  const activeJudges=judges.filter(j=>!j.revoked_at);
+  const activeJudges=judges.filter(j=>j.status==="active");
   if(!activeJudges.length){box.appendChild(el("p","ابتدا یک داور منصوب کن.","muted"));return}
   if(!matches.length){box.appendChild(el("p","برای این تورنمنت مسابقه‌ای ثبت نشده است.","muted"));return}
   activeJudges.forEach(judge=>{
     const card=el("article",undefined,"card");card.appendChild(el("h3",judge.display_name||"داور"));
     const select=el("select");select.appendChild(el("option","انتخاب مسابقه"));select.firstChild.value="";
-    matches.forEach(match=>{const o=el("option","مسابقه "+match.match_number+" — "+match.status);o.value=match.id;select.appendChild(o)});
+    matches.filter(match=>!assignments.some(a=>a.judge_id===judge.judge_id&&a.match_id===match.id)).forEach(match=>{const o=el("option","مسابقه "+match.match_number+" — "+match.status);o.value=match.id;select.appendChild(o)});
     card.appendChild(select);
     addButton(card,"تخصیص مسابقه به داور",async()=>{
       if(!select.value){status("ابتدا مسابقه را انتخاب کن.",true);return}
-      const {error}=await db.rpc("assign_judge_to_match",{p_match_id:select.value,p_judge_id:judge.user_id});
+      const {error}=await db.rpc("assign_judge_to_match",{p_match_id:select.value,p_judge_id:judge.judge_id});
       if(error){status("تخصیص انجام نشد: "+error.message,true);return}await loadTournamentData();
     });
-    const assigned=assignments.filter(a=>a.judge_id===judge.user_id);
+    const assigned=assignments.filter(a=>a.judge_id===judge.judge_id);
     assigned.forEach(a=>{
       const match=matches.find(m=>m.id===a.match_id);
       const row=el("div",undefined,"row");
-      row.append(el("span","مسابقه "+(match?match.match_number:"—")+" · "+(a.revoked_at?"لغوشده":"فعال"),"muted"));
-      if(!a.revoked_at)addButton(row,"لغو",async()=>{
-        const {error}=await db.rpc("revoke_judge_from_match",{p_match_id:a.match_id,p_judge_id:judge.user_id});
+      row.append(el("span","مسابقه "+(match?match.match_number:"—")+" · "+("فعال"),"muted"));
+      addButton(row,"لغو",async()=>{
+        const {error}=await db.rpc("unassign_judge_from_match",{p_match_id:a.match_id,p_judge_id:judge.judge_id});
         if(error){status("لغو تخصیص ناموفق بود: "+error.message,true);return}await loadTournamentData();
       },"danger");
       card.appendChild(row);
