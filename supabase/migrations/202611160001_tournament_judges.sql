@@ -795,7 +795,7 @@ AS $$
             FROM public.tournament_judges tj
             WHERE tj.tournament_id = t.id
               AND tj.judge_id = r.user_id
-              AND tj.is_active = true
+              AND tj.is_player_restored = false
           )
       ),
       0
