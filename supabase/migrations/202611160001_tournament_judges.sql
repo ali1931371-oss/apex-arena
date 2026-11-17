@@ -736,6 +736,11 @@ USING (
       AND ss.judge_id = (SELECT auth.uid())
       AND ss.status = 'draft'
       AND public.is_assigned_tournament_judge(ss.match_id)
+      AND EXISTS (
+        SELECT 1 FROM public.matches m
+        WHERE m.id = ss.match_id
+          AND m.status IN ('live', 'submitted')
+      )
   )
 )
 WITH CHECK (
@@ -752,6 +757,7 @@ WITH CHECK (
       AND public.is_assigned_tournament_judge(ss.match_id)
       AND tc.is_active = true
       AND score_items.raw_points BETWEEN tc.min_points AND tc.max_points
+      AND m.status IN ('live', 'submitted')
   )
 );
 
@@ -909,7 +915,7 @@ BEGIN
       SELECT 1 FROM public.tournament_judges tj
       WHERE tj.tournament_id = r.tournament_id
         AND tj.judge_id = r.user_id
-        AND tj.is_active = true
+        AND tj.is_player_restored = false
     );
 
   IF v_approved_count >= v_settings.max_players THEN
