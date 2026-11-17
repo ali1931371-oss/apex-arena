@@ -149,6 +149,54 @@ $function$;
 revoke all on function public.list_eligible_tournament_judges(uuid) from public;
 grant execute on function public.list_eligible_tournament_judges(uuid) to authenticated;
 
+
+-- Current and historical tournament judge appointments for the manager panel.
+create or replace function public.list_tournament_judges(p_tournament_id uuid)
+returns table (
+  judge_id uuid,
+  display_name text,
+  player_code text,
+  appointed_at timestamptz,
+  status text,
+  restore_as_player boolean,
+  assigned_match_count bigint
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $function$
+begin
+  if auth.uid() is null or not public.is_apex_manager() then
+    raise exception 'اجازه مشاهده فهرست داوران را ندارید.';
+  end if;
+
+  return query
+  select
+    tj.judge_id,
+    p.display_name,
+    pl.player_code,
+    tj.appointed_at,
+    tj.status,
+    tj.restore_as_player,
+    (
+      select count(*)
+      from public.judge_assignments ja
+      join public.matches m on m.id = ja.match_id
+      where ja.judge_id = tj.judge_id
+        and m.tournament_id = tj.tournament_id
+    )
+  from public.tournament_judges tj
+  join public.profiles p on p.id = tj.judge_id
+  left join public.players pl on pl.user_id = tj.judge_id
+  where tj.tournament_id = p_tournament_id
+  order by case when tj.status = 'active' then 0 else 1 end, tj.appointed_at desc;
+end;
+$function$;
+
+revoke all on function public.list_tournament_judges(uuid) from public;
+grant execute on function public.list_tournament_judges(uuid) to authenticated;
+
 create or replace function public.assign_tournament_judge(
   p_tournament_id uuid,
   p_judge_id uuid
@@ -388,7 +436,7 @@ as $function$
     t.description,
     s.max_players,
     (
-      select count(*)
+      select count(distinct p.id)
       from public.tournament_registration_requests r
       join public.profiles p on p.id = r.user_id and p.role = 'player'
       join public.players pl on pl.user_id = p.id
@@ -407,7 +455,7 @@ as $function$
     ),
     greatest(
       s.max_players - (
-        select count(*)::integer
+        select count(distinct p.id)::integer
         from public.tournament_registration_requests r
         join public.profiles p on p.id = r.user_id and p.role = 'player'
         join public.players pl on pl.user_id = p.id
@@ -459,7 +507,7 @@ begin
   from public.profiles p
   where p.id = auth.uid();
 
-  if v_actor_role not in ('admin', 'manager') then
+  if v_actor_role is null or v_actor_role not in ('admin', 'manager') then
     raise exception 'شما اجازه تأیید ثبت‌نام را ندارید.';
   end if;
 
