@@ -639,7 +639,7 @@ begin
     raise exception 'اجازه انجام این عملیات را ندارید.';
   end if;
 
-  if p_decision not in ('approved', 'rejected') then
+  if p_decision is null or p_decision not in ('approved', 'rejected') then
     raise exception 'وضعیت باید approved یا rejected باشد.';
   end if;
 
