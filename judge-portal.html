@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
+<title>پنل داوری | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+main{max-width:1050px;margin:auto;padding:18px 14px 60px}header,.panel{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:22px}h2{font-size:19px}p{color:#cfc6b2}
+label{display:block;color:#e4c46e;margin:10px 0 5px}input,select,textarea{width:100%;padding:11px;border:1px solid #80652e;border-radius:8px;background:#101010;color:#fff;font:inherit}
+button,.link{display:inline-block;padding:11px 14px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 0}
+button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;color:#f5f0df;border:1px solid #80652e}.danger{background:#7d2828;color:#fff}
+.hidden{display:none!important}.muted{font-size:13px;color:#aaa}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}.card{border:1px solid #51401f;border-radius:10px;padding:14px;margin:12px 0;background:#202020}
+.criteria{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #3c321e}.criteria small{display:block;color:#aaa}
+.player-title{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.pill{border:1px solid #80652e;border-radius:30px;padding:3px 10px;font-size:12px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:160px}
+@media(max-width:560px){header{display:block;text-align:center}.criteria{grid-template-columns:minmax(0,1fr) 85px}.actions button{width:100%}}
+</style>
+</head>
+<body>
+<main>
+<header><div><h1>APEX ARENA | پنل داوری</h1><div class="muted">ثبت امتیاز فقط برای مسابقه‌های تخصیص‌یافته</div></div><div class="actions"><a class="link secondary" href="index.html">بازگشت به سایت</a><button id="logoutButton" class="danger hidden">خروج</button></div></header>
+<section id="loginPanel" class="panel"><h2>ورود داور</h2><p>با حساب کاربری‌ای وارد شو که مدیریت برایت در همین تورنمنت دسترسی داوری فعال کرده است.</p>
+<label for="email">ایمیل</label><input id="email" type="email" autocomplete="username"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
+<button id="loginButton">ورود</button><p id="loginStatus" class="status" role="status"></p></section>
+<section id="judgePanel" class="hidden">
+<section class="panel"><h2>مسابقه‌های من</h2><label for="matchSelect">انتخاب مسابقه تخصیص‌یافته</label><select id="matchSelect"><option value="">در حال دریافت...</option></select><p id="pageStatus" class="status" role="status"></p></section>
+<section id="scoreArea" class="panel hidden"><h2 id="matchHeading">فرم امتیازدهی</h2><p class="muted">امتیاز هر معیار باید در بازه تعیین‌شده همان معیار باشد. پس از ارسال نهایی، امکان ویرایش برای داور بسته می‌شود.</p><div id="playersArea"></div></section>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let user=null,assignments=[],currentDetails=null;
+function node(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function setStatus(id,text,error=false){$(id).textContent=text||"";$(id).className="status "+(error?"error":text?"success":"")}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+async function signIn(){
+ const b=$("loginButton");b.disabled=true;setStatus("loginStatus","در حال ورود...");
+ try{const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;user=data.user;$("loginPanel").classList.add("hidden");$("judgePanel").classList.remove("hidden");$("logoutButton").classList.remove("hidden");await loadAssignments()}
+ catch(e){setStatus("loginStatus",e.message,true);await db.auth.signOut()}
+ finally{b.disabled=false}
+}
+async function loadAssignments(){
+ setStatus("pageStatus","در حال دریافت مسابقه‌های تخصیص‌یافته...");
+ try{
+  assignments=await rpc("get_my_judge_assignments");
+  const s=$("matchSelect");s.replaceChildren(node("option","انتخاب مسابقه"));
+  assignments.forEach(m=>{const o=node("option",m.tournament_name+" — مسابقه "+m.match_number+" — "+m.match_status);o.value=m.match_id;s.append(o)});
+  if(!assignments.length){$("scoreArea").classList.add("hidden");setStatus("pageStatus","در حال حاضر هیچ مسابقه‌ای به حساب شما تخصیص داده نشده است.");return}
+  s.value=assignments[0].match_id;await loadMatch(s.value);
+ }catch(e){setStatus("pageStatus","دریافت مسابقه‌ها ناموفق بود: "+e.message,true)}
+}
+async function loadMatch(matchId){
+ if(!matchId){$("scoreArea").classList.add("hidden");return}
+ setStatus("pageStatus","در حال دریافت فرم مسابقه...");
+ try{
+  currentDetails=await rpc("get_judge_match_details",{p_match_id:matchId});
+  if(!currentDetails||!currentDetails.match)throw new Error("اطلاعات مسابقه پیدا نشد.");
+  $("scoreArea").classList.remove("hidden");$("matchHeading").textContent="مسابقه شماره "+currentDetails.match.match_number;
+  renderPlayers();
+  setStatus("pageStatus","فرم مسابقه بارگذاری شد.");
+ }catch(e){$("scoreArea").classList.add("hidden");setStatus("pageStatus","دریافت فرم ممکن نشد: "+e.message,true)}
+}
+function renderPlayers(){
+ const box=$("playersArea");box.replaceChildren();
+ const players=currentDetails.players||[],criteria=currentDetails.criteria||[],submissions=currentDetails.submissions||[];
+ if(!players.length){box.append(node("p","برای این مسابقه بازیکنی ثبت نشده است.","muted"));return}
+ if(!criteria.length){box.append(node("p","برای این تورنمنت معیار امتیازدهی فعال تعریف نشده است. با مدیر تماس بگیر.","error"));return}
+ players.forEach(player=>{
+  const existing=submissions.find(s=>s.player_id===player.player_id),locked=existing&&existing.status!=="draft";
+  const card=node("article",undefined,"card"),head=node("div",undefined,"player-title");
+  head.append(node("h3",player.display_name+" — "+(player.player_code||"بدون کد")),node("span",locked?"ارسال‌شده":"پیش‌نویس / جدید","pill"));card.append(head);
+  const inputMap=new Map(),existingItems=(existing?.items)||[];
+  criteria.forEach(criterion=>{
+   const row=node("div",undefined,"criteria"),label=node("div");
+   label.append(node("strong",criterion.criterion_name),node("small","حد مجاز: "+criterion.min_points+" تا "+criterion.max_points+(criterion.description?" — "+criterion.description:"")));
+   const input=node("input");input.type="number";input.min=criterion.min_points;input.max=criterion.max_points;input.step="any";input.required=true;input.disabled=!!locked;
+   const saved=existingItems.find(x=>x.criterion_id===criterion.id);if(saved)input.value=saved.raw_points;
+   row.append(label,input);card.append(row);inputMap.set(criterion.id,input);
+  });
+  const actions=node("div",undefined,"actions");
+  const save=node("button","ذخیره پیش‌نویس");save.className="secondary";save.disabled=!!locked;
+  const submit=node("button","ارسال نهایی امتیاز");submit.disabled=!!locked;
+  save.onclick=()=>saveScore(player,inputMap,existing,false,save,submit);
+  submit.onclick=()=>{if(confirm("پس از ارسال نهایی، این امتیاز برای داور قفل می‌شود. ارسال شود؟"))saveScore(player,inputMap,existing,true,save,submit)};
+  actions.append(save,submit);card.append(actions);
+  if(locked)card.append(node("p","این ارزیابی ارسال شده و دیگر قابل ویرایش نیست.","success"));
+  box.append(card);
+ });
+}
+async function saveScore(player,inputMap,existing,finalize,saveButton,submitButton){
+ const match=currentDetails.match;
+ if(!["live","submitted"].includes(match.status)){setStatus("pageStatus","ثبت امتیاز فقط هنگام اجرای مسابقه یا مرحله ثبت نتایج مجاز است.",true);return}
+ const criteria=currentDetails.criteria||[],items=[];
+ for(const criterion of criteria){
+  const input=inputMap.get(criterion.id),raw=input.value.trim();
+  if(raw===""){setStatus("pageStatus","برای معیار «"+criterion.criterion_name+"» امتیاز وارد کن.",true);input.focus();return}
+  const value=Number(raw);
+  if(!Number.isFinite(value)||value<Number(criterion.min_points)||value>Number(criterion.max_points)){setStatus("pageStatus","امتیاز معیار «"+criterion.criterion_name+"» خارج از محدوده مجاز است.",true);input.focus();return}
+  items.push({id:crypto.randomUUID(),criterion_id:criterion.id,raw_points:value,notes:null});
+ }
+ saveButton.disabled=true;submitButton.disabled=true;
+ try{
+  let submissionId=existing?.id;
+  if(!submissionId){
+   const {data,error}=await db.from("score_submissions").insert({id:crypto.randomUUID(),match_id:match.id,player_id:player.player_id,judge_id:user.id,status:"draft"}).select("id").single();
+   if(error)throw error;submissionId=data.id;
+  }else if(existing.status!=="draft"){throw new Error("این ارزیابی قبلاً ارسال شده است.")}
+  const del=await db.from("score_items").delete().eq("submission_id",submissionId);if(del.error)throw del.error;
+  const rows=items.map(item=>({id:item.id,submission_id:submissionId,criterion_id:item.criterion_id,raw_points:item.raw_points,notes:item.notes}));
+  const ins=await db.from("score_items").insert(rows);if(ins.error)throw ins.error;
+  if(finalize){
+   const upd=await db.from("score_submissions").update({status:"submitted",submitted_at:new Date().toISOString()}).eq("id",submissionId).eq("status","draft");
+   if(upd.error)throw upd.error;
+  }
+  setStatus("pageStatus",finalize?"امتیاز این بازیکن با موفقیت ارسال و قفل شد.":"پیش‌نویس امتیاز این بازیکن ذخیره شد.");
+  await loadMatch(match.id);
+ }catch(e){setStatus("pageStatus","ذخیره امتیاز انجام نشد: "+e.message,true);saveButton.disabled=false;submitButton.disabled=false}
+}
+$("loginButton").addEventListener("click",signIn);
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
+$("matchSelect").addEventListener("change",()=>loadMatch($("matchSelect").value));
+$("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();user=null;$("judgePanel").classList.add("hidden");$("scoreArea").classList.add("hidden");$("loginPanel").classList.remove("hidden");$("logoutButton").classList.add("hidden")});
+db.auth.getSession().then(({data})=>{if(data.session?.user){user=data.session.user;$("loginPanel").classList.add("hidden");$("judgePanel").classList.remove("hidden");$("logoutButton").classList.remove("hidden");loadAssignments()}});
+</script>
+</body>
+</html>
