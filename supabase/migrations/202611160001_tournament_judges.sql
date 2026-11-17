@@ -595,7 +595,7 @@ AS $$
     JOIN public.tournament_judges tj
       ON tj.judge_id = pl.user_id
      AND tj.tournament_id = p_tournament_id
-     AND tj.is_active = true
+     AND tj.is_player_restored = false
     WHERE pl.id = p_player_id
   );
 $$;
