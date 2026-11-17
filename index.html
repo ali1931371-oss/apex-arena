@@ -290,7 +290,7 @@ document.getElementById("registration-form").addEventListener("submit", async fu
     const result = await response.json().catch(()=>({}));
     if (!response.ok || !result.ok) throw new Error(result.message || result.error || "ثبت‌نام ناموفق بود.");
     status.textContent=result.message || "درخواست شما ارسال شد و در انتظار تأیید مدیر است.";
-    status.classList.add("success"); form.reset(); form.reset();
+    status.classList.add("success"); form.reset();
   } catch(error) {
     console.error("Registration error:",error); status.textContent=error.message || "ارتباط با سامانه برقرار نشد."; status.classList.add("error");
   } finally {
