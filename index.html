@@ -31,6 +31,13 @@
     .status { color:#d8b45a; font-size:14px; }
     .error { color:#ff8c8c !important; } .success { color:#8be0a2 !important; } .empty { color:#aaa; }
     .admin-box { max-width:600px; margin:20px auto; text-align:right; }
+    .registration-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; }
+    .registration-grid .full-row { grid-column:1/-1; }
+    .field-hint { color:#a99b79; font-size:12px; margin:2px 0 8px; }
+    .consent-row { display:flex; align-items:flex-start; gap:10px; color:#d0c8b5; font-size:13px; line-height:1.9; margin:18px 0; }
+    .consent-row input { width:auto; margin:5px 0 0; accent-color:#d8b45a; }
+    .section-intro { max-width:720px; margin:0 auto 18px; }
+    .trust-note { border-right:3px solid #d8b45a; padding:10px 14px; background:#211b10; border-radius:8px; text-align:right; color:#d8cba9; font-size:13px; line-height:2; }
     input,textarea,select { display:block; width:100%; margin:12px 0; padding:13px; border:1px solid #80652e; border-radius:8px; background:#101010; color:white; font-family:inherit; font-size:15px; }
     textarea { min-height:130px; resize:vertical; line-height:2; }
     input[type="file"] { padding:10px; }
@@ -59,7 +66,7 @@
     .request-actions button { flex:1; min-width:130px; }
     footer { padding:25px; color:#a99b79; font-size:13px; }
     @media(max-width:700px) { header { position:static; display:block; text-align:center; } .site-brand { text-align:center; } .main-nav { justify-content:center; margin-top:12px; } .main-nav a { padding:8px 9px; font-size:12px; } .hero { padding:55px 15px; } }
-    @media(max-width:600px) { .section { margin:15px 10px; padding:17px; } h1 { font-size:25px; } h2 { font-size:21px; } .hero-actions a { width:100%; max-width:320px; } }
+    @media(max-width:600px) { .section { margin:15px 10px; padding:17px; } h1 { font-size:25px; } h2 { font-size:21px; } .hero-actions a { width:100%; max-width:320px; } .registration-grid { grid-template-columns:1fr; } .registration-grid .full-row { grid-column:auto; } }
   </style>
 </head>
 <body>
@@ -77,12 +84,17 @@
   <section class="section" id="player-registration">
     <h2>ثبت‌نام بازیکنان</h2><p>اطلاعات خود را با دقت وارد کنید. درخواست ثبت‌نام پس از بررسی مدیر تأیید می‌شود.</p>
     <form id="registration-form" class="admin-box">
-      <label for="reg-tournament">انتخاب تورنمنت</label><select id="reg-tournament" required><option value="">در حال دریافت تورنمنت‌ها...</option></select>
-      <label for="reg-full-name">نام و نام خانوادگی</label><input id="reg-full-name" type="text" minlength="3" maxlength="120" required>
-      <label for="reg-audio-id">آیدی بازیکن در اپلیکیشن صوتی</label><input id="reg-audio-id" type="text" minlength="2" maxlength="120" required>
-      <label for="reg-phone">شماره تماس</label><input id="reg-phone" type="tel" inputmode="tel" maxlength="25" required>
-      <label for="reg-username">نام کاربری انگلیسی</label><input id="reg-username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,29}" required>
-      <label for="reg-password">رمز عبور</label><input id="reg-password" type="password" minlength="12" maxlength="128" required>
+      <div class="registration-grid">
+        <div class="full-row"><label for="reg-tournament">انتخاب تورنمنت</label><select id="reg-tournament" required><option value="">در حال دریافت تورنمنت‌ها...</option></select></div>
+        <div><label for="reg-full-name">نام و نام خانوادگی</label><input id="reg-full-name" type="text" minlength="3" maxlength="120" autocomplete="name" placeholder="نام واقعی شما" required></div>
+        <div><label for="reg-audio-id">آیدی بازیکن در اپلیکیشن صوتی</label><input id="reg-audio-id" type="text" minlength="2" maxlength="120" placeholder="آیدی دقیق داخل اپلیکیشن" required></div>
+        <div><label for="reg-phone">شماره تماس</label><input id="reg-phone" type="tel" inputmode="tel" maxlength="25" autocomplete="tel" placeholder="شماره همراه" required></div>
+        <div><label for="reg-username">نام کاربری انگلیسی</label><input id="reg-username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,29}" autocomplete="username" placeholder="فقط حروف انگلیسی و اعداد" required><p class="field-hint">۳ تا ۳۰ نویسه؛ حروف انگلیسی، عدد، نقطه، خط تیره یا زیرخط.</p></div>
+        <div><label for="reg-password">رمز عبور</label><input id="reg-password" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="حداقل ۱۲ نویسه" required></div>
+        <div><label for="reg-password-confirm">تکرار رمز عبور</label><input id="reg-password-confirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="رمز را دوباره وارد کنید" required></div>
+      </div>
+      <label class="consent-row"><input id="reg-consent" type="checkbox" required><span>اطلاعات واردشده صحیح است و می‌دانم درخواست من پس از بررسی و تأیید مدیریت نهایی می‌شود.</span></label>
+      <p class="trust-note">رمز عبور خود را با هیچ‌کس به اشتراک نگذارید. اطلاعات تماس شما برای سایر بازیکنان نمایش داده نمی‌شود.</p>
       <button id="registration-button" type="submit" disabled>ارسال درخواست ثبت‌نام</button>
       <p id="registration-message" class="message" role="status"></p>
     </form>
@@ -258,7 +270,11 @@ document.getElementById("registration-form").addEventListener("submit", async fu
   const phone = normalizeRegistrationPhone(document.getElementById("reg-phone").value.trim());
   const username = document.getElementById("reg-username").value.trim().toLowerCase();
   const password = document.getElementById("reg-password").value;
+  const passwordConfirm = document.getElementById("reg-password-confirm").value;
+  const consent = document.getElementById("reg-consent").checked;
   status.textContent = ""; status.className = "message";
+  if (!consent) { status.textContent="برای ادامه، تأیید صحت اطلاعات و قوانین ثبت‌نام را علامت بزنید."; status.classList.add("error"); return; }
+  if (password !== passwordConfirm) { status.textContent="رمز عبور و تکرار آن یکسان نیستند."; status.classList.add("error"); return; }
   if (!tournamentId) { status.textContent="لطفاً یک تورنمنت انتخاب کنید."; status.classList.add("error"); return; }
   if (fullName.length<3 || audioPlayerId.length<2) { status.textContent="نام و آیدی بازیکن را بررسی کنید."; status.classList.add("error"); return; }
   if (!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(username)) { status.textContent="نام کاربری باید ۳ تا ۳۰ نویسه انگلیسی باشد."; status.classList.add("error"); return; }
@@ -274,7 +290,7 @@ document.getElementById("registration-form").addEventListener("submit", async fu
     const result = await response.json().catch(()=>({}));
     if (!response.ok || !result.ok) throw new Error(result.message || result.error || "ثبت‌نام ناموفق بود.");
     status.textContent=result.message || "درخواست شما ارسال شد و در انتظار تأیید مدیر است.";
-    status.classList.add("success"); form.reset();
+    status.classList.add("success"); form.reset(); form.reset();
   } catch(error) {
     console.error("Registration error:",error); status.textContent=error.message || "ارتباط با سامانه برقرار نشد."; status.classList.add("error");
   } finally {
