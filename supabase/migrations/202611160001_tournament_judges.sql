@@ -516,6 +516,29 @@ GRANT EXECUTE ON FUNCTION public.get_tournament_matches(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_my_judge_assignments() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_judge_match_details(uuid) TO authenticated;
 
+CREATE OR REPLACE FUNCTION public.is_tournament_judge_player(
+  p_tournament_id uuid,
+  p_player_id uuid
+)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.players pl
+    JOIN public.tournament_judges tj
+      ON tj.judge_id = pl.user_id
+     AND tj.tournament_id = p_tournament_id
+     AND tj.is_active = true
+    WHERE pl.id = p_player_id
+  );
+$;
+
+GRANT EXECUTE ON FUNCTION public.is_tournament_judge_player(uuid, uuid) TO anon, authenticated;
+
 -- Hide appointed tournament judges from the public participant roster.
 DROP POLICY IF EXISTS public_view_match_players ON public.match_players;
 CREATE POLICY public_view_match_players
@@ -530,15 +553,7 @@ USING (
     WHERE m.id = match_players.match_id
       AND m.status <> 'cancelled'
       AND t.status IN ('registration', 'active', 'completed')
-      AND NOT EXISTS (
-        SELECT 1
-        FROM public.players pl
-        JOIN public.tournament_judges tj
-          ON tj.judge_id = pl.user_id
-         AND tj.tournament_id = m.tournament_id
-         AND tj.is_active = true
-        WHERE pl.id = match_players.player_id
-      )
+      AND NOT public.is_tournament_judge_player(m.tournament_id, match_players.player_id)
   )
 );
 
@@ -581,6 +596,12 @@ WITH CHECK (
   judge_id = (SELECT auth.uid())
   AND status IN ('draft', 'submitted')
   AND public.is_assigned_tournament_judge(match_id)
+  AND EXISTS (
+    SELECT 1
+    FROM public.match_players mp
+    WHERE mp.match_id = score_submissions.match_id
+      AND mp.player_id = score_submissions.player_id
+  )
 );
 
 DROP POLICY IF EXISTS judge_read_own_score_items ON public.score_items;
@@ -614,6 +635,13 @@ WITH CHECK (
       AND ss.judge_id = (SELECT auth.uid())
       AND ss.status = 'draft'
       AND public.is_assigned_tournament_judge(ss.match_id)
+      AND tc.is_active = true
+      AND score_items.raw_points BETWEEN tc.min_points AND tc.max_points
+      AND EXISTS (
+        SELECT 1 FROM public.matches mx
+        WHERE mx.id = ss.match_id
+          AND mx.status IN ('live', 'submitted')
+      )
   )
 );
 
@@ -644,6 +672,8 @@ WITH CHECK (
       AND ss.judge_id = (SELECT auth.uid())
       AND ss.status = 'draft'
       AND public.is_assigned_tournament_judge(ss.match_id)
+      AND tc.is_active = true
+      AND score_items.raw_points BETWEEN tc.min_points AND tc.max_points
   )
 );
 
@@ -770,8 +800,12 @@ BEGIN
   WHERE s.tournament_id = v_request.tournament_id
   FOR UPDATE;
 
-  IF NOT FOUND OR NOT v_settings.registration_open THEN
-    RAISE EXCEPTION 'ثبت‌نام این تورنمنت بسته است یا تنظیمات آن وجود ندارد.';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'تنظیمات ثبت‌نام این تورنمنت وجود ندارد.';
+  END IF;
+
+  IF NOT v_settings.registration_open THEN
+    RAISE EXCEPTION 'ثبت‌نام این تورنمنت بسته است.';
   END IF;
 
   IF NOT EXISTS (
