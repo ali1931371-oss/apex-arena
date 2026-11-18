@@ -67,6 +67,10 @@ async function loadMatch(matchId){
   setStatus("pageStatus","فرم مسابقه بارگذاری شد.");
  }catch(e){$("scoreArea").classList.add("hidden");setStatus("pageStatus","دریافت فرم ممکن نشد: "+e.message,true)}
 }
+function criteriaForPlayer(player){
+ const sideGroup=player.side==="مافیا"?"mafia":player.side==="شهروند"?"citizen":null;
+ return (currentDetails.criteria||[]).filter(c=>c.criterion_group==="general"||c.criterion_group==="bonus"||c.criterion_group==="penalty"||(sideGroup&&c.criterion_group===sideGroup));
+}
 function renderPlayers(){
  const box=$("playersArea");box.replaceChildren();
  const players=currentDetails.players||[],criteria=currentDetails.criteria||[],submissions=currentDetails.submissions||[];
@@ -77,15 +81,24 @@ function renderPlayers(){
   const existing=found?{...found,items:[...(found.items||[])]}:{id:null,player_id:player.player_id,status:"draft",items:[]};
   const locked=existing.status!=="draft";
   const card=node("article",undefined,"card"),head=node("div",undefined,"player-title");
-  head.append(node("h3",player.display_name+" — "+(player.player_code||"بدون کد")),node("span",locked?"ارسال‌شده":"پیش‌نویس / جدید","pill"));card.append(head);
+  head.append(node("h3",player.display_name+" — "+(player.player_code||"بدون کد")),node("span",locked?"ارسال‌شده":"پیش‌نویس / جدید","pill"));card.append(head);\n  card.append(node("p","ساید: "+(player.side||"ثبت نشده")+" | نقش: "+(player.role_name||"ثبت نشده")+" | صندلی: "+(player.seat_number??"ثبت نشده"),"muted"));
   const inputMap=new Map(),existingItems=(existing?.items)||[];
-  criteria.forEach(criterion=>{
-   const row=node("div",undefined,"criteria"),label=node("div");
-   label.append(node("strong",criterion.criterion_name),node("small","حد مجاز: "+criterion.min_points+" تا "+criterion.max_points+(criterion.description?" — "+criterion.description:"")));
-   const input=node("input");input.type="number";input.min=criterion.min_points;input.max=criterion.max_points;input.step="any";input.required=true;input.disabled=!!locked;
-   const saved=existingItems.find(x=>x.criterion_id===criterion.id);if(saved)input.value=saved.raw_points;
-   row.append(label,input);card.append(row);inputMap.set(criterion.id,input);
+  const playerCriteria=criteriaForPlayer(player);
+  const groups=[["general","معیارهای عمومی"],[player.side==="مافیا"?"mafia":"citizen",player.side==="مافیا"?"معیارهای اختصاصی مافیا":"معیارهای اختصاصی شهروند"],["bonus","امتیازهای تشویقی"],["penalty","امتیازهای جریمه"]];
+  if(!player.side||!player.role_name){card.append(node("p","اطلاعات ساید و نقش این بازیکن هنوز توسط مدیر ثبت نشده است؛ برای داوری صحیح، به مدیر اطلاع بده.","error"));}
+  groups.forEach(([group,title])=>{
+   const groupItems=playerCriteria.filter(c=>c.criterion_group===group);
+   if(!groupItems.length)return;
+   card.append(node("h4",title));
+   groupItems.forEach(criterion=>{
+    const row=node("div",undefined,"criteria"),label=node("div");
+    label.append(node("strong",criterion.criterion_name),node("small","حد مجاز: "+criterion.min_points+" تا "+criterion.max_points+(criterion.description?" — "+criterion.description:"")));
+    const input=node("input");input.type="number";input.min=criterion.min_points;input.max=criterion.max_points;input.step="any";input.required=true;input.disabled=!!locked;
+    const saved=existingItems.find(x=>x.criterion_id===criterion.id);input.value=saved?saved.raw_points:(group==="bonus"||group==="penalty"?"0":"10");
+    row.append(label,input);card.append(row);inputMap.set(criterion.id,input);
+   });
   });
+  card.append(node("p","امتیاز فنی + تشویقی − جریمه محاسبه می‌شود. سقف فنی ۲۸۰ و سقف تشویقی ۲۰ است.","muted"));
   const actions=node("div",undefined,"actions");
   const save=node("button","ذخیره پیش‌نویس");save.className="secondary";save.disabled=!!locked;
   const submit=node("button","ارسال نهایی امتیاز");submit.disabled=!!locked;
@@ -99,7 +112,7 @@ function renderPlayers(){
 async function saveScore(player,inputMap,existing,finalize,saveButton,submitButton,card){
  const match=currentDetails.match;
  if(!["live","submitted"].includes(match.status)){setStatus("pageStatus","ثبت امتیاز فقط هنگام اجرای مسابقه یا مرحله ثبت نتایج مجاز است.",true);return}
- const criteria=currentDetails.criteria||[],items=[];
+ const criteria=criteriaForPlayer(player),items=[];
  for(const criterion of criteria){
   const input=inputMap.get(criterion.id),raw=input.value.trim();
   if(raw===""){setStatus("pageStatus","برای معیار «"+criterion.criterion_name+"» امتیاز وارد کن.",true);input.focus();return}
