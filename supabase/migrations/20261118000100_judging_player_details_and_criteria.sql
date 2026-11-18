@@ -339,3 +339,6 @@ AND NOT EXISTS (
   WHERE existing.tournament_id = 'dfdb829e-1198-4f1a-9be5-d21549272865'::uuid
     AND existing.criterion_name = v.criterion_name
 );
+
+-- Refresh PostgREST so the newly-created RPCs are immediately discoverable.
+NOTIFY pgrst, 'reload schema';
