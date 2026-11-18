@@ -292,11 +292,11 @@ GRANT EXECUTE ON FUNCTION public.get_judge_match_details(uuid) TO authenticated;
 -- Initial judging criteria for the existing APEX ARENA test tournament only.
 INSERT INTO public.tournament_criteria
   (tournament_id, criterion_name, description, min_points, max_points, weight,
-   score_type, is_active, calculation_type, aggregation_method, display_order, criterion_group)
+   score_type, is_active, display_order, criterion_group)
 SELECT
   'dfdb829e-1198-4f1a-9be5-d21549272865'::uuid,
   v.criterion_name, v.description, v.min_points, v.max_points, 1,
-  v.score_type, true, NULL, NULL, v.display_order, v.criterion_group
+  v.score_type, true, v.display_order, v.criterion_group
 FROM (VALUES
   ('تحلیل و استدلال','کیفیت تحلیل اتفاقات و رفتارها بر پایه اطلاعات بازی',0::numeric,20::numeric,'positive'::text,1,'general'),
   ('فکت‌سازی مستند','ارائه فکت دقیق، مرتبط و قابل پیگیری',0,20,'positive',2,'general'),
