@@ -96,7 +96,7 @@ BEGIN
     RAISE EXCEPTION 'فقط مدیر مجاز به ثبت اطلاعات بازیکنان است.';
   END IF;
 
-  IF p_side NOT IN ('شهروند','مافیا') THEN
+  IF p_side IS NULL OR p_side NOT IN ('شهروند','مافیا') THEN
     RAISE EXCEPTION 'ساید باید شهروند یا مافیا باشد.';
   END IF;
   IF p_role_name IS NULL OR length(btrim(p_role_name)) NOT BETWEEN 1 AND 100 THEN
@@ -126,6 +126,70 @@ BEGIN
   RETURN jsonb_build_object('success', true);
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION public.assign_judge_to_match(
+  p_match_id uuid,
+  p_judge_id uuid
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_tournament_id uuid;
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
+    RAISE EXCEPTION 'فقط مدیر یا مسئول مجاز به تعیین داور مسابقه است.';
+  END IF;
+
+  SELECT m.tournament_id INTO v_tournament_id
+  FROM public.matches m
+  WHERE m.id = p_match_id
+  FOR UPDATE;
+
+  IF v_tournament_id IS NULL THEN
+    RAISE EXCEPTION 'مسابقه پیدا نشد.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public.tournament_judges tj
+    WHERE tj.tournament_id = v_tournament_id
+      AND tj.judge_id = p_judge_id
+      AND tj.is_active = true
+  ) THEN
+    RAISE EXCEPTION 'این شخص برای این تورنمنت داور فعال نیست.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public.judge_assignments ja
+    WHERE ja.match_id = p_match_id AND ja.judge_id = p_judge_id
+  ) AND (
+    SELECT count(*) FROM public.judge_assignments ja
+    WHERE ja.match_id = p_match_id
+  ) >= 3 THEN
+    RAISE EXCEPTION 'هر مسابقه حداکثر می‌تواند سه داور داشته باشد.';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.match_players mp
+    JOIN public.players pl ON pl.id = mp.player_id
+    WHERE mp.match_id = p_match_id
+      AND pl.user_id = p_judge_id
+  ) THEN
+    RAISE EXCEPTION 'این شخص در همین مسابقه بازیکن است و نمی‌تواند هم‌زمان داور باشد.';
+  END IF;
+
+  INSERT INTO public.judge_assignments (match_id, judge_id)
+  VALUES (p_match_id, p_judge_id)
+  ON CONFLICT (match_id, judge_id) DO NOTHING;
+
+  RETURN true;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.assign_judge_to_match(uuid, uuid) TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.get_judge_match_details(p_match_id uuid)
 RETURNS jsonb
