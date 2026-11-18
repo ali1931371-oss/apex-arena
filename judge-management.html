@@ -97,7 +97,7 @@ function renderJudges(){
 }
 function renderMatches(){
  const detailsSelect=$("playerDetailsMatch");
- if(detailsSelect){const previous=detailsSelect.value;const placeholder=node("option","انتخاب مسابقه");placeholder.value="";placeholder.disabled=true;detailsSelect.replaceChildren(placeholder);matches.forEach(m=>{const o=node("option","مسابقه "+m.match_number+" — "+m.match_status);o.value=m.match_id;detailsSelect.append(o)});if(matches.some(m=>m.match_id===previous))detailsSelect.value=previous;else detailsSelect.value="";}
+ if(detailsSelect){const previous=detailsSelect.value;const placeholder=node("option","انتخاب مسابقه");placeholder.value="";placeholder.disabled=true;detailsSelect.replaceChildren(placeholder);matches.forEach(m=>{const o=node("option","مسابقه "+m.match_number+" — "+m.match_status);o.value=m.match_id;detailsSelect.append(o)});if(matches.some(m=>m.match_id===previous))detailsSelect.value=previous;else detailsSelect.value="";detailsSelect.disabled=matches.length===0;const loadButton=$("loadPlayerDetails");if(loadButton)loadButton.disabled=matches.length===0;}
 
  const box=$("matchList");box.replaceChildren();
  if(!matches.length){box.append(node("p","برای این تورنمنت مسابقه‌ای ثبت نشده است.","muted"));return}
@@ -114,8 +114,8 @@ function renderMatches(){
  });
 }
 async function loadPlayerDetails(){
- const matchId=$("playerDetailsMatch").value,box=$("playerDetailsList");
- box.replaceChildren();if(!matchId||! /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(matchId)){setStatus("playerDetailsStatus",matches.length?"ابتدا یک مسابقه معتبر را از فهرست انتخاب کن.":"برای این تورنمنت هنوز مسابقه‌ای ثبت نشده است؛ ابتدا مسابقه بساز.",true);return}
+ const matchId=String($("playerDetailsMatch").value||"").trim(),box=$("playerDetailsList");
+ box.replaceChildren();if(!matchId||!matches.some(m=>String(m.match_id)===matchId)||! /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(matchId)){setStatus("playerDetailsStatus",matches.length?"ابتدا یک مسابقه معتبر را از فهرست انتخاب کن.":"برای این تورنمنت هنوز مسابقه‌ای ثبت نشده است؛ ابتدا مسابقه بساز.",true);return}
  setStatus("playerDetailsStatus","در حال دریافت بازیکنان...");
  try{
   const rows=await rpc("get_manager_match_players",{p_match_id:matchId});
