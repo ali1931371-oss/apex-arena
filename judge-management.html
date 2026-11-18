@@ -130,8 +130,11 @@ async function loadPlayerDetails(){
    const seatWrap=node("div"),seatLabel=node("label","شماره صندلی (اختیاری)");const seat=node("input");seat.type="number";seat.min="1";seat.max="99";seat.placeholder="خالی = بدون شماره";seat.value=p.seat_number??"";seatWrap.append(seatLabel,seat);
    grid.append(sideWrap,roleWrap,seatWrap);card.append(grid);
    const save=node("button","ذخیره اطلاعات بازیکن");save.onclick=async()=>{
+    const roleName=role.value.trim(),seatValue=seat.value===""?null:Number(seat.value);
+    if(!side.value||!roleName){setStatus("playerDetailsStatus","انتخاب ساید و واردکردن نام نقش الزامی است.",true);return}
+    if(seatValue!==null&&(!Number.isInteger(seatValue)||seatValue<1||seatValue>99)){setStatus("playerDetailsStatus","شماره صندلی باید عددی بین ۱ تا ۹۹ باشد یا خالی بماند.",true);return}
     save.disabled=true;
-    try{await rpc("save_match_player_judging_details",{p_match_id:matchId,p_player_id:p.player_id,p_side:side.value,p_role_name:role.value.trim(),p_seat_number:seat.value===""?null:Number(seat.value)});setStatus("playerDetailsStatus","اطلاعات "+p.display_name+" ذخیره شد.");}
+    try{await rpc("save_match_player_judging_details",{p_match_id:matchId,p_player_id:p.player_id,p_side:side.value,p_role_name:roleName,p_seat_number:seatValue});setStatus("playerDetailsStatus","اطلاعات "+p.display_name+" ذخیره شد.");}
     catch(e){setStatus("playerDetailsStatus","ذخیره انجام نشد: "+e.message,true)}
     finally{save.disabled=false}
    };card.append(save);box.append(card);
@@ -164,7 +167,8 @@ async function unassign(matchId,judgeId){
 $("loginButton").addEventListener("click",signIn);
 $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",loadTournamentData);
-$("appointButton").addEventListener("click",appoint);\n$("loadPlayerDetails").addEventListener("click",loadPlayerDetails);
+$("appointButton").addEventListener("click",appoint);
+$("loadPlayerDetails").addEventListener("click",loadPlayerDetails);
 $("refreshButton").addEventListener("click",loadTournamentData);
 $("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden")});
 db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
