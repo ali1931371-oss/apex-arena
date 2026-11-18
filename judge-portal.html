@@ -81,10 +81,11 @@ function renderPlayers(){
   const existing=found?{...found,items:[...(found.items||[])]}:{id:null,player_id:player.player_id,status:"draft",items:[]};
   const locked=existing.status!=="draft";
   const card=node("article",undefined,"card"),head=node("div",undefined,"player-title");
-  head.append(node("h3",player.display_name+" — "+(player.player_code||"بدون کد")),node("span",locked?"ارسال‌شده":"پیش‌نویس / جدید","pill"));card.append(head);\n  card.append(node("p","ساید: "+(player.side||"ثبت نشده")+" | نقش: "+(player.role_name||"ثبت نشده")+" | صندلی: "+(player.seat_number??"ثبت نشده"),"muted"));
+  head.append(node("h3",player.display_name+" — "+(player.player_code||"بدون کد")),node("span",locked?"ارسال‌شده":"پیش‌نویس / جدید","pill"));card.append(head);
+  card.append(node("p","ساید: "+(player.side||"ثبت نشده")+" | نقش: "+(player.role_name||"ثبت نشده")+" | صندلی: "+(player.seat_number??"ثبت نشده"),"muted"));
   const inputMap=new Map(),existingItems=(existing?.items)||[];
   const playerCriteria=criteriaForPlayer(player);
-  const groups=[["general","معیارهای عمومی"],[player.side==="مافیا"?"mafia":"citizen",player.side==="مافیا"?"معیارهای اختصاصی مافیا":"معیارهای اختصاصی شهروند"],["bonus","امتیازهای تشویقی"],["penalty","امتیازهای جریمه"]];
+  const groups=[["general","معیارهای عمومی"],[player.side==="مافیا"?"mafia":"citizen",player.side==="مافیا"?"معیارهای اختصاصی مافیا":"معیارهای اختصاصی شهروندی"],["bonus","امتیازهای تشویقی"],["penalty","امتیازهای جریمه"]];
   if(!player.side||!player.role_name){card.append(node("p","اطلاعات ساید و نقش این بازیکن هنوز توسط مدیر ثبت نشده است؛ برای داوری صحیح، به مدیر اطلاع بده.","error"));}
   groups.forEach(([group,title])=>{
    const groupItems=playerCriteria.filter(c=>c.criterion_group===group);
@@ -100,8 +101,10 @@ function renderPlayers(){
   });
   card.append(node("p","امتیاز فنی + تشویقی − جریمه محاسبه می‌شود. سقف فنی ۲۸۰ و سقف تشویقی ۲۰ است.","muted"));
   const actions=node("div",undefined,"actions");
-  const save=node("button","ذخیره پیش‌نویس");save.className="secondary";save.disabled=!!locked;
-  const submit=node("button","ارسال نهایی امتیاز");submit.disabled=!!locked;
+  const detailsComplete=Boolean(player.side&&player.role_name);
+  const save=node("button","ذخیره پیش‌نویس");save.className="secondary";save.disabled=!!locked||!detailsComplete;
+  const submit=node("button","ارسال نهایی امتیاز");submit.disabled=!!locked||!detailsComplete;
+  if(!detailsComplete)card.append(node("p","تا زمانی که مدیر ساید و نقش این بازیکن را ثبت نکند، ارسال امتیاز امکان‌پذیر نیست.","error"));
   save.onclick=()=>saveScore(player,inputMap,existing,false,save,submit,card);
   submit.onclick=()=>{if(confirm("پس از ارسال نهایی، این امتیاز برای داور قفل می‌شود. ارسال شود؟"))saveScore(player,inputMap,existing,true,save,submit,card)};
   actions.append(save,submit);card.append(actions);
