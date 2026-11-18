@@ -140,7 +140,7 @@ async function loadPlayerDetails(){
    };card.append(save);box.append(card);
   });
   setStatus("playerDetailsStatus",rows.length+" بازیکن دریافت شد. اطلاعات را وارد و جداگانه ذخیره کن.");
- }catch(e){setStatus("playerDetailsStatus","دریافت اطلاعات انجام نشد: "+e.message,true)}
+ }catch(e){const msg=String(e.message||e);if(msg.includes("get_manager_match_players")||e.code==="PGRST202"){setStatus("playerDetailsStatus","تابع دریافت بازیکنان هنوز در Supabase نصب نشده است. فایل Migration را در SQL Editor اجرا کن؛ سپس صفحه را تازه‌سازی کن. لینک فایل: https://github.com/ali1931371-oss/apex-arena/blob/feature/apex-pages-refactor/supabase/migrations/20261118000100_judging_player_details_and_criteria.sql",true)}else{setStatus("playerDetailsStatus","دریافت اطلاعات انجام نشد: "+msg,true)}}
 }
 async function appoint(){
  const tid=$("tournamentSelect").value,jid=$("candidateSelect").value;if(!tid||!jid){setStatus("candidateStatus","ابتدا بازیکن را انتخاب کن.",true);return}
