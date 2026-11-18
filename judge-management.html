@@ -32,6 +32,9 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 <section class="panel"><h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2><p>فقط بازیکن تأییدشده همان تورنمنت قابل انتخاب است. پیش از انتصاب، نباید در مسابقه‌های آن تورنمنت به‌عنوان بازیکن ثبت شده باشد.</p><div class="grid"><div><label for="candidateSelect">بازیکن واجد شرایط</label><select id="candidateSelect"><option value="">انتخاب بازیکن</option></select></div><div><button id="appointButton">انتصاب به‌عنوان داور</button></div></div><p id="candidateStatus" class="status"></p></section>
 <section class="panel"><h2>داوران تورنمنت</h2><p class="muted">هنگام لغو داوری، می‌توانی تعیین کنی شخص به فهرست بازیکنان همین تورنمنت برگردد یا خیر.</p><div id="judgeList"></div></section>
 <section class="panel"><h2>تخصیص مسابقه به داور</h2><p>داور فقط به مسابقه‌هایی دسترسی دارد که اینجا به او تخصیص داده شده‌اند.</p><div id="matchList"></div></section>
+<section class="panel"><h2>ثبت اطلاعات بازیکنان مسابقه</h2><p>مدیر می‌تواند قبل یا بعد از بازی، ساید، نقش واقعی و شماره صندلی اختیاری هر بازیکن را برای همان مسابقه ثبت یا اصلاح کند. این اطلاعات عمومی نیست.</p>
+<div class="grid"><div><label for="playerDetailsMatch">انتخاب مسابقه</label><select id="playerDetailsMatch"><option value="">انتخاب مسابقه</option></select></div><div><button id="loadPlayerDetails" class="secondary">نمایش بازیکنان مسابقه</button></div></div>
+<div id="playerDetailsList"></div><p id="playerDetailsStatus" class="status" role="status"></p></section>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -93,6 +96,9 @@ function renderJudges(){
  });
 }
 function renderMatches(){
+ const detailsSelect=$("playerDetailsMatch");
+ if(detailsSelect){const previous=detailsSelect.value;detailsSelect.replaceChildren(node("option","انتخاب مسابقه"));matches.forEach(m=>{const o=node("option","مسابقه "+m.match_number+" — "+m.match_status);o.value=m.match_id;detailsSelect.append(o)});if(matches.some(m=>m.match_id===previous))detailsSelect.value=previous;}
+
  const box=$("matchList");box.replaceChildren();
  if(!matches.length){box.append(node("p","برای این تورنمنت مسابقه‌ای ثبت نشده است.","muted"));return}
  matches.forEach(m=>{
@@ -106,6 +112,32 @@ function renderMatches(){
   else card.append(node("p","برای تخصیص مسابقه ابتدا داور فعال منصوب کن.","muted"));
   box.append(card);
  });
+}
+async function loadPlayerDetails(){
+ const matchId=$("playerDetailsMatch").value,box=$("playerDetailsList");
+ box.replaceChildren();if(!matchId){setStatus("playerDetailsStatus","ابتدا مسابقه را انتخاب کن.",true);return}
+ setStatus("playerDetailsStatus","در حال دریافت بازیکنان...");
+ try{
+  const rows=await rpc("get_manager_match_players",{p_match_id:matchId});
+  if(!rows||!rows.length){setStatus("playerDetailsStatus","بازیکنی برای این مسابقه ثبت نشده است.");return}
+  rows.forEach(p=>{
+   const card=node("article",undefined,"card");
+   card.append(node("h3",p.display_name+" — "+(p.player_code||"بدون کد")));
+   const grid=node("div",undefined,"grid");
+   const sideWrap=node("div"),sideLabel=node("label","ساید");const side=node("select");
+   [["","انتخاب ساید"],["شهروند","شهروند"],["مافیا","مافیا"]].forEach(([v,t])=>{const o=node("option",t);o.value=v;side.append(o)});side.value=p.side||"";sideWrap.append(sideLabel,side);
+   const roleWrap=node("div"),roleLabel=node("label","نقش واقعی");const role=node("input");role.type="text";role.maxLength=100;role.placeholder="نام نقش بازیکن";role.value=p.role_name||"";roleWrap.append(roleLabel,role);
+   const seatWrap=node("div"),seatLabel=node("label","شماره صندلی (اختیاری)");const seat=node("input");seat.type="number";seat.min="1";seat.max="99";seat.placeholder="خالی = بدون شماره";seat.value=p.seat_number??"";seatWrap.append(seatLabel,seat);
+   grid.append(sideWrap,roleWrap,seatWrap);card.append(grid);
+   const save=node("button","ذخیره اطلاعات بازیکن");save.onclick=async()=>{
+    save.disabled=true;
+    try{await rpc("save_match_player_judging_details",{p_match_id:matchId,p_player_id:p.player_id,p_side:side.value,p_role_name:role.value.trim(),p_seat_number:seat.value===""?null:Number(seat.value)});setStatus("playerDetailsStatus","اطلاعات "+p.display_name+" ذخیره شد.");}
+    catch(e){setStatus("playerDetailsStatus","ذخیره انجام نشد: "+e.message,true)}
+    finally{save.disabled=false}
+   };card.append(save);box.append(card);
+  });
+  setStatus("playerDetailsStatus",rows.length+" بازیکن دریافت شد. اطلاعات را وارد و جداگانه ذخیره کن.");
+ }catch(e){setStatus("playerDetailsStatus","دریافت اطلاعات انجام نشد: "+e.message,true)}
 }
 async function appoint(){
  const tid=$("tournamentSelect").value,jid=$("candidateSelect").value;if(!tid||!jid){setStatus("candidateStatus","ابتدا بازیکن را انتخاب کن.",true);return}
@@ -132,7 +164,7 @@ async function unassign(matchId,judgeId){
 $("loginButton").addEventListener("click",signIn);
 $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",loadTournamentData);
-$("appointButton").addEventListener("click",appoint);
+$("appointButton").addEventListener("click",appoint);\n$("loadPlayerDetails").addEventListener("click",loadPlayerDetails);
 $("refreshButton").addEventListener("click",loadTournamentData);
 $("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden")});
 db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
