@@ -41,6 +41,16 @@ BEGIN
     RAISE EXCEPTION 'هر تورنمنت حداکثر می‌تواند ۵۰ مرحله داشته باشد.';
   END IF;
 
+  IF EXISTS (
+    SELECT 1
+    FROM jsonb_array_elements(p_stages) AS item(value)
+    WHERE nullif(item.value->>'id', '') IS NOT NULL
+    GROUP BY item.value->>'id'
+    HAVING count(*) > 1
+  ) THEN
+    RAISE EXCEPTION 'یک مرحله بیش از یک‌بار در ترتیب ارسالی وجود دارد.';
+  END IF;
+
   -- Free the unique (tournament_id, stage_number) values before applying
   -- the requested order, so moving stages never causes a temporary conflict.
   UPDATE public.tournament_stages
@@ -50,10 +60,13 @@ BEGIN
   FOR v_stage IN SELECT value FROM jsonb_array_elements(p_stages)
   LOOP
     v_position := v_position + 1;
+    IF jsonb_typeof(v_stage) <> 'object' THEN
+      RAISE EXCEPTION 'ساختار یکی از مراحل معتبر نیست.';
+    END IF;
     v_name := btrim(coalesce(v_stage->>'name', ''));
-    v_groups := (v_stage->'settings'->>'groups')::integer;
-    v_players := (v_stage->'settings'->>'players')::integer;
-    v_games := (v_stage->'settings'->>'games')::integer;
+    v_groups := nullif(v_stage->'settings'->>'groups', '')::integer;
+    v_players := nullif(v_stage->'settings'->>'players', '')::integer;
+    v_games := nullif(v_stage->'settings'->>'games', '')::integer;
 
     IF v_name = '' OR length(v_name) > 100 THEN
       RAISE EXCEPTION 'نام هر مرحله باید بین ۱ تا ۱۰۰ نویسه باشد.';
@@ -86,6 +99,20 @@ BEGIN
 
       IF NOT FOUND THEN
         RAISE EXCEPTION 'یکی از مراحل ارسالی متعلق به این تورنمنت نیست.';
+      END IF;
+
+      IF EXISTS (SELECT 1 FROM public.matches m WHERE m.stage_id = v_id)
+         AND (
+           coalesce(nullif(v_existing.settings->>'groups_count','')::integer,
+                    nullif(v_existing.settings->>'groups','')::integer) IS DISTINCT FROM v_groups
+           OR coalesce(nullif(v_existing.settings->>'players_per_group','')::integer,
+                       nullif(v_existing.settings->>'players','')::integer) IS DISTINCT FROM v_players
+           OR coalesce(nullif(v_existing.settings->>'games_per_group','')::integer,
+                       nullif(v_existing.settings->>'games','')::integer) IS DISTINCT FROM v_games
+         ) THEN
+        RAISE EXCEPTION
+          'مرحله «%» مسابقه ثبت‌شده دارد؛ تنظیمات گروه‌ها و بازی‌های آن برای حفظ سوابق قابل تغییر نیست.',
+          v_existing.name;
       END IF;
 
       UPDATE public.tournament_stages
