@@ -143,8 +143,54 @@ renderTable("versionsList",["نسخه","وضعیت","تاریخ ایجاد","ق�
 const errors=results.filter(x=>x[2]).map(x=>x[0]+": "+x[2].message);status("dashboardStatus","نمایش اطلاعات انجام شد. "+stages.length+" مرحله، "+groups.length+" گروه، "+matches.length+" مسابقه، "+(data.scenarios.rows||[]).length+" سناریو و "+(data.versions.rows||[]).length+" نسخه قانون."+(errors.length?" برخی بخش‌ها قابل خواندن نبودند: "+errors.join("؛ "):""));
 }
 
-/* Interactive local prototype: no database writes are performed here. */
-const demoDefaults=()=>({
+/* Interactive local prototype: no scenario/role database writes are performed here. */
+const demoScenarioRoleSets={
+ "بازپرس":[
+  {name:"رئیس مافیا",side:"مافیا",count:1},
+  {name:"شیاد",side:"مافیا",count:1},
+  {name:"ناتو",side:"مافیا",count:1},
+  {name:"بازپرس",side:"شهروند",count:1},
+  {name:"محقق",side:"شهروند",count:1},
+  {name:"دکتر",side:"شهروند",count:1},
+  {name:"کارآگاه",side:"شهروند",count:1},
+  {name:"رویین‌تن",side:"شهروند",count:1},
+  {name:"شهروند ساده",side:"شهروند",count:2}
+ ],
+ "مذاکره":[
+  {name:"رئیس مافیا",side:"مافیا",count:1},
+  {name:"مذاکره‌کننده",side:"مافیا",count:1},
+  {name:"مافیا ساده",side:"مافیا",count:1},
+  {name:"زره‌پوش",side:"شهروند",count:1},
+  {name:"خبرنگار",side:"شهروند",count:1},
+  {name:"تک‌تیرانداز",side:"شهروند",count:1},
+  {name:"دکتر",side:"شهروند",count:1},
+  {name:"کارآگاه",side:"شهروند",count:1},
+  {name:"شهروند ساده",side:"شهروند",count:2}
+ ],
+ "نماینده":[
+  {name:"رئیس مافیا",side:"مافیا",count:1},
+  {name:"هکر",side:"مافیا",count:1},
+  {name:"یاغی",side:"مافیا",count:1},
+  {name:"دکتر",side:"شهروند",count:1},
+  {name:"محافظ",side:"شهروند",count:1},
+  {name:"راهنما",side:"شهروند",count:1},
+  {name:"وکیل",side:"شهروند",count:1},
+  {name:"مین‌گذار",side:"شهروند",count:1},
+  {name:"شهروند ساده",side:"شهروند",count:2}
+ ],
+ "کاپو":[
+  {name:"دن مافیا",side:"مافیا",count:1},
+  {name:"جادوگر",side:"مافیا",count:1},
+  {name:"جلاد",side:"مافیا",count:1},
+  {name:"وارث",side:"شهروند",count:1},
+  {name:"کارآگاه",side:"شهروند",count:1},
+  {name:"زره‌ساز",side:"شهروند",count:1},
+  {name:"عطار",side:"شهروند",count:1},
+  {name:"مظنون",side:"شهروند",count:1},
+  {name:"شهروند ساده",side:"شهروند",count:2}
+ ]
+};
+const demoDefaults=(scenario="بازپرس")=>({
  stages:[
   {name:"مقدماتی",groups:5,players:10,games:2},
   {name:"یک‌چهارم نهایی",groups:2,players:10,games:1},
@@ -152,12 +198,7 @@ const demoDefaults=()=>({
   {name:"فینال",groups:1,players:10,games:1},
   {name:"رتبه‌بندی",groups:1,players:10,games:1}
  ],
- roles:[
-  {name:"رئیس مافیا",side:"مافیا",count:1},
-  {name:"دکتر",side:"شهروند",count:1},
-  {name:"کارآگاه",side:"شهروند",count:1},
-  {name:"شهروند ساده",side:"شهروند",count:2}
- ]
+ roles:(demoScenarioRoleSets[scenario]||[]).map(r=>({...r}))
 });
 let demoState=demoDefaults(),demoStageIndex=-1,demoStageDraft=null,demoOrderedStages=[];
 const demoNames=["مقدماتی","یک‌چهارم نهایی","نیمه‌نهایی","فینال","رتبه‌بندی"];
@@ -261,7 +302,7 @@ function demoRenderRoles(){
   const row=document.createElement("div");row.className="role-row";
   const name=document.createElement("input");name.value=r.name;name.setAttribute("aria-label","نام نقش");name.addEventListener("input",()=>{r.name=name.value;demoRenderSummary()});
   const side=document.createElement("select");["شهروند","مافیا"].forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;side.append(o)});side.value=r.side;side.addEventListener("change",()=>{r.side=side.value;demoRenderSummary()});
-  const count=document.createElement("input");count.type="number";count.min="0";count.max="20";count.value=r.count;count.setAttribute("aria-label","تعداد نقش");count.addEventListener("input",()=>{r.count=Math.max(0,Number(count.value)||0);demoRenderSummary()});
+  const count=document.createElement("input");count.type="number";count.min="0";count.max="20";count.value=r.count;count.setAttribute("aria-label","تعداد نقش");count.addEventListener("input",()=>{r.count=Math.max(0,Number(count.value)||0);demoUpdateRoleStats();demoRenderSummary()});
   const remove=document.createElement("button");remove.type="button";remove.className="secondary";remove.textContent="حذف";remove.onclick=()=>{demoState.roles.splice(i,1);demoRenderRoles();demoRenderSummary()};
   row.append(name,side,count,remove);box.append(row);
  });
@@ -282,7 +323,7 @@ document.querySelectorAll("[data-demo-tab]").forEach(btn=>btn.addEventListener("
 demo$("demoAddStage").addEventListener("click",()=>{const name=prompt("نام مرحله جدید را وارد کن:","مرحله جدید");if(!name||!name.trim())return;demoState.stages.push({name:name.trim(),settings:null});demoStageIndex=demoState.stages.length-1;demoStageDraft=null;demoRenderAll();demoStatus("مرحله جدید به پیش‌نمایش اضافه شد.")});
 demo$("demoAddRole").addEventListener("click",()=>{demoState.roles.push({name:"نقش جدید",side:"شهروند",count:1});demoRenderRoles();demoRenderSummary();demoStatus("نقش جدید به پیش‌نمایش اضافه شد.")});
 demo$("demoAddScenario").addEventListener("click",()=>{const name=demo$("demoScenarioName").value.trim();if(!name){demoStatus("ابتدا نام سناریوی آزمایشی را بنویس.");return}const o=document.createElement("option");o.textContent=name;o.value=name;demo$("demoScenario").append(o);demo$("demoScenario").value=name;demo$("demoScenarioName").value="";demoStatus("سناریو فقط به فهرست آزمایشی اضافه شد.")});
-demo$("demoScenario").addEventListener("change",()=>{demoState.roles=demoDefaults().roles;demoRenderRoles();demoRenderSummary();demoStatus("ترکیب نمونه برای سناریوی انتخاب‌شده نمایش داده شد؛ تنظیمات مراحل حفظ شد.")});
+demo$("demoScenario").addEventListener("change",()=>{demoState.roles=demoDefaults(demo$("demoScenario").value).roles;demoRenderRoles();demoRenderSummary();demoStatus("نقش‌های کامل سناریوی انتخاب‌شده نمایش داده شد؛ تنظیمات مراحل حفظ شد.")});
 ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
 demo$("demoReset").textContent="بازخوانی تنظیمات تورنمنت";
 demo$("demoReset").addEventListener("click",()=>loadTournament());
