@@ -114,7 +114,9 @@ BEGIN
     END IF;
   END LOOP;
 
-  DELETE FROM public.scenario_roles sr
+  -- Keep removed roles as inactive records instead of deleting history.
+  UPDATE public.scenario_roles sr
+  SET is_active = false
   WHERE sr.scenario_id = v_scenario_id
     AND NOT EXISTS (
       SELECT 1
