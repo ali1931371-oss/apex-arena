@@ -83,7 +83,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
       <div class="demo-field"><label for="demoScenario">سناریو</label><select id="demoScenario"><option>بازپرس</option><option>مذاکره</option><option>نماینده</option><option>کاپو</option><option>سناریوی اختصاصی آزمایشی</option></select></div>
       <div class="demo-field"><label for="demoScenarioName">نام سناریوی جدید (برای آزمایش)</label><input id="demoScenarioName" placeholder="مثلاً سناریوی ویژه"></div>
     </div>
-    <div class="demo-actions"><button type="button" id="demoAddScenario" class="secondary">افزودن سناریوی جدید +</button><button type="button" id="demoAddRole">افزودن نقش +</button></div>
+    <div class="demo-actions"><button type="button" id="demoAddScenario" class="secondary">افزودن سناریوی جدید +</button><button type="button" id="demoAddRole">افزودن نقش +</button><button type="button" id="demoSaveScenario">ذخیره سناریو و نقش‌ها</button></div><p id="demoSaveScenarioStatus" class="status" role="status"></p>
     <div id="demoRoleForm" class="card hidden"><h3>ثبت نقش جدید</h3><div class="demo-grid"><div class="demo-field"><label for="demoNewRoleName">نام نقش</label><input id="demoNewRoleName" placeholder="نام نقش را وارد کن"></div><div class="demo-field"><label for="demoNewRoleSide">جناح</label><select id="demoNewRoleSide"><option value="شهروند">شهروند</option><option value="مافیا">مافیا</option></select></div><div class="demo-field"><label for="demoNewRoleCount">تعداد</label><input id="demoNewRoleCount" type="number" min="1" max="20" value="1"></div></div><div class="demo-actions"><button type="button" id="demoSaveNewRole">ثبت نقش</button><button type="button" id="demoCancelNewRole" class="secondary">انصراف</button></div></div>
     <p class="muted">در هر چهار سناریوی فعلی، شهروند ساده در ساید شهروند با تعداد ۲ نفر نمایش داده می‌شود.</p>
     <div id="demoRoles"></div>
@@ -141,10 +141,11 @@ if(data.scenarios.error||data.roles.error){scBox.append(el("p","خواندن س�
 else if(!data.scenarios.rows.length){scBox.append(el("p","سناریویی پیدا نشد.","muted"))}
 else data.scenarios.rows.forEach(s=>{const card=el("article",undefined,"card");card.append(el("h3",s.name+" — "+(s.is_active?"فعال":"غیرفعال")));if(s.description)card.append(el("p",s.description));const roles=rolesByScenario.get(s.id)||[];card.append(el("p","تعداد نقش‌های تعریف‌شده: "+roles.length,"muted"));roles.forEach(r=>{const line=el("div",(r.role_name||"بدون نام")+" | "+(r.faction||"بدون جناح")+" | تعداد: "+r.role_count+" | "+(r.is_active?"فعال":"غیرفعال"),"chip");card.append(line)});scBox.append(card)});
 renderTable("versionsList",["نسخه","وضعیت","تاریخ ایجاد","قوانین صعود"],(data.versions.rows||[]).map(v=>[v.version_number,v.version_status,v.created_at?new Date(v.created_at).toLocaleString("fa-IR"):"—",JSON.stringify(v.advancement_rules||{})]),"هنوز نسخه‌ای از قوانین برای این تورنمنت ثبت نشده است.");
+demoLoadScenarioConfig(data.scenarios.rows||[],data.roles.rows||[]);
 const errors=results.filter(x=>x[2]).map(x=>x[0]+": "+x[2].message);status("dashboardStatus","نمایش اطلاعات انجام شد. "+stages.length+" مرحله، "+groups.length+" گروه، "+matches.length+" مسابقه، "+(data.scenarios.rows||[]).length+" سناریو و "+(data.versions.rows||[]).length+" نسخه قانون."+(errors.length?" برخی بخش‌ها قابل خواندن نبودند: "+errors.join("؛ "):""));
 }
 
-/* Interactive local prototype: no scenario/role database writes are performed here. */
+/* Scenario and role editor: changes are saved only when the manager presses Save. */
 const demoScenarioRoleSets={
  "بازپرس":[
   {name:"رئیس مافیا",side:"مافیا",count:1},
@@ -327,15 +328,77 @@ document.querySelectorAll("[data-demo-tab]").forEach(btn=>btn.addEventListener("
 demo$("demoAddStage").addEventListener("click",()=>{const name=prompt("نام مرحله جدید را وارد کن:","مرحله جدید");if(!name||!name.trim())return;demoState.stages.push({name:name.trim(),settings:null});demoStageIndex=demoState.stages.length-1;demoStageDraft=null;demoRenderAll();demoStatus("مرحله جدید به پیش‌نمایش اضافه شد.")});
 let demoCurrentScenario=demo$("demoScenario").value;
 const demoScenarioRoleState=Object.fromEntries(Object.entries(demoScenarioRoleSets).map(([name,roles])=>[name,roles.map(r=>({...r}))]));
+let demoScenarioRecords=[];
+let demoScenarioNamesByKey={};
+function demoLoadScenarioConfig(scenarios,roles){
+ const select=demo$("demoScenario");
+ const previous=select.value;
+ demoScenarioRecords=(scenarios||[]).map(s=>({...s}));
+ demoScenarioNamesByKey={};
+ select.replaceChildren();
+ demoScenarioRecords.forEach(s=>{
+  const option=document.createElement("option");option.value=s.id;option.textContent=s.name;select.append(option);
+  demoScenarioNamesByKey[s.id]=s.name;
+  demoScenarioRoleState[s.id]=(roles||[]).filter(r=>r.scenario_id===s.id).map(r=>({name:r.role_name,side:r.faction,count:Number(r.role_count||1)}));
+ });
+ const selected=demoScenarioRecords.some(s=>s.id===previous)?previous:(demoScenarioRecords[0]?.id||"");
+ if(selected)select.value=selected;
+ demoCurrentScenario=selected;
+ demoState.roles=(demoScenarioRoleState[selected]||[]).map(r=>({...r}));
+ demo$("demoScenarioName").value="";
+ demoRenderRoles();demoRenderSummary();
+}
+function demoScenarioLabel(key){return demoScenarioNamesByKey[key]||String(key).replace(/^new:/,"");}
+
 demo$("demoAddRole").addEventListener("click",()=>{demo$("demoRoleForm").classList.remove("hidden");demo$("demoNewRoleName").focus();});
 demo$("demoCancelNewRole").addEventListener("click",()=>{demo$("demoRoleForm").classList.add("hidden");demo$("demoNewRoleName").value="";demo$("demoNewRoleCount").value="1";});
-demo$("demoSaveNewRole").addEventListener("click",()=>{const name=demo$("demoNewRoleName").value.trim();const side=demo$("demoNewRoleSide").value;const count=Number(demo$("demoNewRoleCount").value);if(!name){demoStatus("نام نقش را وارد کن.");return;}if(!Number.isInteger(count)||count<1||count>20){demoStatus("تعداد نقش باید عدد صحیحی بین ۱ تا ۲۰ باشد.");return;}demoState.roles.push({name,side,count});demoScenarioRoleState[demoCurrentScenario]=demoState.roles.map(r=>({...r}));demoRenderRoles();demoRenderSummary();demo$("demoRoleForm").classList.add("hidden");demo$("demoNewRoleName").value="";demo$("demoNewRoleCount").value="1";demoStatus("نقش «"+name+"» به سناریوی «"+demoCurrentScenario+"» اضافه شد.");});
-demo$("demoAddScenario").addEventListener("click",()=>{const name=demo$("demoScenarioName").value.trim();if(!name){demoStatus("ابتدا نام سناریوی جدید را بنویس.");return;}const exists=[...demo$("demoScenario").options].some(o=>o.value.trim()===name);if(exists){demoStatus("این نام سناریو از قبل وجود دارد.");return;}const o=document.createElement("option");o.textContent=name;o.value=name;demo$("demoScenario").append(o);demo$("demoScenario").value=name;demoCurrentScenario=name;demoScenarioRoleState[name]=[];demoState.roles=[];demo$("demoScenarioName").value="";demo$("demoRoleForm").classList.add("hidden");demoRenderRoles();demoRenderSummary();demoStatus("سناریوی «"+name+"» ساخته شد؛ فهرست نقش‌ها خالی است. نقش‌های سناریوی قبلی دست‌نخورده باقی ماندند.");});
-demo$("demoScenario").addEventListener("change",()=>{demoScenarioRoleState[demoCurrentScenario]=demoState.roles.map(r=>({...r}));demoCurrentScenario=demo$("demoScenario").value;if(!demoScenarioRoleState[demoCurrentScenario])demoScenarioRoleState[demoCurrentScenario]=demoDefaults(demoCurrentScenario).roles;demoState.roles=demoScenarioRoleState[demoCurrentScenario].map(r=>({...r}));demo$("demoRoleForm").classList.add("hidden");demoRenderRoles();demoRenderSummary();demoStatus("نقش‌های مخصوص سناریوی «"+demoCurrentScenario+"» نمایش داده شد.");});
+demo$("demoSaveNewRole").addEventListener("click",()=>{const name=demo$("demoNewRoleName").value.trim();const side=demo$("demoNewRoleSide").value;const count=Number(demo$("demoNewRoleCount").value);if(!name){demoStatus("نام نقش را وارد کن.");return;}if(!Number.isInteger(count)||count<1||count>20){demoStatus("تعداد نقش باید عدد صحیحی بین ۱ تا ۲۰ باشد.");return;}demoState.roles.push({name,side,count});demoScenarioRoleState[demoCurrentScenario]=demoState.roles.map(r=>({...r}));demoRenderRoles();demoRenderSummary();demo$("demoRoleForm").classList.add("hidden");demo$("demoNewRoleName").value="";demo$("demoNewRoleCount").value="1";demoStatus("نقش «"+name+"» به سناریوی «"+demoScenarioLabel(demoCurrentScenario)+"» اضافه شد.");});
+demo$("demoAddScenario").addEventListener("click",()=>{
+ const name=demo$("demoScenarioName").value.trim();
+ if(!name){demoStatus("ابتدا نام سناریوی جدید را بنویس.");return;}
+ const exists=[...demo$("demoScenario").options].some(o=>o.textContent.trim()===name)||Object.values(demoScenarioNamesByKey).includes(name);
+ if(exists){demoStatus("این نام سناریو از قبل وجود دارد.");return;}
+ const key="new:"+name;
+ const option=document.createElement("option");option.textContent=name;option.value=key;demo$("demoScenario").append(option);demo$("demoScenario").value=key;
+ demoCurrentScenario=key;demoScenarioNamesByKey[key]=name;demoScenarioRoleState[key]=[];demoState.roles=[];
+ demo$("demoScenarioName").value="";demo$("demoRoleForm").classList.add("hidden");
+ demoRenderRoles();demoRenderSummary();demoStatus("سناریوی «"+name+"» به‌صورت موقت ساخته شد؛ پس از تنظیم نقش‌ها دکمه ذخیره را بزن.");
+});
+demo$("demoScenario").addEventListener("change",()=>{
+ demoScenarioRoleState[demoCurrentScenario]=demoState.roles.map(r=>({...r}));
+ demoCurrentScenario=demo$("demoScenario").value;
+ if(!demoScenarioRoleState[demoCurrentScenario])demoScenarioRoleState[demoCurrentScenario]=[];
+ demoState.roles=demoScenarioRoleState[demoCurrentScenario].map(r=>({...r}));
+ demo$("demoRoleForm").classList.add("hidden");demoRenderRoles();demoRenderSummary();
+ demoStatus("نقش‌های مخصوص سناریوی «"+demoScenarioLabel(demoCurrentScenario)+"» نمایش داده شد.");
+});
+async function demoSaveScenarioConfig(){
+ const key=demoCurrentScenario;
+ const name=demoScenarioLabel(key).trim();
+ const roles=demoState.roles.map(r=>({name:String(r.name||"").trim(),side:String(r.side||"").trim(),count:Number(r.count)}));
+ if(!name){status("demoSaveScenarioStatus","نام سناریو مشخص نیست.",true);return;}
+ if(roles.some(r=>!r.name||!["مافیا","شهروند"].includes(r.side)||!Number.isInteger(r.count)||r.count<1||r.count>20)){
+  status("demoSaveScenarioStatus","نام، جناح و تعداد همه نقش‌ها را بررسی کن.",true);return;
+ }
+ if(new Set(roles.map(r=>r.name)).size!==roles.length){status("demoSaveScenarioStatus","نام نقش‌ها در یک سناریو نباید تکراری باشد.",true);return;}
+ const button=demo$("demoSaveScenario");button.disabled=true;status("demoSaveScenarioStatus","در حال ذخیره سناریو و نقش‌ها...");
+ try{
+  const scenarioId=key.startsWith("new:")?null:key;
+  const {data,error}=await db.rpc("save_managed_scenario",{p_scenario_id:scenarioId,p_name:name,p_roles:roles});
+  if(error)throw error;
+  if(!data)throw new Error("شناسه سناریو از پایگاه داده دریافت نشد.");
+  await loadTournament();
+  demo$("demoScenario").value=data;demoCurrentScenario=data;
+  status("demoSaveScenarioStatus","سناریو و "+roles.length+" نقش آن با موفقیت ذخیره شد و در فهرست باقی می‌ماند.");
+ }catch(e){status("demoSaveScenarioStatus","ذخیره سناریو انجام نشد: "+e.message,true)}
+ finally{button.disabled=false}
+}
+
 ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
 demo$("demoReset").textContent="بازخوانی تنظیمات تورنمنت";
 demo$("demoReset").addEventListener("click",()=>loadTournament());
 demo$("demoSaveStages").addEventListener("click",demoSaveStageConfig);
+demo$("demoSaveScenario").addEventListener("click",demoSaveScenarioConfig);
 demo$("demoSaveTournament").addEventListener("click",demoSaveTournament);
 demo$("demoConfirmOrder").addEventListener("click",()=>{demo$("demoOrderStatus").textContent=demoOrderedStages.length?"ترتیب مراحل برای ذخیره آماده است.":"ابتدا مراحل را انتخاب کن.";});
 demoRenderAll();
