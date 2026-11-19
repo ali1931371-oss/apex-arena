@@ -286,7 +286,8 @@ demo$("demoScenario").addEventListener("change",()=>{demoState.roles=demoDefault
 ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
 demo$("demoReset").textContent="بازخوانی تنظیمات تورنمنت";
 demo$("demoReset").addEventListener("click",()=>loadTournament());
-demo$("demoSaveStages").addEventListener("click",demoSaveStageConfig);\ndemo$("demoSaveTournament").addEventListener("click",demoSaveTournament);
+demo$("demoSaveStages").addEventListener("click",demoSaveStageConfig);
+demo$("demoSaveTournament").addEventListener("click",demoSaveTournament);
 demo$("demoConfirmOrder").addEventListener("click",()=>{demo$("demoOrderStatus").textContent=demoOrderedStages.length?"ترتیب مراحل برای ذخیره آماده است.":"ابتدا مراحل را انتخاب کن.";});
 demoRenderAll();
 
