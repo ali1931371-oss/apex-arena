@@ -339,7 +339,7 @@ function demoLoadScenarioConfig(scenarios,roles){
  demoScenarioRecords.forEach(s=>{
   const option=document.createElement("option");option.value=s.id;option.textContent=s.name;select.append(option);
   demoScenarioNamesByKey[s.id]=s.name;
-  demoScenarioRoleState[s.id]=(roles||[]).filter(r=>r.scenario_id===s.id).map(r=>({name:r.role_name,side:r.faction,count:Number(r.role_count||1)}));
+  demoScenarioRoleState[s.id]=(roles||[]).filter(r=>r.scenario_id===s.id&&r.is_active).map(r=>({name:r.role_name,side:r.faction,count:Number(r.role_count||1)}));
  });
  const selected=demoScenarioRecords.some(s=>s.id===previous)?previous:(demoScenarioRecords[0]?.id||"");
  if(selected)select.value=selected;
