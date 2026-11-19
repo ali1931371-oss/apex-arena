@@ -156,7 +156,7 @@ const demoDefaults=()=>({
   {name:"شهروند ساده",side:"شهروند",count:2}
  ]
 });
-let demoState=demoDefaults(),demoStageIndex=0;
+let demoState=demoDefaults(),demoStageIndex=0,demoOrderedStages=[];
 const demoNames=["مقدماتی","یک‌چهارم نهایی","نیمه‌نهایی","فینال","رتبه‌بندی"];
 const demo$=id=>document.getElementById(id);
 function demoStatus(t){demo$("demoStatus").textContent=t}
@@ -166,43 +166,42 @@ function demoRenderStages(){
   const item=document.createElement("div");item.className="stage-item"+(i===demoStageIndex?" active":"");
   const top=document.createElement("div");top.className="row";
   const label=document.createElement("strong");label.textContent=(i+1)+". "+s.name;
-  const btn=document.createElement("button");btn.type="button";btn.className=i===demoStageIndex?"":"secondary";btn.textContent=i===demoStageIndex?"انتخاب شد":"انتخاب";
-  btn.addEventListener("click",()=>{demoStageIndex=i;demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderSummary()});
+  const btn=document.createElement("button");btn.type="button";
+  const picked=demoOrderedStages.includes(s);btn.className=picked?"":"secondary";btn.textContent=picked?"انتخاب شد":"انتخاب";
+  btn.onclick=()=>{demoStageIndex=i;if(!demoOrderedStages.includes(s))demoOrderedStages.push(s);demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderSummary();};
   top.append(label,btn);item.append(top);box.append(item);
  });
- demoRenderOrder();
 }
 function demoRenderOrder(){
  const box=demo$("demoOrderList");box.replaceChildren();
- demoState.stages.forEach((s,i)=>{
-  const row=document.createElement("div");row.className="row stage-item"+(i===demoStageIndex?" active":"");
-  const label=document.createElement("strong");label.textContent=(i+1)+". "+s.name+(i===demoStageIndex?" — مرحله انتخاب‌شده":"");
+ if(!demoOrderedStages.length){const empty=document.createElement("p");empty.className="muted";empty.textContent="فعلاً هیچ مرحله‌ای انتخاب نشده است. از فهرست بالا، مراحل موردنظرت را با دکمه انتخاب اضافه کن.";box.append(empty);return;}
+ demoOrderedStages.forEach((s,i)=>{
+  const row=document.createElement("div");row.className="row stage-item";
+  const label=document.createElement("strong");label.textContent=(i+1)+". "+s.name;
   const controls=document.createElement("div");
-  const up=document.createElement("button");up.type="button";up.className="secondary";up.textContent="↑";up.title="انتقال به بالا";up.disabled=i===0;up.onclick=()=>demoMoveStageFromOrder(i,-1);
-  const down=document.createElement("button");down.type="button";down.className="secondary";down.textContent="↓";down.title="انتقال به پایین";down.disabled=i===demoState.stages.length-1;down.onclick=()=>demoMoveStageFromOrder(i,1);
-  controls.append(up,down);row.append(label,controls);box.append(row);
+  const up=document.createElement("button");up.type="button";up.className="secondary";up.textContent="↑";up.disabled=i===0;up.onclick=()=>demoMoveOrderedStage(i,-1);
+  const down=document.createElement("button");down.type="button";down.className="secondary";down.textContent="↓";down.disabled=i===demoOrderedStages.length-1;down.onclick=()=>demoMoveOrderedStage(i,1);
+  const remove=document.createElement("button");remove.type="button";remove.className="secondary";remove.textContent="حذف از ترتیب";remove.onclick=()=>{demoOrderedStages.splice(i,1);demoRenderStages();demoRenderOrder();demoRenderSummary();};
+  controls.append(up,down,remove);row.append(label,controls);box.append(row);
  });
 }
-function demoMoveStageFromOrder(index,delta){
- const target=index+delta;if(target<0||target>=demoState.stages.length)return;
- [demoState.stages[index],demoState.stages[target]]=[demoState.stages[target],demoState.stages[index]];
- if(demoStageIndex===index)demoStageIndex=target;else if(demoStageIndex===target)demoStageIndex=index;
- demoRenderStages();demoRenderEditor();demoRenderSummary();
+function demoMoveOrderedStage(i,d){
+ const j=i+d;if(j<0||j>=demoOrderedStages.length)return;
+ [demoOrderedStages[i],demoOrderedStages[j]]=[demoOrderedStages[j],demoOrderedStages[i]];
+ demoRenderStages();demoRenderOrder();demoRenderSummary();
 }
 function demoRenderEditor(){
  const s=demoState.stages[demoStageIndex],box=demo$("demoStageEditor");box.replaceChildren();
- if(!s){box.textContent="مرحله‌ای انتخاب نشده است.";return}
+ if(!s){box.textContent="مرحله‌ای انتخاب نشده است.";return;}
  const h=document.createElement("h3");h.textContent="تنظیم مرحله انتخاب‌شده: "+s.name;box.append(h);
  const grid=document.createElement("div");grid.className="demo-grid";
  const fields=[["نام مرحله","name",s.name,"text"],["تعداد گروه‌ها","groups",s.groups,"number"],["بازیکن در هر گروه","players",s.players,"number"],["تعداد بازی هر گروه","games",s.games,"number"]];
- fields.forEach(([label,key,value,type])=>{const wrap=document.createElement("div");wrap.className="demo-field";const l=document.createElement("label");l.textContent=label;const input=document.createElement("input");input.type=type;input.min=type==="number"?"0":"";input.value=value;input.addEventListener("input",()=>{s[key]=type==="number"?Math.max(0,Number(input.value)||0):input.value;demoRenderStages();demoRenderSummary()});wrap.append(l,input);grid.append(wrap)});
+ fields.forEach(([label,key,value,type])=>{const wrap=document.createElement("div");wrap.className="demo-field";const l=document.createElement("label");l.textContent=label;const input=document.createElement("input");input.type=type;input.min=type==="number"?"0":"";input.value=value;input.oninput=()=>{s[key]=type==="number"?Math.max(0,Number(input.value)||0):input.value;demoRenderStages();demoRenderOrder();demoRenderSummary();};wrap.append(l,input);grid.append(wrap);});
  box.append(grid);
- const actions=document.createElement("div");actions.className="demo-actions";
- const del=document.createElement("button");del.type="button";del.className="secondary";del.textContent="حذف مرحله از پیش‌نمایش";del.disabled=demoState.stages.length===1;del.onclick=()=>{demoState.stages.splice(demoStageIndex,1);demoStageIndex=Math.max(0,Math.min(demoStageIndex,demoState.stages.length-1));demoRenderStages();demoRenderEditor();demoRenderSummary();demoStatus("مرحله فقط از پیش‌نمایش حذف شد.")};
- actions.append(del);box.append(actions);
+ const del=document.createElement("button");del.type="button";del.className="secondary";del.textContent="حذف مرحله از پیش‌نمایش";del.disabled=demoState.stages.length===1;del.onclick=()=>{demoOrderedStages=demoOrderedStages.filter(x=>x!==s);demoState.stages.splice(demoStageIndex,1);demoStageIndex=Math.max(0,Math.min(demoStageIndex,demoState.stages.length-1));demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderSummary();};
+ box.append(del);
 }
-function demoMoveStage(delta){const j=demoStageIndex+delta;if(j<0||j>=demoState.stages.length)return;demoMoveStageFromOrder(demoStageIndex,delta)}
-demo$("demoConfirmOrder").addEventListener("click",()=>{demoRenderStages();demoRenderSummary();demo$("demoOrderStatus").textContent="ترتیب مراحل در پیش‌نمایش تأیید شد؛ هنوز در دیتابیس ذخیره نشده است.";demoStatus("ترتیب مراحل در پیش‌نمایش تأیید شد.")});
+demo$("demoConfirmOrder").onclick=()=>{demo$("demoOrderStatus").textContent=demoOrderedStages.length?"ترتیب "+demoOrderedStages.length+" مرحله در پیش‌نمایش تأیید شد؛ هنوز در دیتابیس ذخیره نشده است.":"هنوز مرحله‌ای انتخاب نشده است.";demoStatus(demoOrderedStages.length?"ترتیب مراحل تأیید شد.":"ابتدا حداقل یک مرحله انتخاب کن.");};
 function demoRenderRoles(){
  const box=demo$("demoRoles");box.replaceChildren();
  demoState.roles.forEach((r,i)=>{
@@ -221,7 +220,7 @@ function demoRenderSummary(){
  box.innerHTML="<div class='demo-field'><b>نام:</b> "+demoEscape(demo$("demoName").value)+"<br><b>ظرفیت:</b> "+demo$("demoCapacity").value+" نفر<br><b>ثبت‌نام:</b> "+(demo$("demoRegistration").value==="open"?"باز":"بسته")+"</div><h3>مراحل</h3>"+stageLines+"<h3>نقش‌های سناریوی انتخاب‌شده</h3>"+roleLines;
 }
 function demoEscape(v){return String(v).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
-function demoRenderAll(){demoRenderStages();demoRenderEditor();demoRenderRoles();demoRenderSummary()}
+function demoRenderAll(){demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderRoles();demoRenderSummary()}
 document.querySelectorAll("[data-demo-tab]").forEach(btn=>btn.addEventListener("click",()=>{
  document.querySelectorAll("[data-demo-tab]").forEach(b=>{b.classList.toggle("active",b===btn);b.classList.toggle("secondary",b!==btn)});
  document.querySelectorAll(".demo-pane").forEach(p=>p.classList.add("hidden"));
@@ -232,7 +231,7 @@ demo$("demoAddRole").addEventListener("click",()=>{demoState.roles.push({name:"�
 demo$("demoAddScenario").addEventListener("click",()=>{const name=demo$("demoScenarioName").value.trim();if(!name){demoStatus("ابتدا نام سناریوی آزمایشی را بنویس.");return}const o=document.createElement("option");o.textContent=name;o.value=name;demo$("demoScenario").append(o);demo$("demoScenario").value=name;demo$("demoScenarioName").value="";demoStatus("سناریو فقط به فهرست آزمایشی اضافه شد.")});
 demo$("demoScenario").addEventListener("change",()=>{demoState=demoDefaults();demoRenderAll();demoStatus("ترکیب نمونه برای سناریوی انتخاب‌شده نمایش داده شد؛ هنوز داده واقعی سناریو بارگذاری نشده است.")});
 ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
-demo$("demoReset").addEventListener("click",()=>{demoState=demoDefaults();demoStageIndex=0;demo$("demoOrderStatus").textContent="";demo$("demoName").value="APEX ARENA — تورنمنت آزمایشی";demo$("demoCapacity").value=50;demo$("demoRegistration").value="open";demo$("demoApproval").value="yes";demoRenderAll();demoStatus("پیش‌نمایش به حالت اولیه برگشت.")});
+demo$("demoReset").addEventListener("click",()=>{demoState=demoDefaults();demoStageIndex=0;demoOrderedStages=[];demo$("demoOrderStatus").textContent="";demo$("demoName").value="APEX ARENA — تورنمنت آزمایشی";demo$("demoCapacity").value=50;demo$("demoRegistration").value="open";demo$("demoApproval").value="yes";demoRenderAll();demoStatus("پیش‌نمایش به حالت اولیه برگشت.")});
 demoRenderAll();
 
 $("loginButton").addEventListener("click",signIn);$("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});$("tournamentSelect").addEventListener("change",loadTournament);$("refreshButton").addEventListener("click",loadTournament);$("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();location.reload()});
