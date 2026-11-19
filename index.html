@@ -566,8 +566,11 @@ document.getElementById("login-button").onclick=async()=>{
   if (!email || !password) { showMessage("ایمیل و رمز عبور را وارد کنید.",true); return; }
   const button=document.getElementById("login-button"); setButtonLoading(button,true,"در حال ورود...");
   try {
-    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-    if (error) throw error; await updateAdminInterface(data.user);
+    const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if (error) throw error;
+    // The SIGNED_IN auth-state listener below loads the admin interface.
+    // Do not call updateAdminInterface here as well; that caused duplicate
+    // concurrent registration-request loads and duplicate cards.
   } catch(error) { showMessage("ورود ناموفق بود: "+error.message,true); }
   finally { setButtonLoading(button,false); }
 };
