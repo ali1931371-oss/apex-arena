@@ -41,9 +41,10 @@ BEGIN
     RAISE EXCEPTION 'وضعیت ثبت‌نام و تأیید مدیر باید مشخص باشد.';
   END IF;
 
-  IF p_stages IS NULL OR jsonb_typeof(p_stages) IS DISTINCT FROM 'array'
-     OR jsonb_array_length(p_stages) < 1
-     OR jsonb_array_length(p_stages) > 50 THEN
+  IF p_stages IS NULL OR jsonb_typeof(p_stages) IS DISTINCT FROM 'array' THEN
+    RAISE EXCEPTION 'اطلاعات مراحل باید به‌صورت فهرست ارسال شود.';
+  END IF;
+  IF jsonb_array_length(p_stages) < 1 OR jsonb_array_length(p_stages) > 50 THEN
     RAISE EXCEPTION 'حداقل یک و حداکثر ۵۰ مرحله باید برای تورنمنت تعیین شود.';
   END IF;
 
