@@ -203,7 +203,7 @@ function demoRenderStages(){
   const label=document.createElement("strong");label.textContent=(i+1)+". "+s.name;
   const btn=document.createElement("button");btn.type="button";
   const picked=demoOrderedStages.includes(s);btn.className=picked?"":"secondary";btn.textContent=picked?"انتخاب شد":"انتخاب";
-  btn.onclick=()=>{demoStageIndex=i;if(!demoOrderedStages.includes(s))demoOrderedStages.push(s);demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderSummary();};
+  btn.onclick=()=>{demoStageIndex=i;demoStageDraft=null;if(!demoOrderedStages.includes(s))demoOrderedStages.push(s);demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderSummary();};
   top.append(label,btn);item.append(top);box.append(item);
  });
 }
@@ -260,10 +260,10 @@ document.querySelectorAll("[data-demo-tab]").forEach(btn=>btn.addEventListener("
  document.querySelectorAll(".demo-pane").forEach(p=>p.classList.add("hidden"));
  demo$("demo-"+btn.dataset.demoTab).classList.remove("hidden");
 }));
-demo$("demoAddStage").addEventListener("click",()=>{const name=prompt("نام مرحله جدید را وارد کن:","مرحله جدید");if(!name||!name.trim())return;demoState.stages.push({name:name.trim(),groups:1,players:10,games:1});demoStageIndex=demoState.stages.length-1;demoRenderAll();demoStatus("مرحله جدید به پیش‌نمایش اضافه شد.")});
+demo$("demoAddStage").addEventListener("click",()=>{const name=prompt("نام مرحله جدید را وارد کن:","مرحله جدید");if(!name||!name.trim())return;demoState.stages.push({name:name.trim(),settings:null});demoStageIndex=demoState.stages.length-1;demoStageDraft=null;demoRenderAll();demoStatus("مرحله جدید به پیش‌نمایش اضافه شد.")});
 demo$("demoAddRole").addEventListener("click",()=>{demoState.roles.push({name:"نقش جدید",side:"شهروند",count:1});demoRenderRoles();demoRenderSummary();demoStatus("نقش جدید به پیش‌نمایش اضافه شد.")});
 demo$("demoAddScenario").addEventListener("click",()=>{const name=demo$("demoScenarioName").value.trim();if(!name){demoStatus("ابتدا نام سناریوی آزمایشی را بنویس.");return}const o=document.createElement("option");o.textContent=name;o.value=name;demo$("demoScenario").append(o);demo$("demoScenario").value=name;demo$("demoScenarioName").value="";demoStatus("سناریو فقط به فهرست آزمایشی اضافه شد.")});
-demo$("demoScenario").addEventListener("change",()=>{demoState=demoDefaults();demoRenderAll();demoStatus("ترکیب نمونه برای سناریوی انتخاب‌شده نمایش داده شد؛ هنوز داده واقعی سناریو بارگذاری نشده است.")});
+demo$("demoScenario").addEventListener("change",()=>{demoState.roles=demoDefaults().roles;demoRenderRoles();demoRenderSummary();demoStatus("ترکیب نمونه برای سناریوی انتخاب‌شده نمایش داده شد؛ تنظیمات مراحل حفظ شد.")});
 ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
 demo$("demoReset").textContent="بازخوانی تنظیمات تورنمنت";
 demo$("demoReset").addEventListener("click",()=>loadTournament());
