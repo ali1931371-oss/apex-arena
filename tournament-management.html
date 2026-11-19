@@ -49,7 +49,6 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
   <div class="demo-banner"><strong>توجه:</strong> مشخصات تورنمنت، مراحل و گروه‌ها، و سناریو و نقش‌ها هرکدام دکمه ذخیره اختصاصی دارند. برای سناریو و نقش‌ها ابتدا باید تابع ذخیره در دیتابیس فعال شود.</div>
   <div class="tabs" role="tablist">
     <button type="button" class="active" data-demo-tab="tournament">مشخصات تورنمنت</button>
-    <button type="button" class="secondary" data-demo-tab="stages">مراحل و گروه‌ها</button>
     <button type="button" class="secondary" data-demo-tab="scenarios">سناریو و نقش‌ها</button>
     <button type="button" class="secondary" data-demo-tab="summary">خلاصه تنظیمات</button>
   </div>
@@ -62,9 +61,8 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
       <div class="demo-field"><label for="demoApproval">تأیید ثبت‌نام</label><select id="demoApproval"><option value="yes">نیازمند تأیید مدیر</option><option value="no">ثبت‌نام مستقیم</option></select></div>
     </div>
     <p class="muted">این ظرفیت در مراحل بعدی با مجموع ظرفیت گروه‌ها مقایسه خواهد شد.</p>
-    <div class="demo-actions"><button type="button" id="demoSaveTournament">ذخیره تنظیمات تورنمنت</button><span id="demoSaveTournamentStatus" class="status" role="status"></span></div>
-  </div>
-  <div id="demo-stages" class="demo-pane hidden">
+    <div class="demo-actions"><button type="button" id="demoSaveTournament">ذخیره تورنمنت همراه با مراحل و گروه‌ها</button><span id="demoSaveTournamentStatus" class="status" role="status"></span></div>
+    <div class="card"><h3>مراحل و گروه‌های همین تورنمنت</h3><p class="muted">مراحل، تعداد گروه‌ها، تعداد بازیکنان هر گروه و تعداد بازی‌های هر گروه را همین‌جا تنظیم کن. با ذخیره تورنمنت، همه این مشخصات با هم ثبت می‌شوند.</p>
     <div class="row"><div><h3>انتخاب و تنظیم مراحل</h3><p class="muted">مراحل پیشنهادی قابل انتخاب‌اند؛ می‌توانی مرحله دلخواه هم اضافه کنی.</p></div><button type="button" id="demoAddStage">افزودن مرحله جدید +</button></div>
     <div id="demoStageList"></div>
     <div class="card" id="demoOrderPanel">
@@ -76,8 +74,9 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
     </div>
     <div id="demoStageEditor" class="card"></div>
     <div class="card" id="demoStageSavePanel"><h3>ذخیره تنظیمات این تورنمنت</h3><p class="muted">ترتیب و تنظیمات مراحل و گروه‌ها فقط برای تورنمنت انتخاب‌شده ذخیره می‌شود و با تورنمنت‌های دیگر تداخلی ندارد.</p><button type="button" id="demoSaveStages">ذخیره تنظیمات مراحل و گروه‌ها</button><p id="demoSaveStagesStatus" class="status" role="status"></p></div>
+</div>
   </div>
-  <div id="demo-scenarios" class="demo-pane hidden">
+   class="demo-pane hidden">
     <h3>انتخاب سناریو و ویرایش ترکیب نقش‌ها</h3>
     <div class="demo-grid">
       <div class="demo-field"><label for="demoScenario">سناریو</label><select id="demoScenario"><option>بازپرس</option><option>مذاکره</option><option>نماینده</option><option>کاپو</option><option>سناریوی اختصاصی آزمایشی</option></select></div>
@@ -128,13 +127,13 @@ const results=await Promise.all(jobs.map(async([key,fn])=>{try{const {data,error
 const data=Object.fromEntries(results.map(([k,v,e])=>[k,{rows:v,error:e}]));
 const stages=data.stages.rows||[],matches=data.matches.rows||[];
 demoLoadStageConfig(tid,stages);
-renderTable("stagesList",["ترتیب","نام مرحله","تنظیمات ثبت‌شده"],stages.map(s=>[s.stage_number,s.name,JSON.stringify(s.settings||{})]),"برای این تورنمنت مرحله‌ای ثبت نشده است.");
+renderTable("stagesList",["ترتیب","نام مرحله","تعداد گروه","بازیکن در هر گروه","بازی در هر گروه"],stages.map(s=>{const x=s.settings||{};return [s.stage_number,s.name,x.groups_count??x.groups??"—",x.players_per_group??x.players??"—",x.games_per_group??x.games??"—"]}),"برای این تورنمنت مرحله‌ای ثبت نشده است.");
 const stageMap=new Map(stages.map(s=>[s.id,s.name]));
 const groupIds=[...new Set(matches.map(m=>m.group_id).filter(Boolean))];
 let groups=[];
 if(stages.length){const gr=await db.from("tournament_groups").select("id,stage_id,group_number,group_name").in("stage_id",stages.map(s=>s.id)).order("group_number");if(!gr.error)groups=gr.data||[];else data.groups={rows:[],error:gr.error}}
 const groupMap=new Map(groups.map(g=>[g.id,g]));
-renderTable("groupsList",["مرحله","گروه","شماره بازی","وضعیت بازی"],matches.map(m=>{const g=groupMap.get(m.group_id);return [stageMap.get(m.stage_id)||"—",g?g.group_name||("گروه "+g.group_number):"بدون گروه",m.match_number,m.status]}),"برای این تورنمنت مسابقه‌ای ثبت نشده است.");
+renderTable("groupsList",["مرحله","گروه","بازیکن در هر گروه","بازی برنامه‌ریزی‌شده برای هر گروه","مسابقه‌های ایجادشده"],groups.map(g=>{const st=stages.find(s=>s.id===g.stage_id);const x=st?.settings||{};const ms=matches.filter(m=>m.group_id===g.id);return [stageMap.get(g.stage_id)||"—",g.group_name||("گروه "+g.group_number),x.players_per_group??x.players??"—",x.games_per_group??x.games??"—",ms.length?ms.map(m=>"#"+m.match_number+" ("+m.status+")").join("، "):"هنوز مسابقه‌ای ساخته نشده"]}),"برای این تورنمنت گروهی ثبت نشده است.");
 const rolesByScenario=new Map();(data.roles.rows||[]).forEach(r=>{if(!rolesByScenario.has(r.scenario_id))rolesByScenario.set(r.scenario_id,[]);rolesByScenario.get(r.scenario_id).push(r)});
 const scBox=$("scenariosList");scBox.replaceChildren();
 if(data.scenarios.error||data.roles.error){scBox.append(el("p","خواندن سناریوها یا نقش‌ها ممکن نشد: "+(data.scenarios.error||data.roles.error).message,"error"))}
@@ -212,17 +211,29 @@ async function demoSaveTournament(){
  const capacity=Number(demo$("demoCapacity").value);
  if(!name){status("demoSaveTournamentStatus","نام تورنمنت را وارد کن.",true);return;}
  if(!Number.isInteger(capacity)||capacity<2||capacity>500){status("demoSaveTournamentStatus","ظرفیت باید عدد صحیحی بین ۲ تا ۵۰۰ باشد.",true);return;}
- const button=demo$("demoSaveTournament");button.disabled=true;status("demoSaveTournamentStatus","در حال ذخیره تورنمنت...");
+ if(!demoOrderedStages.length){status("demoSaveTournamentStatus","ابتدا مراحل موردنظر را انتخاب و تنظیم کن.",true);return;}
+ const stages=[];
+ for(const s of demoOrderedStages){
+  if(!s.settings||!s.name.trim()||![s.settings.groups,s.settings.players,s.settings.games].every(v=>Number.isInteger(Number(v))&&Number(v)>0)){
+   status("demoSaveTournamentStatus","تنظیمات همه مراحل انتخاب‌شده کامل نیست؛ هر مرحله را باز کن و ثبت تنظیمات این مرحله را بزن.",true);return;
+  }
+  stages.push({name:s.name.trim(),settings:{groups:Number(s.settings.groups),players:Number(s.settings.players),games:Number(s.settings.games)}});
+ }
+ const button=demo$("demoSaveTournament");button.disabled=true;status("demoSaveTournamentStatus","در حال ذخیره تورنمنت همراه با مراحل و گروه‌ها...");
  try{
-  const {data,error}=await db.rpc("create_managed_tournament",{p_name:name,p_max_players:capacity,p_registration_open:demo$("demoRegistration").value==="open",p_require_admin_approval:demo$("demoApproval").value==="yes"});
+  const {data,error}=await db.rpc("create_managed_tournament_with_stages",{
+   p_name:name,p_max_players:capacity,
+   p_registration_open:demo$("demoRegistration").value==="open",
+   p_require_admin_approval:demo$("demoApproval").value==="yes",
+   p_stages:stages
+  });
   if(error)throw error;
-  const tournamentId=data;
-  if(!tournamentId)throw new Error("شناسه تورنمنت از سرور دریافت نشد.");
+  if(!data)throw new Error("شناسه تورنمنت از سرور دریافت نشد.");
   await loadTournaments();
-  $("tournamentSelect").value=tournamentId;
+  $("tournamentSelect").value=data;
   await loadTournament();
-  status("demoSaveTournamentStatus","تورنمنت با موفقیت ذخیره شد و به فهرست انتخاب تورنمنت اضافه شد.");
- }catch(e){status("demoSaveTournamentStatus","ذخیره تورنمنت انجام نشد: "+e.message,true)}
+  status("demoSaveTournamentStatus","تورنمنت به همراه "+stages.length+" مرحله و گروه‌های مربوط به آن با موفقیت ذخیره شد.");
+ }catch(e){status("demoSaveTournamentStatus","ذخیره تورنمنت و مراحل انجام نشد: "+e.message,true)}
  finally{button.disabled=false}
 }
 function demoLoadStageConfig(tid,rows){
