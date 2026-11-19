@@ -74,6 +74,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
       <p id="demoOrderStatus" class="status" role="status"></p>
     </div>
     <div id="demoStageEditor" class="card"></div>
+    <div class="card" id="demoStageSavePanel"><h3>ذخیره تنظیمات این تورنمنت</h3><p class="muted">ترتیب و تنظیمات مراحل و گروه‌ها فقط برای تورنمنت انتخاب‌شده ذخیره می‌شود و با تورنمنت‌های دیگر تداخلی ندارد.</p><button type="button" id="demoSaveStages">ذخیره تنظیمات مراحل و گروه‌ها</button><p id="demoSaveStagesStatus" class="status" role="status"></p></div>
   </div>
   <div id="demo-scenarios" class="demo-pane hidden">
     <h3>انتخاب سناریو و ویرایش ترکیب نقش‌ها</h3>
@@ -124,6 +125,7 @@ const jobs=[
 const results=await Promise.all(jobs.map(async([key,fn])=>{try{const {data,error}=await fn();return [key,data||[],error]}catch(e){return [key,[],e]}}));
 const data=Object.fromEntries(results.map(([k,v,e])=>[k,{rows:v,error:e}]));
 const stages=data.stages.rows||[],matches=data.matches.rows||[];
+demoLoadStageConfig(tid,stages);
 renderTable("stagesList",["ترتیب","نام مرحله","تنظیمات ثبت‌شده"],stages.map(s=>[s.stage_number,s.name,JSON.stringify(s.settings||{})]),"برای این تورنمنت مرحله‌ای ثبت نشده است.");
 const stageMap=new Map(stages.map(s=>[s.id,s.name]));
 const groupIds=[...new Set(matches.map(m=>m.group_id).filter(Boolean))];
@@ -159,7 +161,40 @@ const demoDefaults=()=>({
 let demoState=demoDefaults(),demoStageIndex=-1,demoStageDraft=null,demoOrderedStages=[];
 const demoNames=["مقدماتی","یک‌چهارم نهایی","نیمه‌نهایی","فینال","رتبه‌بندی"];
 const demo$=id=>document.getElementById(id);
+let demoTournamentId=null;
 function demoStatus(t){demo$("demoStatus").textContent=t}
+function demoLoadStageConfig(tid,rows){
+ demoTournamentId=tid;demoStageIndex=-1;demoStageDraft=null;
+ if(rows&&rows.length){
+  demoState.stages=rows.map(r=>{const x=r.settings||{};return {id:r.id,name:r.name,settings:{groups:Number(x.groups_count??x.groups??0),players:Number(x.players_per_group??x.players??0),games:Number(x.games_per_group??x.games??0)}}});
+  demoOrderedStages=[...demoState.stages];
+ }else{
+  demoState.stages=demoDefaults().stages.map(s=>({name:s.name,settings:null}));
+  demoOrderedStages=[];
+ }
+ demoRenderAll();demoStatus("تنظیمات مراحل مربوط به تورنمنت انتخاب‌شده بارگذاری شد.");
+}
+async function demoSaveStageConfig(){
+ const tid=$("tournamentSelect").value;
+ if(!tid){status("demoSaveStagesStatus","ابتدا یک تورنمنت را انتخاب کن.",true);return;}
+ if(demoTournamentId!==tid){status("demoSaveStagesStatus","تنظیمات این تورنمنت هنوز بارگذاری نشده؛ صفحه را به‌روزرسانی کن.",true);return;}
+ if(!demoOrderedStages.length){status("demoSaveStagesStatus","حداقل یک مرحله را انتخاب و مرتب کن.",true);return;}
+ const payload=[];
+ for(const s of demoOrderedStages){
+  if(!s.settings||!s.name.trim()||![s.settings.groups,s.settings.players,s.settings.games].every(v=>Number.isInteger(Number(v))&&Number(v)>0)){
+   status("demoSaveStagesStatus","تنظیمات همه مراحل انتخاب‌شده کامل نیست. هر مرحله را جداگانه باز کن و دکمه ثبت تنظیمات این مرحله را بزن.",true);return;
+  }
+  payload.push({id:s.id||null,name:s.name.trim(),settings:{groups:Number(s.settings.groups),players:Number(s.settings.players),games:Number(s.settings.games)}});
+ }
+ const button=$("demoSaveStages");button.disabled=true;status("demoSaveStagesStatus","در حال ذخیره تنظیمات این تورنمنت...");
+ try{
+  const {data,error}=await db.rpc("save_tournament_stage_configuration",{p_tournament_id:tid,p_stages:payload});
+  if(error)throw error;
+  status("demoSaveStagesStatus","تنظیمات مراحل و گروه‌ها با موفقیت برای همین تورنمنت ذخیره شد.");
+  await loadTournament();
+ }catch(e){status("demoSaveStagesStatus","ذخیره انجام نشد: "+e.message,true)}
+ finally{button.disabled=false}
+}
 function demoRenderStages(){
  const box=demo$("demoStageList");box.replaceChildren();
  demoState.stages.forEach((s,i)=>{
@@ -193,11 +228,11 @@ function demoRenderEditor(){
  const h=document.createElement("h3");h.textContent="تنظیم مرحله انتخاب‌شده: "+s.name;box.append(h);
  const grid=document.createElement("div");grid.className="demo-grid";
  const fields=[["نام مرحله","name"],["تعداد گروه‌ها","groups"],["تعداد بازیکنان هر گروه","players"],["تعداد بازی هر گروه","games"]];
- fields.forEach(([label,key])=>{const wrap=document.createElement("div");wrap.className="demo-field";const l=document.createElement("label");l.textContent=label;const input=document.createElement("input");input.type=key==="name"?"text":"number";if(key!=="name"){input.min="1";input.step="1";input.placeholder="عدد را وارد کن";}else{input.placeholder="نام این مرحله را وارد کن";}input.value=demoStageDraft?.[key]??(key==="name"?s.name:"");input.oninput=()=>{if(!demoStageDraft)demoStageDraft={name:s.name,groups:"",players:"",games:""};demoStageDraft[key]=input.value;};wrap.append(l,input);grid.append(wrap);});
+ fields.forEach(([label,key])=>{const wrap=document.createElement("div");wrap.className="demo-field";const l=document.createElement("label");l.textContent=label;const input=document.createElement("input");input.type=key==="name"?"text":"number";if(key!=="name"){input.min="1";input.step="1";input.placeholder="عدد را وارد کن";}else{input.placeholder="نام این مرحله را وارد کن";}input.value=demoStageDraft?.[key]??(key==="name"?s.name:(s.settings?.[key]??""));input.oninput=()=>{if(!demoStageDraft)demoStageDraft={name:s.name,groups:"",players:"",games:""};demoStageDraft[key]=input.value;};wrap.append(l,input);grid.append(wrap);});
  box.append(grid);
  const actions=document.createElement("div");actions.className="demo-actions";
- const save=document.createElement("button");save.type="button";save.textContent="ثبت تنظیمات این مرحله";save.onclick=()=>{const stageName=String(demoStageDraft?.name??s.name).trim();const vals=["groups","players","games"].map(k=>Number(demoStageDraft?.[k]));if(!stageName){demoStatus("نام مرحله را وارد کن.");return;}if(vals.some(v=>!Number.isInteger(v)||v<1)){demoStatus("تعداد گروه‌ها، بازیکنان و بازی‌ها را با عدد صحیح بزرگ‌تر از صفر وارد کن.");return;}s.name=stageName;s.settings={groups:vals[0],players:vals[1],games:vals[2]};demoStageDraft={name:s.name,...s.settings};demoRenderOrder();demoRenderEditor();demoRenderSummary();demoStatus("تنظیمات مرحله «"+s.name+"» در پیش‌نمایش ثبت شد.");};
- const clear=document.createElement("button");clear.type="button";clear.className="secondary";clear.textContent="پاک‌کردن تنظیمات";clear.disabled=!s.settings&&!demoStageDraft?.groups&&!demoStageDraft?.players&&!demoStageDraft?.games;clear.onclick=()=>{s.settings=null;demoStageDraft={name:s.name,groups:"",players:"",games:""};demoRenderOrder();demoRenderEditor();demoRenderSummary();demoStatus("تنظیمات مرحله «"+s.name+"» پاک شد.");};
+ const save=document.createElement("button");save.type="button";save.textContent="ثبت تنظیمات این مرحله";save.onclick=()=>{const stageName=String(demoStageDraft?.name??s.name).trim();const vals=["groups","players","games"].map(k=>Number(demoStageDraft?.[k]));if(!stageName){demoStatus("نام مرحله را وارد کن.");return;}if(vals.some(v=>!Number.isInteger(v)||v<1)){demoStatus("تعداد گروه‌ها، بازیکنان و بازی‌ها را با عدد صحیح بزرگ‌تر از صفر وارد کن.");return;}s.name=stageName;s.settings={groups:vals[0],players:vals[1],games:vals[2]};demoStageDraft=null;demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderSummary();demoStatus("تنظیمات مرحله «"+s.name+"» در پیش‌نمایش ثبت شد.");};
+ const clear=document.createElement("button");clear.type="button";clear.className="secondary";clear.textContent="پاک‌کردن تنظیمات";clear.disabled=!s.settings&&!demoStageDraft?.groups&&!demoStageDraft?.players&&!demoStageDraft?.games;clear.onclick=()=>{s.settings=null;demoStageDraft=null;demoRenderOrder();demoRenderEditor();demoRenderSummary();demoStatus("تنظیمات مرحله «"+s.name+"» پاک شد.");};
  actions.append(save,clear);box.append(actions);
  const del=document.createElement("button");del.type="button";del.className="secondary";del.textContent="حذف مرحله از پیش‌نمایش";del.disabled=demoState.stages.length===1;del.onclick=()=>{demoOrderedStages=demoOrderedStages.filter(x=>x!==s);demoState.stages.splice(demoStageIndex,1);demoStageIndex=-1;demoStageDraft=null;demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderSummary();};box.append(del);
 }
@@ -230,7 +265,10 @@ demo$("demoAddRole").addEventListener("click",()=>{demoState.roles.push({name:"�
 demo$("demoAddScenario").addEventListener("click",()=>{const name=demo$("demoScenarioName").value.trim();if(!name){demoStatus("ابتدا نام سناریوی آزمایشی را بنویس.");return}const o=document.createElement("option");o.textContent=name;o.value=name;demo$("demoScenario").append(o);demo$("demoScenario").value=name;demo$("demoScenarioName").value="";demoStatus("سناریو فقط به فهرست آزمایشی اضافه شد.")});
 demo$("demoScenario").addEventListener("change",()=>{demoState=demoDefaults();demoRenderAll();demoStatus("ترکیب نمونه برای سناریوی انتخاب‌شده نمایش داده شد؛ هنوز داده واقعی سناریو بارگذاری نشده است.")});
 ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
-demo$("demoReset").addEventListener("click",()=>{demoState=demoDefaults();demoStageIndex=-1;demoStageDraft=null;demoOrderedStages=[];demo$("demoOrderStatus").textContent="";demo$("demoName").value="APEX ARENA — تورنمنت آزمایشی";demo$("demoCapacity").value=50;demo$("demoRegistration").value="open";demo$("demoApproval").value="yes";demoRenderAll();demoStatus("پیش‌نمایش به حالت اولیه برگشت.")});
+demo$("demoReset").textContent="بازخوانی تنظیمات تورنمنت";
+demo$("demoReset").addEventListener("click",()=>loadTournament());
+demo$("demoSaveStages").addEventListener("click",demoSaveStageConfig);
+demo$("demoConfirmOrder").addEventListener("click",()=>{demo$("demoOrderStatus").textContent=demoOrderedStages.length?"ترتیب مراحل برای ذخیره آماده است.":"ابتدا مراحل را انتخاب کن.";});
 demoRenderAll();
 
 $("loginButton").addEventListener("click",signIn);$("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});$("tournamentSelect").addEventListener("change",loadTournament);$("refreshButton").addEventListener("click",loadTournament);$("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();location.reload()});
