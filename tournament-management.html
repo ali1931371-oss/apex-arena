@@ -299,7 +299,7 @@ function demoRenderEditor(){
 }
 function demoRenderRoles(){
  const box=demo$("demoRoles");box.replaceChildren();
- if(!demoState.roles.length){const empty=document.createElement("p");empty.className="muted";empty.textContent="هنوز نقشی برای این سناریو ثبت نشده است. برای افزودن نقش، دکمه «افزودن نقش» را بزن.";box.append(empty);demoUpdateRoleStats();return;}
+ if(!demoState.roles.length){const empty=document.createElement("p");empty.className="muted";empty.textContent="هنوز نقشی برای این سناریو ثبت نشده است. برای افزودن نقش، دکمه «افزودن نقش» را بزن.";box.append(empty);return;}
  demoState.roles.forEach((r,i)=>{
   const row=document.createElement("div");row.className="role-row";
   const details=document.createElement("div");details.className="demo-field";
@@ -309,7 +309,7 @@ function demoRenderRoles(){
   const remove=document.createElement("button");remove.type="button";remove.className="secondary";remove.textContent="حذف";remove.setAttribute("aria-label","حذف نقش "+r.name);remove.onclick=()=>{demoState.roles.splice(i,1);demoScenarioRoleState[demoCurrentScenario]=demoState.roles.map(x=>({...x}));demoRenderRoles();demoRenderSummary();demoStatus("نقش حذف شد.");};
   row.append(details,remove);box.append(row);
  });
- demoUpdateRoleStats();
+ 
 }
 function demoRenderSummary(){
  const box=demo$("demoSummary");if(!box)return;
