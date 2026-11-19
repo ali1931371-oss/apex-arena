@@ -50,157 +50,8 @@ BEGIN
     WHERE btrim(coalesce(role->>'name', '')) = ''
        OR length(btrim(role->>'name')) > 120
        OR btrim(coalesce(role->>'side', '')) = ''
-       OR coalesce(role->>'count', '') !~ '^[0-9]+
-  ) THEN
-    RAISE EXCEPTION 'اطلاعات یکی از نقش‌ها معتبر نیست؛ نام، جناح و تعداد ۱ تا ۲۰ را بررسی کن.';
-  END IF;
-
-  IF p_scenario_id IS NULL THEN
-    IF EXISTS (
-      SELECT 1 FROM public.scenarios
-      WHERE lower(btrim(name)) = lower(v_name)
-    ) THEN
-      RAISE EXCEPTION 'سناریویی با این نام از قبل وجود دارد.';
-    END IF;
-
-    INSERT INTO public.scenarios (name, description, is_active)
-    VALUES (v_name, NULL, true)
-    RETURNING id INTO v_scenario_id;
-  ELSE
-    SELECT id INTO v_scenario_id
-    FROM public.scenarios
-    WHERE id = p_scenario_id
-    FOR UPDATE;
-
-    IF v_scenario_id IS NULL THEN
-      RAISE EXCEPTION 'سناریوی انتخاب‌شده پیدا نشد.';
-    END IF;
-
-    IF EXISTS (
-      SELECT 1 FROM public.scenarios
-      WHERE lower(btrim(name)) = lower(v_name)
-        AND id <> v_scenario_id
-    ) THEN
-      RAISE EXCEPTION 'سناریوی دیگری با این نام وجود دارد.';
-    END IF;
-
-    UPDATE public.scenarios
-    SET name = v_name, is_active = true
-    WHERE id = v_scenario_id;
-  END IF;
-
-  FOR v_role IN SELECT value FROM jsonb_array_elements(p_roles)
-  LOOP
-    v_role_name := btrim(v_role->>'name');
-    v_faction := btrim(v_role->>'side');
-    v_role_count := (v_role->>'count')::integer;
-
-    UPDATE public.scenario_roles
-    SET faction = v_faction,
-        role_count = v_role_count,
-        is_active = true
-    WHERE scenario_id = v_scenario_id
-      AND role_name = v_role_name;
-
-    IF NOT FOUND THEN
-      INSERT INTO public.scenario_roles
-        (scenario_id, role_name, faction, description, is_active, role_count)
-      VALUES
-        (v_scenario_id, v_role_name, v_faction, NULL, true, v_role_count);
-    END IF;
-  END LOOP;
-
-  DELETE FROM public.scenario_roles sr
-  WHERE sr.scenario_id = v_scenario_id
-    AND NOT EXISTS (
-      SELECT 1
-      FROM jsonb_array_elements(p_roles) AS items(role)
-      WHERE btrim(role->>'name') = sr.role_name
-    );
-
-  RETURN v_scenario_id;
-END;
-$$;
-
-REVOKE ALL ON FUNCTION public.save_managed_scenario(uuid, text, jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.save_managed_scenario(uuid, text, jsonb) TO authenticated;
-
        OR CASE
-            WHEN coalesce(role->>'count', '') ~ '^[0-9]+
-  ) THEN
-    RAISE EXCEPTION 'اطلاعات یکی از نقش‌ها معتبر نیست؛ نام، جناح و تعداد ۱ تا ۲۰ را بررسی کن.';
-  END IF;
-
-  IF p_scenario_id IS NULL THEN
-    IF EXISTS (
-      SELECT 1 FROM public.scenarios
-      WHERE lower(btrim(name)) = lower(v_name)
-    ) THEN
-      RAISE EXCEPTION 'سناریویی با این نام از قبل وجود دارد.';
-    END IF;
-
-    INSERT INTO public.scenarios (name, description, is_active)
-    VALUES (v_name, NULL, true)
-    RETURNING id INTO v_scenario_id;
-  ELSE
-    SELECT id INTO v_scenario_id
-    FROM public.scenarios
-    WHERE id = p_scenario_id
-    FOR UPDATE;
-
-    IF v_scenario_id IS NULL THEN
-      RAISE EXCEPTION 'سناریوی انتخاب‌شده پیدا نشد.';
-    END IF;
-
-    IF EXISTS (
-      SELECT 1 FROM public.scenarios
-      WHERE lower(btrim(name)) = lower(v_name)
-        AND id <> v_scenario_id
-    ) THEN
-      RAISE EXCEPTION 'سناریوی دیگری با این نام وجود دارد.';
-    END IF;
-
-    UPDATE public.scenarios
-    SET name = v_name, is_active = true
-    WHERE id = v_scenario_id;
-  END IF;
-
-  FOR v_role IN SELECT value FROM jsonb_array_elements(p_roles)
-  LOOP
-    v_role_name := btrim(v_role->>'name');
-    v_faction := btrim(v_role->>'side');
-    v_role_count := (v_role->>'count')::integer;
-
-    UPDATE public.scenario_roles
-    SET faction = v_faction,
-        role_count = v_role_count,
-        is_active = true
-    WHERE scenario_id = v_scenario_id
-      AND role_name = v_role_name;
-
-    IF NOT FOUND THEN
-      INSERT INTO public.scenario_roles
-        (scenario_id, role_name, faction, description, is_active, role_count)
-      VALUES
-        (v_scenario_id, v_role_name, v_faction, NULL, true, v_role_count);
-    END IF;
-  END LOOP;
-
-  DELETE FROM public.scenario_roles sr
-  WHERE sr.scenario_id = v_scenario_id
-    AND NOT EXISTS (
-      SELECT 1
-      FROM jsonb_array_elements(p_roles) AS item
-      WHERE btrim(item->>'name') = sr.role_name
-    );
-
-  RETURN v_scenario_id;
-END;
-$$;
-
-REVOKE ALL ON FUNCTION public.save_managed_scenario(uuid, text, jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.save_managed_scenario(uuid, text, jsonb) TO authenticated;
-
+            WHEN coalesce(role->>'count', '') ~ '^[0123456789]+$'
             THEN (role->>'count')::numeric NOT BETWEEN 1 AND 20
             ELSE true
           END
@@ -267,8 +118,8 @@ GRANT EXECUTE ON FUNCTION public.save_managed_scenario(uuid, text, jsonb) TO aut
   WHERE sr.scenario_id = v_scenario_id
     AND NOT EXISTS (
       SELECT 1
-      FROM jsonb_array_elements(p_roles) AS item
-      WHERE btrim(item->>'name') = sr.role_name
+      FROM jsonb_array_elements(p_roles) AS items(role)
+      WHERE btrim(role->>'name') = sr.role_name
     );
 
   RETURN v_scenario_id;
