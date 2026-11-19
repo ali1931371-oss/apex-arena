@@ -82,7 +82,7 @@
   <section class="section" id="tournaments"><h2>تورنمنت‌های آماده ثبت‌نام</h2><p id="connection-status" class="status">در حال دریافت اطلاعات تورنمنت‌ها...</p><div id="tournament-list"></div></section>
 
   <section class="section" id="player-registration">
-    <h2>ثبت‌نام بازیکنان</h2><p>اطلاعات خود را با دقت وارد کنید. درخواست ثبت‌نام پس از بررسی مدیر تأیید می‌شود.</p>
+    <h2>ورود بازیکنان و ثبت درخواست شرکت</h2><p>هر بازیکن فقط یک حساب و یک پروفایل دارد. با همان حساب می‌توانی در چند تورنمنت مختلف شرکت کنی؛ برای هر تورنمنت فقط یک درخواست ثبت‌نام مجاز است.</p><p class="trust-note">اگر هنوز حساب نداری، «بازیکن جدید» را انتخاب کن. پس از ساخت حساب، برای تورنمنت‌های بعدی همیشه از گزینه «بازیکن دارای حساب» استفاده کن؛ حساب جدید نساز.</p>
     <form id="registration-form" class="admin-box">
       <div class="registration-grid">
         <div class="full-row"><label for="reg-tournament">انتخاب تورنمنت</label><select id="reg-tournament" required><option value="">در حال دریافت تورنمنت‌ها...</option></select></div>
@@ -331,9 +331,11 @@ document.getElementById("registration-form").addEventListener("submit", async fu
     status.textContent=result.message || "درخواست شما ارسال شد و در انتظار تأیید مدیر است.";
     status.classList.add("success");
     form.reset();
-    accountTypeSelect.value = "new";
-    passwordConfirmWrap.classList.remove("hidden");
-    passwordConfirmInput.required = true;
+    // پس از ساخت حساب، ثبت‌نام بعدی با همان حساب انجام می‌شود.
+    accountTypeSelect.value = "existing";
+    passwordConfirmWrap.classList.add("hidden");
+    passwordConfirmInput.required = false;
+    document.getElementById("reg-password").autocomplete = "current-password";
   } catch(error) {
     console.error("Registration error:",error); status.textContent=error.message || "ارتباط با سامانه برقرار نشد."; status.classList.add("error");
   } finally {
