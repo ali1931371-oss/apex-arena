@@ -60,7 +60,7 @@ BEGIN
   FOR v_stage IN SELECT value FROM jsonb_array_elements(p_stages)
   LOOP
     v_position := v_position + 1;
-    IF jsonb_typeof(v_stage) <> 'object' THEN
+    IF jsonb_typeof(v_stage) IS DISTINCT FROM 'object' THEN
       RAISE EXCEPTION 'ساختار یکی از مراحل معتبر نیست.';
     END IF;
     v_name := btrim(coalesce(v_stage->>'name', ''));
@@ -71,9 +71,9 @@ BEGIN
     IF v_name = '' OR length(v_name) > 100 THEN
       RAISE EXCEPTION 'نام هر مرحله باید بین ۱ تا ۱۰۰ نویسه باشد.';
     END IF;
-    IF v_groups NOT BETWEEN 1 AND 100
-       OR v_players NOT BETWEEN 1 AND 100
-       OR v_games NOT BETWEEN 1 AND 100 THEN
+    IF v_groups IS NULL OR v_groups NOT BETWEEN 1 AND 100
+       OR v_players IS NULL OR v_players NOT BETWEEN 1 AND 100
+       OR v_games IS NULL OR v_games NOT BETWEEN 1 AND 100 THEN
       RAISE EXCEPTION 'تعداد گروه، بازیکن و بازی باید بین ۱ تا ۱۰۰ باشد.';
     END IF;
 
