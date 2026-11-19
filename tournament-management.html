@@ -46,7 +46,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
 <section id="dashboard" class="hidden">
 <section class="panel" id="interactiveDemo">
   <div class="row"><div><h2>کارگاه تعاملی مدیریت تورنمنت</h2><p class="muted">اینجا می‌توانی فرم‌ها و انتخاب‌ها را امتحان کنی و نتیجه را همان لحظه ببینی.</p></div><span class="preview-pill">پیش‌نمایش قابل آزمایش</span></div>
-  <div class="demo-banner"><strong>حالت آزمایشی:</strong> هر تغییری که اینجا انجام بدهی فقط در همین صفحه نمایش داده می‌شود و هنوز در دیتابیس ذخیره نمی‌شود. ذخیره واقعی بعد از آماده‌شدن و تأیید تو فعال خواهد شد.</div>
+  <div class="demo-banner"><strong>توجه:</strong> مشخصات تورنمنت با دکمه ذخیره در دیتابیس ثبت می‌شود و تورنمنت ذخیره‌شده در فهرست انتخاب قرار می‌گیرد. سایر بخش‌ها تا زمان فعال‌سازی ذخیره اختصاصی، در حالت پیش‌نمایش هستند.</div>
   <div class="tabs" role="tablist">
     <button type="button" class="active" data-demo-tab="tournament">مشخصات تورنمنت</button>
     <button type="button" class="secondary" data-demo-tab="stages">مراحل و گروه‌ها</button>
@@ -62,6 +62,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
       <div class="demo-field"><label for="demoApproval">تأیید ثبت‌نام</label><select id="demoApproval"><option value="yes">نیازمند تأیید مدیر</option><option value="no">ثبت‌نام مستقیم</option></select></div>
     </div>
     <p class="muted">این ظرفیت در مراحل بعدی با مجموع ظرفیت گروه‌ها مقایسه خواهد شد.</p>
+    <div class="demo-actions"><button type="button" id="demoSaveTournament">ذخیره تنظیمات تورنمنت</button><span id="demoSaveTournamentStatus" class="status" role="status"></span></div>
   </div>
   <div id="demo-stages" class="demo-pane hidden">
     <div class="row"><div><h3>انتخاب و تنظیم مراحل</h3><p class="muted">مراحل پیشنهادی قابل انتخاب‌اند؛ می‌توانی مرحله دلخواه هم اضافه کنی.</p></div><button type="button" id="demoAddStage">افزودن مرحله جدید +</button></div>
@@ -163,6 +164,24 @@ const demoNames=["مقدماتی","یک‌چهارم نهایی","نیمه‌ن�
 const demo$=id=>document.getElementById(id);
 let demoTournamentId=null;
 function demoStatus(t){demo$("demoStatus").textContent=t}
+async function demoSaveTournament(){
+ const name=demo$("demoName").value.trim();
+ const capacity=Number(demo$("demoCapacity").value);
+ if(!name){status("demoSaveTournamentStatus","نام تورنمنت را وارد کن.",true);return;}
+ if(!Number.isInteger(capacity)||capacity<2||capacity>500){status("demoSaveTournamentStatus","ظرفیت باید عدد صحیحی بین ۲ تا ۵۰۰ باشد.",true);return;}
+ const button=demo$("demoSaveTournament");button.disabled=true;status("demoSaveTournamentStatus","در حال ذخیره تورنمنت...");
+ try{
+  const {data,error}=await db.rpc("create_managed_tournament",{p_name:name,p_max_players:capacity,p_registration_open:demo$("demoRegistration").value==="open",p_require_admin_approval:demo$("demoApproval").value==="yes"});
+  if(error)throw error;
+  const tournamentId=data;
+  if(!tournamentId)throw new Error("شناسه تورنمنت از سرور دریافت نشد.");
+  await loadTournaments();
+  $("tournamentSelect").value=tournamentId;
+  await loadTournament();
+  status("demoSaveTournamentStatus","تورنمنت با موفقیت ذخیره شد و به فهرست انتخاب تورنمنت اضافه شد.");
+ }catch(e){status("demoSaveTournamentStatus","ذخیره تورنمنت انجام نشد: "+e.message,true)}
+ finally{button.disabled=false}
+}
 function demoLoadStageConfig(tid,rows){
  demoTournamentId=tid;demoStageIndex=-1;demoStageDraft=null;
  if(rows&&rows.length){
@@ -267,7 +286,7 @@ demo$("demoScenario").addEventListener("change",()=>{demoState.roles=demoDefault
 ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
 demo$("demoReset").textContent="بازخوانی تنظیمات تورنمنت";
 demo$("demoReset").addEventListener("click",()=>loadTournament());
-demo$("demoSaveStages").addEventListener("click",demoSaveStageConfig);
+demo$("demoSaveStages").addEventListener("click",demoSaveStageConfig);\ndemo$("demoSaveTournament").addEventListener("click",demoSaveTournament);
 demo$("demoConfirmOrder").addEventListener("click",()=>{demo$("demoOrderStatus").textContent=demoOrderedStages.length?"ترتیب مراحل برای ذخیره آماده است.":"ابتدا مراحل را انتخاب کن.";});
 demoRenderAll();
 
