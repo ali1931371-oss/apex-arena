@@ -46,7 +46,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
 <section id="dashboard" class="hidden">
 <section class="panel" id="interactiveDemo">
   <div class="row"><div><h2>کارگاه تعاملی مدیریت تورنمنت</h2><p class="muted">اینجا می‌توانی فرم‌ها و انتخاب‌ها را امتحان کنی و نتیجه را همان لحظه ببینی.</p></div><span class="preview-pill">پیش‌نمایش قابل آزمایش</span></div>
-  <div class="demo-banner"><strong>توجه:</strong> مشخصات تورنمنت با دکمه ذخیره در دیتابیس ثبت می‌شود و تورنمنت ذخیره‌شده در فهرست انتخاب قرار می‌گیرد. سایر بخش‌ها تا زمان فعال‌سازی ذخیره اختصاصی، در حالت پیش‌نمایش هستند.</div>
+  <div class="demo-banner"><strong>توجه:</strong> مشخصات تورنمنت، مراحل و گروه‌ها، و سناریو و نقش‌ها هرکدام دکمه ذخیره اختصاصی دارند. برای سناریو و نقش‌ها ابتدا باید تابع ذخیره در دیتابیس فعال شود.</div>
   <div class="tabs" role="tablist">
     <button type="button" class="active" data-demo-tab="tournament">مشخصات تورنمنت</button>
     <button type="button" class="secondary" data-demo-tab="stages">مراحل و گروه‌ها</button>
@@ -81,7 +81,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
     <h3>انتخاب سناریو و ویرایش ترکیب نقش‌ها</h3>
     <div class="demo-grid">
       <div class="demo-field"><label for="demoScenario">سناریو</label><select id="demoScenario"><option>بازپرس</option><option>مذاکره</option><option>نماینده</option><option>کاپو</option><option>سناریوی اختصاصی آزمایشی</option></select></div>
-      <div class="demo-field"><label for="demoScenarioName">نام سناریوی جدید (برای آزمایش)</label><input id="demoScenarioName" placeholder="مثلاً سناریوی ویژه"></div>
+      <div class="demo-field"><label for="demoScenarioName">نام سناریوی جدید</label><input id="demoScenarioName" placeholder="مثلاً سناریوی ویژه"></div>
     </div>
     <div class="demo-actions"><button type="button" id="demoAddScenario" class="secondary">افزودن سناریوی جدید +</button><button type="button" id="demoAddRole">افزودن نقش +</button><button type="button" id="demoSaveScenario">ذخیره سناریو و نقش‌ها</button></div><p id="demoSaveScenarioStatus" class="status" role="status"></p>
     <div id="demoRoleForm" class="card hidden"><h3>ثبت نقش جدید</h3><div class="demo-grid"><div class="demo-field"><label for="demoNewRoleName">نام نقش</label><input id="demoNewRoleName" placeholder="نام نقش را وارد کن"></div><div class="demo-field"><label for="demoNewRoleSide">جناح</label><select id="demoNewRoleSide"><option value="شهروند">شهروند</option><option value="مافیا">مافیا</option></select></div><div class="demo-field"><label for="demoNewRoleCount">تعداد</label><input id="demoNewRoleCount" type="number" min="1" max="20" value="1"></div></div><div class="demo-actions"><button type="button" id="demoSaveNewRole">ثبت نقش</button><button type="button" id="demoCancelNewRole" class="secondary">انصراف</button></div></div>
@@ -94,7 +94,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
   <div class="demo-actions"><button type="button" id="demoReset" class="secondary">بازنشانی پیش‌نمایش</button><span id="demoStatus" class="status" role="status"></span></div>
 </section>
 
-<section class="panel"><div class="grid"><div><h2>انتخاب تورنمنت</h2><p class="muted">اطلاعات از جدول‌ها و توابع موجود خوانده می‌شود؛ این نسخه هنوز هیچ داده‌ای را تغییر نمی‌دهد.</p></div><div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select></div><div><button id="refreshButton" class="secondary">به‌روزرسانی اطلاعات</button></div></div><p id="dashboardStatus" class="status"></p></section>
+<section class="panel"><div class="grid"><div><h2>انتخاب تورنمنت</h2><p class="muted">اطلاعات این بخش برای مشاهده است؛ تغییرات مدیریتی از کارگاه تعاملی بالا انجام می‌شود.</p></div><div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select></div><div><button id="refreshButton" class="secondary">به‌روزرسانی اطلاعات</button></div></div><p id="dashboardStatus" class="status"></p></section>
 <section class="panel"><h2>مراحل تورنمنت</h2><div id="stagesList"><p class="muted">ابتدا تورنمنت را انتخاب کنید.</p></div></section>
 <section class="panel"><h2>گروه‌ها و مسابقه‌ها</h2><div id="groupsList"><p class="muted">ابتدا تورنمنت را انتخاب کنید.</p></div></section>
 <section class="panel"><h2>سناریوها و نقش‌های موجود</h2><p class="muted">چهار سناریوی فعلی و نقش‌هایشان بدون تغییر نمایش داده می‌شوند.</p><div id="scenariosList"><p class="muted">در حال دریافت...</p></div></section>
