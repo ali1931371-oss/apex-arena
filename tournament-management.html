@@ -97,12 +97,21 @@ async function loadTournaments(){status("dashboardStatus","در حال دریا�
 function renderTable(target,headers,rows,empty){const box=$(target);box.replaceChildren();if(!rows.length){box.append(el("p",empty,"muted"));return}const table=el("table"),thead=el("thead"),tr=el("tr");headers.forEach(h=>tr.append(el("th",h)));thead.append(tr);table.append(thead);const body=el("tbody");rows.forEach(row=>{const r=el("tr");row.forEach(v=>r.append(el("td",v===null||v===undefined?"—":String(v))));body.append(r)});table.append(body);box.append(table)}
 async function loadTournament(){const tid=$("tournamentSelect").value;if(!tid)return;status("dashboardStatus","در حال خواندن ساختار تورنمنت...");
 const jobs=[
+["tournament",()=>db.from("tournaments").select("name").eq("id",tid).maybeSingle()],
+["registration",()=>db.from("tournament_registration_settings").select("max_players,registration_open,require_admin_approval").eq("tournament_id",tid).maybeSingle()],
 ["stages",()=>db.from("tournament_stages").select("id,name,stage_number,settings").eq("tournament_id",tid).order("stage_number")],
 ["matches",()=>db.from("matches").select("id,match_number,status,stage_id,group_id").eq("tournament_id",tid).order("match_number")],
 ["versions",()=>db.from("tournament_rule_versions").select("id,version_number,version_status,created_at,stage_settings,group_settings,advancement_rules").eq("tournament_id",tid).order("version_number",{ascending:false})]
 ];
 const results=await Promise.all(jobs.map(async([key,fn])=>{try{const {data,error}=await fn();return [key,data||[],error]}catch(e){return [key,[],e]}}));
 const data=Object.fromEntries(results.map(([k,v,e])=>[k,{rows:v,error:e}]));
+const tournament=data.tournament.rows,registration=data.registration.rows;
+if(tournament)demo$("demoName").value=tournament.name||"";
+if(registration){
+ demo$("demoCapacity").value=registration.max_players??"";
+ demo$("demoRegistration").value=registration.registration_open?"open":"closed";
+ demo$("demoApproval").value=registration.require_admin_approval?"yes":"no";
+}
 const stages=data.stages.rows||[],matches=data.matches.rows||[];
 demoLoadStageConfig(tid,stages);
 renderTable("stagesList",["ترتیب","نام مرحله","تعداد گروه","بازیکن در هر گروه","بازی در هر گروه"],stages.map(s=>{const x=s.settings||{};return [s.stage_number,s.name,x.groups_count??x.groups??"—",x.players_per_group??x.players??"—",x.games_per_group??x.games??"—"]}),"برای این تورنمنت مرحله‌ای ثبت نشده است.");
