@@ -117,8 +117,13 @@ const stageMap=new Map(stages.map(s=>[s.id,s.name]));
 const groupIds=[...new Set(matches.map(m=>m.group_id).filter(Boolean))];
 let groups=[];
 if(stages.length){const gr=await db.from("tournament_groups").select("id,stage_id,group_number,group_name").in("stage_id",stages.map(s=>s.id)).order("group_number");if(!gr.error)groups=gr.data||[];else data.groups={rows:[],error:gr.error}}
-const groupMap=new Map(groups.map(g=>[g.id,g]));
-renderTable("groupsList",["مرحله","گروه","بازیکن در هر گروه","بازی برنامه‌ریزی‌شده برای هر گروه","مسابقه‌های ایجادشده"],groups.map(g=>{const st=stages.find(s=>s.id===g.stage_id);const x=st?.settings||{};const ms=matches.filter(m=>m.group_id===g.id);return [stageMap.get(g.stage_id)||"—",g.group_name||("گروه "+g.group_number),x.players_per_group??x.players??"—",x.games_per_group??x.games??"—",ms.length?ms.map(m=>"#"+m.match_number+" ("+m.status+")").join("، "):"هنوز مسابقه‌ای ساخته نشده"]}),"برای این تورنمنت گروهی ثبت نشده است.");
+const stageOrder=new Map(stages.map((stage,index)=>[stage.id,index]));
+const orderedGroups=[...groups].sort((a,b)=>{
+ const stageDifference=(stageOrder.get(a.stage_id)??Number.MAX_SAFE_INTEGER)-(stageOrder.get(b.stage_id)??Number.MAX_SAFE_INTEGER);
+ if(stageDifference!==0)return stageDifference;
+ return (Number(a.group_number)||0)-(Number(b.group_number)||0);
+});
+renderTable("groupsList",["مرحله","گروه","بازیکن در هر گروه","بازی برنامه‌ریزی‌شده برای هر گروه","مسابقه‌های ایجادشده"],orderedGroups.map(g=>{const st=stages.find(s=>s.id===g.stage_id);const x=st?.settings||{};const ms=matches.filter(m=>m.group_id===g.id);return [stageMap.get(g.stage_id)||"—",g.group_name||("گروه "+g.group_number),x.players_per_group??x.players??"—",x.games_per_group??x.games??"—",ms.length?ms.map(m=>"#"+m.match_number+" ("+m.status+")").join("، "):"هنوز مسابقه‌ای ساخته نشده"]}),"برای این تورنمنت گروهی ثبت نشده است.");
 const errors=results.filter(x=>x[2]).map(x=>x[0]+": "+x[2].message);status("dashboardStatus","نمایش اطلاعات انجام شد. "+stages.length+" مرحله، "+groups.length+" گروه، "+matches.length+" مسابقه و "+(data.versions.rows||[]).length+" نسخه قانون."+(errors.length?" برخی بخش‌ها قابل خواندن نبودند: "+errors.join("؛ "):""));
 }
 
