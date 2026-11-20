@@ -174,6 +174,7 @@ const newPasswordBox = document.getElementById("new-password-box");
 const adminDashboard = document.getElementById("admin-dashboard");
 let currentAdmin = null;
 let currentImagePath = null;
+let registrationRequestsLoadId = 0;
 
 function showMessage(text, isError = false) {
   message.textContent = text;
@@ -407,6 +408,7 @@ async function verifyAdmin(user) {
 
 // دریافت و نمایش درخواست‌های عضویت (فقط پس از تأیید نقش admin)
 async function loadRegistrationRequests() {
+  const loadId=++registrationRequestsLoadId;
   const status=document.getElementById("registration-requests-status");
   const list=document.getElementById("registration-requests-list");
   const refresh=document.getElementById("refresh-registration-requests");
@@ -418,6 +420,7 @@ async function loadRegistrationRequests() {
       .select("id,tournament_id,user_id,full_name,audio_player_id,phone,username,status,created_at")
       .eq("status","pending").order("created_at",{ascending:true});
     if (error) throw error;
+    if (loadId!==registrationRequestsLoadId) return;
     if (!requests || requests.length===0) { status.textContent="در حال حاضر درخواست در انتظار بررسی وجود ندارد."; return; }
     status.textContent=requests.length+" درخواست در انتظار بررسی وجود دارد.";
     requests.forEach(request=>{
@@ -463,9 +466,11 @@ async function loadRegistrationRequests() {
       actions.append(approve,reject); card.appendChild(actions); list.appendChild(card);
     });
   } catch(error) {
-    status.textContent="خطا در دریافت درخواست‌ها: "+error.message; status.classList.add("error"); console.error("Registration requests error:",error);
+    if (loadId===registrationRequestsLoadId) {
+      status.textContent="خطا در دریافت درخواست‌ها: "+error.message; status.classList.add("error"); console.error("Registration requests error:",error);
+    }
   } finally {
-    if (refresh) refresh.disabled=false;
+    if (loadId===registrationRequestsLoadId && refresh) refresh.disabled=false;
   }
 }
 
