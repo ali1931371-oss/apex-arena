@@ -32,6 +32,29 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 <section class="panel"><h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2><p>فقط بازیکن تأییدشده همان تورنمنت قابل انتخاب است. پیش از انتصاب، نباید در مسابقه‌های آن تورنمنت به‌عنوان بازیکن ثبت شده باشد.</p><div class="grid"><div><label for="candidateSelect">بازیکن واجد شرایط</label><select id="candidateSelect"><option value="">انتخاب بازیکن</option></select></div><div><button id="appointButton">انتصاب به‌عنوان داور</button></div></div><p id="candidateStatus" class="status"></p></section>
 <section class="panel"><h2>داوران تورنمنت</h2><p class="muted">هنگام لغو داوری، می‌توانی تعیین کنی شخص به فهرست بازیکنان همین تورنمنت برگردد یا خیر.</p><div id="judgeList"></div></section>
 <section class="panel"><h2>تخصیص مسابقه به داور</h2><p>داور فقط به مسابقه‌هایی دسترسی دارد که اینجا به او تخصیص داده شده‌اند.</p><div id="matchList"></div></section>
+
+<section class="panel" id="scenarioManagementPanel">
+<h2>مدیریت سناریوها و نقش‌های داوری</h2>
+<p class="muted">سناریو و ترکیب نقش‌ها را برای استفاده در داوری تعریف کن. تغییرات فقط با زدن دکمه ذخیره ثبت می‌شوند.</p>
+<div class="grid">
+ <div><label for="scenarioSelect">سناریوی موردنظر</label><select id="scenarioSelect"><option value="">در حال دریافت سناریوها...</option></select></div>
+ <div><label for="newScenarioName">نام سناریوی جدید</label><input id="newScenarioName" maxlength="120" placeholder="نام سناریوی جدید"></div>
+ <div><button type="button" id="addScenarioButton" class="secondary">افزودن سناریو</button></div>
+</div>
+<div class="card">
+ <h3>افزودن نقش به سناریوی انتخاب‌شده</h3>
+ <div class="grid">
+  <div><label for="newRoleName">نام نقش</label><input id="newRoleName" maxlength="120" placeholder="مثلاً کارآگاه"></div>
+  <div><label for="newRoleSide">جناح</label><select id="newRoleSide"><option value="شهروند">شهروند</option><option value="مافیا">مافیا</option></select></div>
+  <div><label for="newRoleCount">تعداد</label><input id="newRoleCount" type="number" min="1" max="20" value="1"></div>
+  <div><button type="button" id="addRoleButton">افزودن نقش به فهرست</button></div>
+ </div>
+</div>
+<div id="scenarioRolesList"></div>
+<div class="actions"><button type="button" id="saveScenarioButton">ذخیره سناریو و نقش‌ها</button><button type="button" id="reloadScenariosButton" class="secondary">بازخوانی فهرست</button></div>
+<p id="scenarioStatus" class="status" role="status"></p>
+</section>
+
 <section class="panel"><h2>ثبت اطلاعات بازیکنان مسابقه</h2><p>مدیر می‌تواند قبل یا بعد از بازی، ساید، نقش واقعی و شماره صندلی اختیاری هر بازیکن را برای همان مسابقه ثبت یا اصلاح کند. این اطلاعات عمومی نیست.</p>
 <div class="grid"><div><label for="playerDetailsMatch">انتخاب مسابقه</label><select id="playerDetailsMatch"><option value="">انتخاب مسابقه</option></select></div><div><button id="loadPlayerDetails" class="secondary">نمایش بازیکنان مسابقه</button></div></div>
 <div id="playerDetailsList"></div><p id="playerDetailsStatus" class="status" role="status"></p></section>
@@ -45,6 +68,7 @@ const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 let tournaments=[],judges=[],matches=[];
+let scenarioRecords=[],selectedScenarioKey="",scenarioRolesDraft=[];
 function node(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 function setStatus(id,text,error=false){$(id).textContent=text||"";$(id).className="status "+(error?"error":text?"success":"")}
 async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
@@ -71,9 +95,86 @@ async function loadTournamentData(){
   rpc("get_tournament_judge_candidates",{p_tournament_id:tid}),
   rpc("get_tournament_judges",{p_tournament_id:tid}),
   rpc("get_tournament_matches",{p_tournament_id:tid})
- ]);judges=j||[];matches=m||[];renderCandidates(c||[]);renderJudges();renderMatches();setStatus("dashboardStatus","اطلاعات به‌روزرسانی شد. "+(c||[]).length+" بازیکن واجد شرایط، "+judges.filter(x=>x.is_active).length+" داور فعال و "+matches.length+" مسابقه.");}
+ ]);judges=j||[];matches=m||[];renderCandidates(c||[]);renderJudges();renderMatches();await loadScenarioConfiguration();setStatus("dashboardStatus","اطلاعات به‌روزرسانی شد. "+(c||[]).length+" بازیکن واجد شرایط، "+judges.filter(x=>x.is_active).length+" داور فعال و "+matches.length+" مسابقه.");}
  catch(e){setStatus("dashboardStatus","خطا در دریافت اطلاعات: "+e.message,true)}
 }
+
+function renderScenarioRoles(){
+ const box=$("scenarioRolesList");box.replaceChildren();
+ if(!selectedScenarioKey){box.append(node("p","ابتدا یک سناریو را انتخاب یا ایجاد کن.","muted"));return}
+ if(!scenarioRolesDraft.length){box.append(node("p","برای این سناریو هنوز نقشی در فهرست فعلی نیست. نقش‌ها را اضافه و سپس ذخیره کن.","muted"));return}
+ scenarioRolesDraft.forEach((r,i)=>{
+  const card=node("article",undefined,"card"),row=node("div",undefined,"row");
+  row.append(node("strong",r.name),node("span",r.side+" | "+r.count+" نفر","chip"));
+  const remove=node("button","حذف از فهرست");remove.className="danger";remove.onclick=()=>{scenarioRolesDraft.splice(i,1);renderScenarioRoles()};
+  card.append(row,remove);box.append(card);
+ });
+}
+async function loadScenarioConfiguration(){
+ const select=$("scenarioSelect");if(!select)return;
+ const previous=selectedScenarioKey;
+ setStatus("scenarioStatus","در حال دریافت سناریوها و نقش‌ها...");
+ try{
+  const [s,r]=await Promise.all([
+   db.from("scenarios").select("id,name,description,is_active").order("created_at"),
+   db.from("scenario_roles").select("scenario_id,role_name,faction,description,is_active,role_count").order("role_name")
+  ]);
+  if(s.error)throw s.error;if(r.error)throw r.error;
+  scenarioRecords=s.data||[];select.replaceChildren();
+  if(!scenarioRecords.length){const o=node("option","هنوز سناریویی ثبت نشده است");o.value="";select.append(o)}
+  scenarioRecords.forEach(x=>{const o=node("option",x.name);o.value=x.id;select.append(o)});
+  const chosen=scenarioRecords.some(x=>x.id===previous)?previous:(scenarioRecords[0]?.id||"");
+  selectedScenarioKey=chosen;if(chosen)select.value=chosen;
+  scenarioRolesDraft=(r.data||[]).filter(x=>x.scenario_id===chosen&&x.is_active).map(x=>({name:x.role_name,side:x.faction,count:Number(x.role_count||1)}));
+  setStatus("scenarioStatus",scenarioRecords.length?scenarioRecords.length+" سناریو دریافت شد. تغییرات را پس از ویرایش ذخیره کن.":"سناریویی ثبت نشده است؛ نام سناریوی جدید را وارد کن.");
+  renderScenarioRoles();
+ }catch(e){setStatus("scenarioStatus","دریافت سناریوها انجام نشد: "+e.message,true);select.replaceChildren(node("option","خطا در دریافت فهرست"))}
+}
+async function loadSelectedScenarioRoles(){
+ const key=selectedScenarioKey;
+ if(!key||key.startsWith("new:")){scenarioRolesDraft=[];renderScenarioRoles();return}
+ try{
+  const {data,error}=await db.from("scenario_roles").select("role_name,faction,role_count,is_active").eq("scenario_id",key).eq("is_active",true).order("role_name");
+  if(error)throw error;
+  scenarioRolesDraft=(data||[]).map(x=>({name:x.role_name,side:x.faction,count:Number(x.role_count||1)}));renderScenarioRoles();
+ }catch(e){setStatus("scenarioStatus","دریافت نقش‌های سناریو انجام نشد: "+e.message,true)}
+}
+function addScenario(){
+ const name=$("newScenarioName").value.trim();
+ if(!name){setStatus("scenarioStatus","نام سناریوی جدید را وارد کن.",true);return}
+ const duplicate=[...$("scenarioSelect").options].some(o=>o.textContent.trim().toLowerCase()===name.toLowerCase());
+ if(duplicate){setStatus("scenarioStatus","سناریویی با این نام از قبل وجود دارد.",true);return}
+ const key="new:"+name,opt=node("option",name);opt.value=key;$("scenarioSelect").append(opt);$("scenarioSelect").value=key;
+ selectedScenarioKey=key;scenarioRolesDraft=[];$("newScenarioName").value="";
+ renderScenarioRoles();setStatus("scenarioStatus","سناریوی جدید به‌صورت موقت ایجاد شد؛ نقش‌ها را اضافه و سپس ذخیره کن.");
+}
+function addScenarioRole(){
+ if(!$("scenarioSelect").value){setStatus("scenarioStatus","ابتدا یک سناریو را انتخاب یا ایجاد کن.",true);return}
+ const name=$("newRoleName").value.trim(),side=$("newRoleSide").value,count=Number($("newRoleCount").value);
+ if(!name){setStatus("scenarioStatus","نام نقش را وارد کن.",true);return}
+ if(!Number.isInteger(count)||count<1||count>20){setStatus("scenarioStatus","تعداد نقش باید عدد صحیحی بین ۱ تا ۲۰ باشد.",true);return}
+ if(scenarioRolesDraft.some(x=>x.name.toLowerCase()===name.toLowerCase())){setStatus("scenarioStatus","این نقش در سناریوی انتخاب‌شده تکراری است.",true);return}
+ scenarioRolesDraft.push({name,side,count});$("newRoleName").value="";$("newRoleCount").value="1";
+ renderScenarioRoles();setStatus("scenarioStatus","نقش به فهرست موقت اضافه شد؛ برای ثبت نهایی ذخیره را بزن.");
+}
+async function saveScenarioConfiguration(){
+ const key=$("scenarioSelect").value;
+ if(!key){setStatus("scenarioStatus","ابتدا یک سناریو را انتخاب کن.",true);return}
+ const name=key.startsWith("new:")?key.slice(4):(scenarioRecords.find(x=>x.id===key)?.name||"");
+ const roles=scenarioRolesDraft.map(x=>({name:String(x.name||"").trim(),side:String(x.side||"").trim(),count:Number(x.count)}));
+ if(!name.trim()){setStatus("scenarioStatus","نام سناریو مشخص نیست.",true);return}
+ if(roles.some(x=>!x.name||!["شهروند","مافیا"].includes(x.side)||!Number.isInteger(x.count)||x.count<1||x.count>20)){setStatus("scenarioStatus","نام، جناح و تعداد همه نقش‌ها را بررسی کن.",true);return}
+ if(new Set(roles.map(x=>x.name.toLowerCase())).size!==roles.length){setStatus("scenarioStatus","نام نقش‌ها در یک سناریو نباید تکراری باشد.",true);return}
+ const b=$("saveScenarioButton");b.disabled=true;setStatus("scenarioStatus","در حال ذخیره سناریو و نقش‌ها...");
+ try{
+  const {data,error}=await db.rpc("save_managed_scenario",{p_scenario_id:key.startsWith("new:")?null:key,p_name:name,p_roles:roles});
+  if(error)throw error;if(!data)throw new Error("شناسه سناریو دریافت نشد.");
+  selectedScenarioKey=data;await loadScenarioConfiguration();$("scenarioSelect").value=data;selectedScenarioKey=data;await loadSelectedScenarioRoles();
+  setStatus("scenarioStatus","سناریو و "+roles.length+" نقش با موفقیت ذخیره شدند.");
+ }catch(e){setStatus("scenarioStatus","ذخیره سناریو انجام نشد: "+e.message,true)}
+ finally{b.disabled=false}
+}
+
 function renderCandidates(rows){
  const s=$("candidateSelect");s.replaceChildren(node("option","انتخاب بازیکن"));
  rows.forEach(p=>{const o=node("option",p.display_name+" — "+(p.player_code||"بدون کد"));o.value=p.user_id;s.append(o)});
@@ -169,6 +270,11 @@ $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",loadTournamentData);
 $("appointButton").addEventListener("click",appoint);
 $("loadPlayerDetails").addEventListener("click",loadPlayerDetails);
+$("scenarioSelect").addEventListener("change",async()=>{selectedScenarioKey=$("scenarioSelect").value;await loadSelectedScenarioRoles()});
+$("addScenarioButton").addEventListener("click",addScenario);
+$("addRoleButton").addEventListener("click",addScenarioRole);
+$("saveScenarioButton").addEventListener("click",saveScenarioConfiguration);
+$("reloadScenariosButton").addEventListener("click",loadScenarioConfiguration);
 $("refreshButton").addEventListener("click",loadTournamentData);
 $("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden")});
 db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
