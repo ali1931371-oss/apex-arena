@@ -60,10 +60,8 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
     
     <div class="card">
       <div class="row"><div><h3>مراحل تورنمنت</h3><p class="muted">با دکمه زیر هر تعداد مرحله لازم داری اضافه کن؛ ترتیب و تنظیمات همه مراحل با یک ذخیره ثبت می‌شود.</p></div><button type="button" id="demoAddStage">افزودن مرحله +</button></div>
-      <div class="grid">
-        <div><h3>ترتیب مراحل</h3><div id="demoOrderList"></div></div>
-        <div id="demoStageEditor" class="card"><p class="muted">برای تنظیم، یک مرحله را از فهرست انتخاب کن.</p></div>
-      </div>
+      <div id="demoStageEditor" class="card hidden"></div>
+      <div class="card"><h3>ترتیب مراحل</h3><p class="muted">مراحل به همان ترتیبی که ثبت می‌کنی نمایش داده می‌شوند؛ هر مرحله را در صورت نیاز می‌توانی حذف کنی.</p><div id="demoOrderList"></div></div>
     </div>
     <div class="demo-actions"><button type="button" id="demoSaveTournament">ذخیره همه مشخصات و مراحل تورنمنت</button><span id="demoSaveTournamentStatus" class="status" role="status"></span></div>
   </div>
@@ -125,12 +123,12 @@ const errors=results.filter(x=>x[2]).map(x=>x[0]+": "+x[2].message);status("dash
 }
 
 const demoDefaults=()=>({stages:[]});
-let demoState=demoDefaults(),demoStageIndex=-1,demoOrderedStages=[];
+let demoState=demoDefaults(),demoOrderedStages=[],demoStageDraft=null;
 const demo$=id=>document.getElementById(id);
 let demoTournamentId=null;
 function demoStatus(t){demo$("demoStatus").textContent=t}
 function demoNewTournament(){
- demoTournamentId=null;demoState=demoDefaults();demoOrderedStages=[];demoStageIndex=-1;
+ demoTournamentId=null;demoState=demoDefaults();demoOrderedStages=[];demoStageDraft=null;
  ["demoName","demoCapacity"].forEach((id,i)=>demo$(id).value=i===0?"":"");
  demo$("demoRegistration").value="open";demo$("demoApproval").value="yes";
  ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).disabled=false);
@@ -141,6 +139,7 @@ async function demoSaveTournament(){
  if(!name){status("demoSaveTournamentStatus","نام تورنمنت را وارد کن.",true);return;}
  if(!Number.isInteger(capacity)||capacity<2||capacity>500){status("demoSaveTournamentStatus","ظرفیت باید عدد صحیحی بین ۲ تا ۵۰۰ باشد.",true);return;}
  if(!demoOrderedStages.length){status("demoSaveTournamentStatus","حداقل یک مرحله اضافه کن.",true);return;}
+ if(demoOrderedStages.length>5){status("demoSaveTournamentStatus","هر تورنمنت حداکثر می‌تواند پنج مرحله داشته باشد.",true);return;}
  const stages=[];
  for(const s of demoOrderedStages){
   const groups=Number(s.settings?.groups),players=Number(s.settings?.players),games=Number(s.settings?.games);
@@ -175,7 +174,7 @@ async function demoSaveTournament(){
  finally{button.disabled=false}
 }
 function demoLoadStageConfig(tid,rows){
- demoTournamentId=tid;demoStageIndex=-1;
+ demoTournamentId=tid;demoStageDraft=null;
  demoState.stages=(rows||[]).map(r=>{const x=r.settings||{};return {id:r.id,name:r.name,settings:{groups:Number(x.groups_count??x.groups??0),players:Number(x.players_per_group??x.players??0),games:Number(x.games_per_group??x.games??0)}}});
  demoOrderedStages=[...demoState.stages];
  ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).disabled=true);
@@ -183,32 +182,53 @@ function demoLoadStageConfig(tid,rows){
 }
 function demoRenderOrder(){
  const box=demo$("demoOrderList");box.replaceChildren();
- if(!demoOrderedStages.length){box.append(el("p","هنوز مرحله‌ای اضافه نشده است.","muted"));return;}
+ if(!demoOrderedStages.length){box.append(el("p","هنوز مرحله‌ای ثبت نشده است.","muted"));}
  demoOrderedStages.forEach((s,i)=>{
-  const row=el("div",undefined,"stage-item"+(i===demoStageIndex?" active":""));
-  const top=el("div",undefined,"row"),label=el("strong",(i+1)+". "+s.name);
-  const actions=el("div",undefined,"demo-actions");
-  const edit=el("button","تنظیم","secondary");edit.type="button";edit.onclick=()=>{demoStageIndex=i;demoRenderAll()};
-  const up=el("button","↑","secondary");up.type="button";up.disabled=i===0;up.title="انتقال به بالا";up.onclick=()=>{[demoOrderedStages[i-1],demoOrderedStages[i]]=[demoOrderedStages[i],demoOrderedStages[i-1]];demoStageIndex=i-1;demoRenderAll()};
-  const down=el("button","↓","secondary");down.type="button";down.disabled=i===demoOrderedStages.length-1;down.title="انتقال به پایین";down.onclick=()=>{[demoOrderedStages[i+1],demoOrderedStages[i]]=[demoOrderedStages[i],demoOrderedStages[i+1]];demoStageIndex=i+1;demoRenderAll()};
-  const del=el("button","حذف","secondary");del.type="button";del.onclick=()=>{demoOrderedStages.splice(i,1);if(demoStageIndex===i)demoStageIndex=-1;else if(demoStageIndex>i)demoStageIndex--;demoRenderAll()};
-  actions.append(edit,up,down,del);top.append(label,actions);row.append(top);box.append(row);
+  const row=el("div",undefined,"stage-item");
+  const top=el("div",undefined,"row");
+  const details=el("div");
+  details.append(el("strong",(i+1)+". "+s.name));
+  const x=s.settings||{};
+  details.append(el("p",x.groups+" گروه، "+x.players+" بازیکن در هر گروه، "+x.games+" بازی برای هر گروه","small"));
+  const del=el("button","حذف","secondary");del.type="button";
+  del.onclick=()=>{demoOrderedStages.splice(i,1);demoRenderAll();demoStatus("مرحله حذف شد؛ برای ثبت دائمی تغییرات، تورنمنت را ذخیره کن.")};
+  top.append(details,del);row.append(top);box.append(row);
  });
+ const add=demo$("demoAddStage");
+ add.disabled=demoOrderedStages.length>=5;
+ add.textContent=demoOrderedStages.length>=5?"حداکثر پنج مرحله ثبت شده":"افزودن مرحله +";
 }
 function demoRenderEditor(){
- const box=demo$("demoStageEditor");box.replaceChildren();const s=demoOrderedStages[demoStageIndex];
- if(!s){box.append(el("p","برای تنظیم، یک مرحله را از فهرست انتخاب کن.","muted"));return;}
- box.append(el("h3","تنظیم مرحله انتخاب‌شده"));
+ const box=demo$("demoStageEditor");box.replaceChildren();
+ if(!demoStageDraft){box.classList.add("hidden");return;}
+ box.classList.remove("hidden");
+ box.append(el("h3","تنظیم مرحله جدید"));
  const grid=el("div",undefined,"demo-grid");
  const fields=[["نام مرحله","name","text"],["تعداد گروه‌ها","groups","number"],["تعداد بازیکن در هر گروه","players","number"],["تعداد بازی هر گروه","games","number"]];
+ const inputs={};
  fields.forEach(([caption,key,type])=>{
   const wrap=el("div",undefined,"demo-field"),lab=el("label",caption),input=el("input");
-  input.type=type;if(type==="number"){input.min="1";input.step="1";}
-  input.value=key==="name"?s.name:(s.settings?.[key]??"");
-  input.oninput=()=>{if(key==="name"){s.name=input.value}else{s.settings=s.settings||{groups:"",players:"",games:""};s.settings[key]=input.value}demoRenderOrder()};
-  wrap.append(lab,input);grid.append(wrap);
+  input.type=type;input.required=true;
+  if(type==="number"){input.min="1";input.max="500";input.step="1";input.inputMode="numeric";}
+  input.placeholder=caption;
+  input.value=demoStageDraft[key]??"";
+  input.oninput=()=>{demoStageDraft[key]=input.value};
+  wrap.append(lab,input);grid.append(wrap);inputs[key]=input;
  });
  box.append(grid);
+ const actions=el("div",undefined,"demo-actions");
+ const register=el("button","ثبت مرحله");register.type="button";
+ register.onclick=()=>{
+  const name=String(demoStageDraft.name||"").trim();
+  const values=["groups","players","games"].map(k=>Number(demoStageDraft[k]));
+  if(!name){status("demoSaveTournamentStatus","نام مرحله را وارد کن.",true);inputs.name.focus();return;}
+  if(!values.every(v=>Number.isInteger(v)&&v>=1&&v<=500)){status("demoSaveTournamentStatus","تعداد گروه‌ها، بازیکنان و بازی‌ها باید عدد صحیح بین ۱ تا ۵۰۰ باشد.",true);return;}
+  demoOrderedStages.push({id:null,name,settings:{groups:values[0],players:values[1],games:values[2]}});
+  demoStageDraft=null;status("demoSaveTournamentStatus","","");demoRenderAll();
+  demoStatus("مرحله با موفقیت به ترتیب مراحل اضافه شد. برای ذخیره نهایی، دکمه ذخیره تورنمنت را بزن.");
+ };
+ const cancel=el("button","انصراف","secondary");cancel.type="button";cancel.onclick=()=>{demoStageDraft=null;demoRenderAll();};
+ actions.append(register,cancel);box.append(actions);
 }
 function demoRenderAll(){demoRenderOrder();demoRenderEditor();demoRenderSummary()}
 function demoRenderSummary(){
@@ -223,7 +243,7 @@ document.querySelectorAll("[data-demo-tab]").forEach(btn=>btn.addEventListener("
  document.querySelectorAll(".demo-pane").forEach(p=>p.classList.add("hidden"));
  demo$("demo-"+btn.dataset.demoTab).classList.remove("hidden");
 }));
-demo$("demoAddStage").addEventListener("click",()=>{const s={name:"مرحله جدید",settings:{groups:"",players:"",games:""}};demoOrderedStages.push(s);demoStageIndex=demoOrderedStages.length-1;demoRenderAll();demoStatus("مرحله اضافه شد؛ نام و تعدادها را در تنظیمات وارد کن.")});
+demo$("demoAddStage").addEventListener("click",()=>{if(demoOrderedStages.length>=5){demoStatus("برای هر تورنمنت حداکثر پنج مرحله مجاز است.");return;}demoStageDraft={name:"",groups:"",players:"",games:""};demoRenderEditor();demoStatus("مشخصات مرحله را وارد کن و دکمه ثبت مرحله را بزن.")});
 ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
 demo$("demoReset").textContent="بازخوانی تنظیمات تورنمنت";
 demo$("demoReset").addEventListener("click",()=>{if($("tournamentSelect").value)loadTournament();else demoNewTournament()});
