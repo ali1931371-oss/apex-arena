@@ -217,7 +217,7 @@ function demoRenderSummary(){
  box.innerHTML="<div class='demo-field'><b>نام:</b> "+demoEscape(demo$("demoName").value)+"<br><b>ظرفیت:</b> "+demo$("demoCapacity").value+" نفر<br><b>ثبت‌نام:</b> "+(demo$("demoRegistration").value==="open"?"باز":"بسته")+"</div><h3>مراحل</h3>"+stageLines;
 }
 function demoEscape(v){return String(v).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
-function demoRenderAll(){demoRenderStages();demoRenderOrder();demoRenderEditor();demoRenderSummary()}
+
 document.querySelectorAll("[data-demo-tab]").forEach(btn=>btn.addEventListener("click",()=>{
  document.querySelectorAll("[data-demo-tab]").forEach(b=>{b.classList.toggle("active",b===btn);b.classList.toggle("secondary",b!==btn)});
  document.querySelectorAll(".demo-pane").forEach(p=>p.classList.add("hidden"));
