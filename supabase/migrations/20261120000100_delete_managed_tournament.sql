@@ -2,6 +2,8 @@
 -- PREPARED ONLY. Do not run until reviewed and explicitly approved.
 -- This migration does not execute a tournament deletion by itself.
 
+BEGIN;
+
 CREATE OR REPLACE FUNCTION public.log_score_changes()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -244,3 +246,5 @@ GRANT EXECUTE ON FUNCTION public.delete_managed_tournament(uuid) TO authenticate
 
 COMMENT ON FUNCTION public.delete_managed_tournament(uuid) IS
 'Deletes one tournament and its dependent rows; callable only by APEX admin. Prepared for reviewed deployment.';
+
+COMMIT;
