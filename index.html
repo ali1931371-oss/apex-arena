@@ -422,6 +422,10 @@ async function loadRegistrationRequests() {
     if (error) throw error;
     if (loadId!==registrationRequestsLoadId) return;
     if (!requests || requests.length===0) { status.textContent="در حال حاضر درخواست در انتظار بررسی وجود ندارد."; return; }
+    const {data:tournaments,error:tournamentsError}=await supabaseClient.rpc("get_manageable_tournaments");
+    if (tournamentsError) throw tournamentsError;
+    const tournamentNames=new Map((tournaments || []).map(t=>[t.tournament_id,t.tournament_name]));
+    if (loadId!==registrationRequestsLoadId) return;
     status.textContent=requests.length+" درخواست در انتظار بررسی وجود دارد.";
     requests.forEach(request=>{
       const card=makeElement("article","registration-request-card");
@@ -430,7 +434,7 @@ async function loadRegistrationRequests() {
         ["نام کاربری",request.username],
         ["آیدی بازیکن صوتی",request.audio_player_id],
         ["شماره تماس",request.phone],
-        ["شناسه تورنمنت",request.tournament_id],
+        ["نام تورنمنت",tournamentNames.get(request.tournament_id) || "تورنمنت یافت نشد"],
         ["تاریخ درخواست",request.created_at ? new Date(request.created_at).toLocaleString("fa-IR") : "نامشخص"]
       ];
       fields.forEach(([label,value])=>card.appendChild(makeElement("p","",label+": "+(value || "ثبت نشده"))));
