@@ -37,8 +37,8 @@ BEGIN
     RAISE EXCEPTION 'اطلاعات مراحل باید به‌صورت فهرست ارسال شود.';
   END IF;
 
-  IF jsonb_array_length(p_stages) > 50 THEN
-    RAISE EXCEPTION 'هر تورنمنت حداکثر می‌تواند ۵۰ مرحله داشته باشد.';
+  IF jsonb_array_length(p_stages) < 1 OR jsonb_array_length(p_stages) > 50 THEN
+    RAISE EXCEPTION 'هر تورنمنت باید حداقل یک و حداکثر ۵۰ مرحله داشته باشد.';
   END IF;
 
   IF EXISTS (
