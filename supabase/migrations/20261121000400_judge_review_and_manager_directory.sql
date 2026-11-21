@@ -629,7 +629,7 @@ AS $$
   JOIN public.judge_game_submissions s ON s.tournament_id = t.id
   WHERE s.status = 'approved'
   ORDER BY t.name;
-$;
+$$;
 
 REVOKE ALL ON FUNCTION public.get_public_judge_result_tournaments() FROM PUBLIC; 
 REVOKE ALL ON FUNCTION public.get_my_judge_dashboard() FROM PUBLIC, anon;
