@@ -274,8 +274,11 @@ BEGIN
     RAISE EXCEPTION 'داور فعال این تورنمنت نمی‌تواند به‌عنوان بازیکن امتیاز بگیرد.';
   END IF;
 
-  IF p_items IS NULL OR jsonb_typeof(p_items) <> 'array'
-     OR jsonb_array_length(p_items) = 0 THEN
+  IF p_items IS NULL OR jsonb_typeof(p_items) IS DISTINCT FROM 'array' THEN
+    RAISE EXCEPTION 'فهرست امتیازها باید به‌صورت آرایه ارسال شود.';
+  END IF;
+
+  IF jsonb_array_length(p_items) = 0 THEN
     RAISE EXCEPTION 'حداقل یک امتیاز برای ثبت لازم است.';
   END IF;
 
