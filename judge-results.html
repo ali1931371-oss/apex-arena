@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
+<title>نتایج داوری | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+main{max-width:1100px;margin:auto;padding:20px 14px 60px}header,.panel,.result{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:23px}h2{font-size:19px}p{color:#cfc6b2}
+a{color:#e4c46e}label{display:block;color:#e4c46e;margin:10px 0 5px}select{width:100%;padding:12px;border:1px solid #80652e;border-radius:8px;background:#101010;color:#fff;font:inherit}
+.muted{color:#aaa;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.metric{background:#101010;border:1px solid #51401f;border-radius:10px;padding:10px;text-align:center}.metric strong{display:block;color:#e4c46e;font-size:21px}
+.result{background:#202020}.result-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.chip{display:inline-block;border:1px solid #80652e;border-radius:30px;padding:3px 10px;font-size:12px;margin:3px}
+.criteria{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:7px 0;border-bottom:1px solid #3c321e}.criteria:last-child{border:0}
+.hidden{display:none!important}@media(max-width:560px){header{display:block;text-align:center}}
+</style></head>
+<body><main>
+<header><div><h1>APEX ARENA | نتایج رسمی داوری</h1><div class="muted">فقط امتیازهایی نمایش داده می‌شوند که مدیریت آن‌ها را تأیید کرده باشد.</div></div><a href="index.html">بازگشت به سایت</a></header>
+<section class="panel"><h2>انتخاب تورنمنت</h2><label for="tournamentSelect">تورنمنت دارای نتایج تأییدشده</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p id="pageStatus" class="status" role="status">در حال دریافت فهرست نتایج...</p></section>
+<section id="results" class="hidden"><div id="resultList"></div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+function el(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function status(message,error=false){$("pageStatus").textContent=message;$("pageStatus").className="status "+(error?"error":message?"success":"")}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+async function loadTournaments(){
+ try{
+  const rows=await rpc("get_public_judge_result_tournaments");
+  const select=$("tournamentSelect");select.replaceChildren();
+  const placeholder=el("option",rows?.length?"یک تورنمنت را انتخاب کنید":"هنوز نتیجه تأییدشده‌ای منتشر نشده است");placeholder.value="";select.append(placeholder);
+  (rows||[]).forEach(t=>{const o=el("option",t.tournament_name);o.value=t.tournament_id;select.append(o)});
+  if(rows?.length){select.value=rows[0].tournament_id;await loadResults()}
+  else status("پس از تأیید نخستین ارزیابی توسط مدیر، نتایج اینجا نمایش داده می‌شوند.");
+ }catch(e){status("دریافت فهرست تورنمنت‌ها ناموفق بود: "+e.message,true)}
+}
+function renderResults(rows){
+ const box=$("resultList");box.replaceChildren();
+ if(!rows?.length){box.append(el("p","برای این تورنمنت هنوز نتیجه تأییدشده‌ای منتشر نشده است.","muted"));return}
+ rows.forEach(r=>{
+  const card=el("article",undefined,"result"),head=el("div",undefined,"result-head");
+  head.append(el("h3",(r.display_name||"بازیکن")+" — "+r.stage_name+" | بازی "+r.game_number));
+  head.append(el("span",r.final_total+" امتیاز نهایی","chip"));card.append(head);
+  card.append(el("p",(r.player_code?"کد بازیکن: "+r.player_code+" | ":"")+r.side+" | نقش: "+r.role_name+" | تعداد داوران تأییدکننده: "+r.judge_count,"muted"));
+  const totals=el("div",undefined,"grid");
+  [["فنی",r.technical_total],["تشویقی",r.bonus_total],["جریمه",r.penalty_total],["نهایی",r.final_total]].forEach(([label,value])=>{
+   const m=el("div",undefined,"metric");m.append(el("span",label),el("strong",Number(value||0).toFixed(2)));totals.append(m);
+  });
+  card.append(totals);
+  const title=el("h4","جزئیات معیارها");card.append(title);
+  (r.criteria||[]).forEach(c=>{
+   const row=el("div",undefined,"criteria");row.append(el("span",c.criterion_name),el("strong",Number(c.average_points||0).toFixed(2)));card.append(row);
+  });
+  box.append(card);
+ });
+}
+async function loadResults(){
+ const tid=$("tournamentSelect").value;if(!tid){$("results").classList.add("hidden");return}
+ status("در حال دریافت نتایج تأییدشده...");
+ try{const rows=await rpc("get_public_judge_game_results",{p_tournament_id:tid});renderResults(rows||[]);$("results").classList.remove("hidden");status((rows||[]).length+" نتیجه تأییدشده دریافت شد.")}
+ catch(e){$("results").classList.add("hidden");status("دریافت نتایج ناموفق بود: "+e.message,true)}
+}
+$("tournamentSelect").addEventListener("change",loadResults);
+loadTournaments();
+</script></body></html>

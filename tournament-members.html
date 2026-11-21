@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101010">
+<title>اعضای تورنمنت | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+main{max-width:1050px;margin:auto;padding:18px 14px 55px}
+header,.panel{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:22px}h2{font-size:18px}
+p{color:#cfc6b2}.muted{color:#aaa;font-size:13px}
+button,.link{display:inline-block;padding:9px 13px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:4px 0}
+button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#343434;color:#f5f0df;border:1px solid #80652e}
+.danger{background:#642b2b;color:#ffe5e5;border:1px solid #a64a4a}.hidden{display:none!important}
+input{width:100%;padding:11px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font:inherit}
+label{display:block;color:#e4c46e;margin:9px 0 4px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.member{background:#202020;border:1px solid #51401f;border-radius:10px;padding:13px;margin:9px 0}
+.member-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{display:inline-block;border:1px solid #80652e;border-radius:30px;padding:2px 9px;font-size:12px;margin:3px}
+.details{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:5px 12px;margin:8px 0}
+.details p{margin:3px 0;font-size:13px;overflow-wrap:anywhere}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
+.notice{border-right:3px solid #d8b45a;padding:9px 12px;background:#211b10;border-radius:8px;color:#d8cba9;font-size:13px}
+@media(max-width:600px){header{display:block;text-align:center}}
+</style>
+</head>
+<body><main>
+<header><div><h1>APEX ARENA | فهرست اعضای تورنمنت</h1><div id="tournamentName" class="muted">در حال دریافت اطلاعات تورنمنت...</div></div><a class="link secondary" href="index.html">بازگشت به سایت</a></header>
+<section class="panel"><p class="notice">در فهرست عمومی فقط نام نمایشی و کد بازیکن نمایش داده می‌شود. اطلاعات تکمیلی و ابزارهای مدیریت فقط برای مدیر واردشده از پنل مدیریت تورنمنت نمایش داده می‌شوند.</p><p id="pageStatus" class="status" role="status"></p></section>
+<section class="panel"><h2>بازیکنان تأییدشده</h2><div id="publicMembers"><p class="muted">در حال دریافت فهرست...</p></div></section>
+<section id="managerPanel" class="panel hidden">
+<h2>فهرست مدیریتی اعضا</h2>
+<p id="managerStatus" class="status muted"></p>
+<div id="managerMembers" class="hidden">
+<h3>اعضای فعال — اطلاعات مدیریتی</h3><div id="activeMembers"></div>
+<h3>اخراج‌شدگان تورنمنت</h3><div id="expelledMembers"></div>
+<h3>عضویت‌های حذف‌شده</h3><div id="removedMembers"></div>
+</div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+const tournamentId=params.get("id")||"";
+let tournamentStatus="";
+let isManager=false;
+function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
+function setStatus(id,message,error=false){$(id).textContent=message||"";$(id).className="status "+(error?"error":message?"success":"")}
+function rpc(name,args={}){return db.rpc(name,args)}
+function dateText(value){return value?new Date(value).toLocaleString("fa-IR"):"—"}
+function renderPublic(rows){
+ const box=$("publicMembers");box.replaceChildren();
+ if(!rows||!rows.length){box.append(node("p","هنوز بازیکن تأییدشده‌ای در این تورنمنت ثبت نشده است.","muted"));return}
+ rows.forEach((p,index)=>{const card=node("article",undefined,"member");card.append(node("strong",(index+1)+". "+(p.display_name||"بدون نام")));card.append(node("span",p.player_code||"کد ثبت نشده","chip"));box.append(card)});
+}
+function renderManagerCard(m,mode){
+ const card=node("article",undefined,"member");
+ const head=node("div",undefined,"member-head");
+ head.append(node("strong",(m.display_name||"بدون نام")+" — "+(m.player_code||"بدون کد")));
+ const statusLabel=mode==="active"?"عضو فعال":mode==="expelled"?"اخراج‌شده":"حذف‌شده";
+ head.append(node("span",statusLabel,"chip"));card.append(head);
+ const details=node("div",undefined,"details");
+ [["آیدی صوتی",m.audio_player_id],["شماره تماس",m.phone],["نام کاربری",m.username]].forEach(([label,value])=>details.append(node("p",label+": "+(value||"ثبت نشده"))));
+ card.append(details);
+ if(mode==="expelled"){card.append(node("p","دلیل اخراج: "+(m.expelled_reason||"ثبت نشده")));card.append(node("p","تاریخ اخراج: "+dateText(m.expelled_at)));return card}
+ if(mode==="removed"){card.append(node("p","دلیل حذف: "+(m.removed_reason||"ثبت نشده")));card.append(node("p","تاریخ حذف: "+dateText(m.removed_at)));return card}
+ const actions=node("div",undefined,"actions");
+ const remove=node("button","حذف از تورنمنت","danger");
+ remove.disabled=!["draft","registration"].includes(tournamentStatus);
+ remove.title=remove.disabled?"حذف فقط پیش از شروع تورنمنت امکان‌پذیر است":"حذف عضویت از همین تورنمنت";
+ remove.addEventListener("click",()=>removeMember(m,remove));
+ const expel=node("button","اخراج انضباطی","danger");
+ expel.disabled=tournamentStatus!=="active";
+ expel.title=expel.disabled?"اخراج فقط هنگام فعال‌بودن تورنمنت امکان‌پذیر است":"اخراج از ادامه مراحل و مسابقات آینده";
+ expel.addEventListener("click",()=>expelMember(m,expel));
+ actions.append(remove,expel);card.append(actions);
+ return card;
+}
+function renderManager(data){
+ $("managerPanel").classList.remove("hidden");
+ tournamentStatus=data.tournament_status||"";
+ const rows=Array.isArray(data.members)?data.members:[];
+ const active=rows.filter(x=>x.membership_status==="active");
+ const expelled=rows.filter(x=>x.membership_status==="expelled");
+ const removed=rows.filter(x=>x.membership_status==="removed");
+ [["activeMembers",active,"active","عضو فعالی وجود ندارد."],["expelledMembers",expelled,"expelled","اخراج‌شده‌ای ثبت نشده است."],["removedMembers",removed,"removed","عضویت حذف‌شده‌ای وجود ندارد."]].forEach(([id,list,mode,empty])=>{
+  const box=$(id);box.replaceChildren();
+  if(!list.length){box.append(node("p",empty,"muted"));return}
+  list.forEach(m=>box.append(renderManagerCard(m,mode)));
+ });
+ $("managerMembers").classList.remove("hidden");
+ const stateLabels={draft:"پیش‌نویس",registration:"در حال ثبت‌نام",active:"در حال برگزاری",completed:"پایان‌یافته",archived:"بایگانی‌شده"};
+ setStatus("managerStatus","وضعیت واقعی تورنمنت: "+(stateLabels[tournamentStatus]||tournamentStatus)+"؛ اطلاعات مدیریتی فقط در این نشست مدیر نمایش داده می‌شود.");
+}
+async function loadPublic(){
+ if(!tournamentId){$("tournamentName").textContent="شناسه تورنمنت در نشانی صفحه وجود ندارد.";setStatus("pageStatus","این صفحه باید از پیوند اعضای یک تورنمنت باز شود.",true);$("publicMembers").replaceChildren();return}
+ try{
+  const {data,error}=await rpc("get_tournament_public_members",{p_tournament_id:tournamentId});
+  if(error)throw error;
+  renderPublic(data||[]);
+  $("tournamentName").textContent="فهرست عمومی اعضا";
+  setStatus("pageStatus",(data||[]).length+" بازیکن تأییدشده در فهرست عمومی نمایش داده شد.");
+ }catch(e){setStatus("pageStatus","دریافت فهرست عمومی انجام نشد: "+e.message,true);$("publicMembers").replaceChildren(node("p","برای نمایش فهرست، Migration مربوط به اعضای تورنمنت باید در Supabase اجرا شده باشد.","muted"))}
+}
+async function loadManager(){
+ if(!tournamentId)return;
+ try{
+  const {data,error}=await rpc("get_tournament_manager_members",{p_tournament_id:tournamentId});
+  if(error)throw error;
+  isManager=true;renderManager(data||{});
+ }catch(e){isManager=false;$("managerMembers").classList.add("hidden");setStatus("managerStatus","ورود مدیر یا دریافت اطلاعات مدیریتی ممکن نشد: "+e.message,true)}
+}
+async function removeMember(m,button){
+ if(!confirm("عضویت این بازیکن فقط از همین تورنمنت حذف شود؟ حساب و سوابق او حذف نمی‌شوند و ظرفیت تورنمنت آزاد می‌شود."))return;
+ const reason=prompt("دلیل حذف (اختیاری):");if(reason===null)return;
+ button.disabled=true;
+ try{const {error}=await rpc("remove_tournament_member",{p_membership_id:m.membership_id,p_reason:reason.trim()||null});if(error)throw error;setStatus("managerStatus","عضویت بازیکن از این تورنمنت حذف شد.");await loadManager();await loadPublic()}
+ catch(e){setStatus("managerStatus","حذف عضویت انجام نشد: "+e.message,true);button.disabled=false}
+}
+async function expelMember(m,button){
+ const reason=prompt("دلیل اخراج انضباطی را وارد کن (الزامی):");if(reason===null)return;
+ if(!reason.trim()){setStatus("managerStatus","ثبت دلیل اخراج الزامی است.",true);return}
+ if(!confirm("بازیکن از ادامه مراحل و مسابقات آینده همین تورنمنت محروم شود؟ نتایج قبلی حفظ می‌شوند."))return;
+ button.disabled=true;
+ try{const {error}=await rpc("expel_tournament_member",{p_membership_id:m.membership_id,p_reason:reason.trim()});if(error)throw error;setStatus("managerStatus","اخراج انضباطی ثبت شد و نتایج قبلی حفظ شدند.");await loadManager();await loadPublic()}
+ catch(e){setStatus("managerStatus","اخراج انجام نشد: "+e.message,true);button.disabled=false}
+}
+db.auth.getSession().then(async({data,error})=>{if(!error&&data.session)await loadManager()});
+loadPublic();
+</script>
+</body></html>

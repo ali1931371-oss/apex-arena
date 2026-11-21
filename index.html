@@ -9,18 +9,35 @@
   <style>
     * { box-sizing: border-box; }
     body { margin:0; background:#101010; color:#f5f0df; font-family:Tahoma,Arial,sans-serif; text-align:center; }
-    header { padding:25px 15px; border-bottom:1px solid #80652e; }
-    h1 { color:#d8b45a; letter-spacing:2px; font-size:32px; }
+    header { position:sticky; top:0; z-index:100; padding:12px 18px; border-bottom:1px solid #80652e; background:rgba(16,16,16,.96); backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    h1 { color:#d8b45a; letter-spacing:2px; font-size:27px; margin:0; }
     h2 { font-size:25px; }
     p { color:#d0c8b5; line-height:2; }
-    .hero { padding:75px 20px; background:radial-gradient(circle,#382b12,#101010 70%); }
-    .tagline { color:#e4c46e; font-size:18px; margin:25px auto; }
+    .hero { padding:88px 20px; background:radial-gradient(ellipse at 50% 0%,#493714 0%,#211a0d 35%,#101010 76%); border-bottom:1px solid #59451e; }
+    .tagline { color:#e4c46e; font-size:clamp(18px,3vw,23px); margin:25px auto; }
+    .site-brand { text-align:right; flex-shrink:0; } .site-brand p { margin:3px 0 0; font-size:12px; }
+    .main-nav { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:7px; }
+    .main-nav a { color:#e8dfca; text-decoration:none; padding:9px 12px; border:1px solid transparent; border-radius:8px; font-size:13px; transition:.2s; }
+    .main-nav a:hover,.main-nav a:focus-visible { color:#e4c46e; border-color:#80652e; background:#211b10; outline:none; }
+    .hero-actions { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top:25px; }
+    .hero-actions a { display:inline-block; min-width:170px; padding:13px 18px; border-radius:8px; text-decoration:none; font-weight:bold; background:#d8b45a; color:#17120a; }
+    .hero-actions a.outline { color:#e4c46e; background:transparent; border:1px solid #80652e; }
+    .section { scroll-margin-top:100px; } .tournament { transition:transform .2s,border-color .2s; }
+    .tournament:hover { transform:translateY(-2px); border-color:#d8b45a; }
+    button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:2px solid #e4c46e; outline-offset:2px; }
     .section { max-width:900px; margin:25px auto; padding:25px; border:1px solid #59451e; border-radius:14px; background:#191919; }
     .tournament { border:1px solid #80652e; border-radius:10px; padding:18px; margin:15px 0; text-align:right; background:#202020; }
     .tournament h3,.academy-card h3 { color:#e4c46e; }
     .status { color:#d8b45a; font-size:14px; }
     .error { color:#ff8c8c !important; } .success { color:#8be0a2 !important; } .empty { color:#aaa; }
     .admin-box { max-width:600px; margin:20px auto; text-align:right; }
+    .registration-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; }
+    .registration-grid .full-row { grid-column:1/-1; }
+    .field-hint { color:#a99b79; font-size:12px; margin:2px 0 8px; }
+    .consent-row { display:flex; align-items:flex-start; gap:10px; color:#d0c8b5; font-size:13px; line-height:1.9; margin:18px 0; }
+    .consent-row input { width:auto; margin:5px 0 0; accent-color:#d8b45a; }
+    .section-intro { max-width:720px; margin:0 auto 18px; }
+    .trust-note { border-right:3px solid #d8b45a; padding:10px 14px; background:#211b10; border-radius:8px; text-align:right; color:#d8cba9; font-size:13px; line-height:2; }
     input,textarea,select { display:block; width:100%; margin:12px 0; padding:13px; border:1px solid #80652e; border-radius:8px; background:#101010; color:white; font-family:inherit; font-size:15px; }
     textarea { min-height:130px; resize:vertical; line-height:2; }
     input[type="file"] { padding:10px; }
@@ -48,25 +65,37 @@
     .request-actions { display:flex; gap:10px; flex-wrap:wrap; }
     .request-actions button { flex:1; min-width:130px; }
     footer { padding:25px; color:#a99b79; font-size:13px; }
-    @media(max-width:600px) { .section { margin:15px 10px; padding:17px; } .hero { padding:50px 15px; } h1 { font-size:27px; } h2 { font-size:21px; } }
+    @media(max-width:700px) { header { position:static; display:block; text-align:center; } .site-brand { text-align:center; } .main-nav { justify-content:center; margin-top:12px; } .main-nav a { padding:8px 9px; font-size:12px; } .hero { padding:55px 15px; } }
+    @media(max-width:600px) { .section { margin:15px 10px; padding:17px; } h1 { font-size:25px; } h2 { font-size:21px; } .hero-actions a { width:100%; max-width:320px; } .registration-grid { grid-template-columns:1fr; } .registration-grid .full-row { grid-column:auto; } }
   </style>
 </head>
 <body>
-<header><h1>APEX ARENA</h1><p>ورزشگاه رقابت‌های حرفه‌ای مافیا صوتی</p></header>
+<header>
+  <div class="site-brand"><h1>APEX ARENA</h1><p>ورزشگاه رقابت‌های حرفه‌ای مافیا صوتی</p></div>
+  <nav class="main-nav" aria-label="منوی اصلی">
+    <a href="#home">خانه</a><a href="#tournaments">مسابقات</a><a href="#player-registration">ثبت‌نام</a><a href="#academy-section">آکادمی</a><a href="judge-management.html">مدیریت داوران و اطلاعات بازیکنان</a><a href="judge-portal.html">فرم داوری</a><a href="judge-results.html">نتایج داوری</a><a href="#admin-section">مدیریت</a>
+  </nav>
+</header>
 <main>
-  <section class="hero"><h2>به میدان رقابت خوش آمدید</h2><p class="tagline">در میدان اقتدار و برتری فقط نخبگان ماندگارند</p><p>جایی برای نمایش استعداد، مهارت و تفکر حرفه‌ای</p></section>
+  <section class="hero" id="home"><h2>به میدان رقابت خوش آمدید</h2><p class="tagline">در میدان اقتدار و برتری فقط نخبگان ماندگارند</p><p>جایی برای نمایش استعداد، مهارت و تفکر حرفه‌ای</p><div class="hero-actions"><a href="#tournaments">مشاهده مسابقات</a><a class="outline" href="#player-registration">ورود به رقابت</a></div></section>
   <section class="section"><h2>تورنمنت‌های APEX ARENA</h2><p>بستری برای برگزاری رقابت‌های متنوع مافیا صوتی، با قوانین، سناریوها و سیستم داوری قابل تنظیم.</p></section>
-  <section class="section"><h2>تورنمنت‌های آماده ثبت‌نام</h2><p id="connection-status" class="status">در حال دریافت اطلاعات تورنمنت‌ها...</p><div id="tournament-list"></div></section>
+  <section class="section" id="tournaments"><h2>تورنمنت‌های آماده ثبت‌نام</h2><p id="connection-status" class="status">در حال دریافت اطلاعات تورنمنت‌ها...</p><div id="tournament-list"></div></section>
 
   <section class="section" id="player-registration">
-    <h2>ثبت‌نام بازیکنان</h2><p>اطلاعات خود را با دقت وارد کنید. درخواست ثبت‌نام پس از بررسی مدیر تأیید می‌شود.</p>
+    <h2>ورود بازیکنان و ثبت درخواست شرکت</h2><p>هر بازیکن فقط یک حساب و یک پروفایل دارد. با همان حساب می‌توانی در چند تورنمنت مختلف شرکت کنی؛ برای هر تورنمنت فقط یک درخواست ثبت‌نام مجاز است.</p><p class="trust-note">اگر هنوز حساب نداری، «بازیکن جدید» را انتخاب کن. پس از ساخت حساب، برای تورنمنت‌های بعدی همیشه از گزینه «بازیکن دارای حساب» استفاده کن؛ حساب جدید نساز.</p>
     <form id="registration-form" class="admin-box">
-      <label for="reg-tournament">انتخاب تورنمنت</label><select id="reg-tournament" required><option value="">در حال دریافت تورنمنت‌ها...</option></select>
-      <label for="reg-full-name">نام و نام خانوادگی</label><input id="reg-full-name" type="text" minlength="3" maxlength="120" required>
-      <label for="reg-audio-id">آیدی بازیکن در اپلیکیشن صوتی</label><input id="reg-audio-id" type="text" minlength="2" maxlength="120" required>
-      <label for="reg-phone">شماره تماس</label><input id="reg-phone" type="tel" inputmode="tel" maxlength="25" required>
-      <label for="reg-username">نام کاربری انگلیسی</label><input id="reg-username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,29}" required>
-      <label for="reg-password">رمز عبور</label><input id="reg-password" type="password" minlength="12" maxlength="128" required>
+      <div class="registration-grid">
+        <div class="full-row"><label for="reg-tournament">انتخاب تورنمنت</label><select id="reg-tournament" required><option value="">در حال دریافت تورنمنت‌ها...</option></select></div>
+        <div><label for="reg-full-name">نام و نام خانوادگی</label><input id="reg-full-name" type="text" minlength="3" maxlength="120" autocomplete="name" placeholder="نام واقعی شما" required></div>
+        <div><label for="reg-audio-id">آیدی بازیکن در اپلیکیشن صوتی</label><input id="reg-audio-id" type="text" minlength="2" maxlength="120" placeholder="آیدی دقیق داخل اپلیکیشن" required></div>
+        <div><label for="reg-phone">شماره تماس</label><input id="reg-phone" type="tel" inputmode="tel" maxlength="25" autocomplete="tel" placeholder="شماره همراه" required></div>
+        <div class="full-row"><label for="reg-account-type">نوع حساب</label><select id="reg-account-type"><option value="new">بازیکن جدید — ساخت حساب</option><option value="existing">بازیکن دارای حساب — ورود و ثبت‌نام در تورنمنت</option></select><p class="field-hint">اگر قبلاً در APEX ARENA حساب ساخته‌ای، گزینه دوم را انتخاب کن.</p></div>
+        <div><label for="reg-username">نام کاربری انگلیسی</label><input id="reg-username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,29}" autocomplete="username" placeholder="فقط حروف انگلیسی و اعداد" required><p class="field-hint">۳ تا ۳۰ نویسه؛ حروف انگلیسی، عدد، نقطه، خط تیره یا زیرخط.</p></div>
+        <div><label for="reg-password">رمز عبور حساب</label><input id="reg-password" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="حداقل ۱۲ نویسه" required></div>
+        <div id="reg-password-confirm-wrap"><label for="reg-password-confirm">تکرار رمز عبور</label><input id="reg-password-confirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="رمز را دوباره وارد کنید" required></div>
+      </div>
+      <label class="consent-row"><input id="reg-consent" type="checkbox" required><span>اطلاعات واردشده صحیح است و می‌دانم درخواست من پس از بررسی و تأیید مدیریت نهایی می‌شود.</span></label>
+      <p class="trust-note">رمز عبور خود را با هیچ‌کس به اشتراک نگذارید. اطلاعات تماس شما برای سایر بازیکنان نمایش داده نمی‌شود.</p>
       <button id="registration-button" type="submit" disabled>ارسال درخواست ثبت‌نام</button>
       <p id="registration-message" class="message" role="status"></p>
     </form>
@@ -97,6 +126,8 @@
 
     <div id="admin-dashboard" class="admin-panel hidden">
       <p class="success">دسترسی مدیر تأیید شد.</p>
+      <p><a href="judge-management.html" style="display:inline-block;padding:11px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">ورود به پنل مدیریت داوران</a></p>
+      <p><a href="tournament-management.html" style="display:inline-block;padding:11px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">ورود به پنل مدیریت تورنمنت‌ها</a></p>
 
       <!-- مدیریت درخواست‌های عضویت بازیکنان -->
       <section class="admin-box" id="registration-requests-section">
@@ -143,6 +174,7 @@ const newPasswordBox = document.getElementById("new-password-box");
 const adminDashboard = document.getElementById("admin-dashboard");
 let currentAdmin = null;
 let currentImagePath = null;
+let registrationRequestsLoadId = 0;
 
 function showMessage(text, isError = false) {
   message.textContent = text;
@@ -201,6 +233,9 @@ async function loadTournaments() {
         makeElement("p","","بازیکنان تأییدشده: " + tournament.approved_players),
         makeElement("p","","ظرفیت باقی‌مانده: " + tournament.available_slots)
       );
+      const membersLink=makeElement("a","link secondary","مشاهده فهرست اعضا");
+      membersLink.href="tournament-members.html?id="+encodeURIComponent(tournament.tournament_id);
+      card.appendChild(membersLink);
       list.appendChild(card);
     });
   } catch (error) {
@@ -231,6 +266,18 @@ function normalizeRegistrationPhone(value) {
   return value.replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
     .replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
 }
+const registrationAuthClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false }
+});
+const accountTypeSelect = document.getElementById("reg-account-type");
+const passwordConfirmWrap = document.getElementById("reg-password-confirm-wrap");
+const passwordConfirmInput = document.getElementById("reg-password-confirm");
+accountTypeSelect.addEventListener("change", () => {
+  const isNew = accountTypeSelect.value === "new";
+  passwordConfirmWrap.classList.toggle("hidden", !isNew);
+  passwordConfirmInput.required = isNew;
+  document.getElementById("reg-password").autocomplete = isNew ? "new-password" : "current-password";
+});
 document.getElementById("registration-form").addEventListener("submit", async function(event) {
   event.preventDefault();
   const form = event.currentTarget;
@@ -242,7 +289,13 @@ document.getElementById("registration-form").addEventListener("submit", async fu
   const phone = normalizeRegistrationPhone(document.getElementById("reg-phone").value.trim());
   const username = document.getElementById("reg-username").value.trim().toLowerCase();
   const password = document.getElementById("reg-password").value;
+  const accountType = accountTypeSelect.value;
+  const isNewAccount = accountType === "new";
+  const passwordConfirm = passwordConfirmInput.value;
+  const consent = document.getElementById("reg-consent").checked;
   status.textContent = ""; status.className = "message";
+  if (!consent) { status.textContent="برای ادامه، تأیید صحت اطلاعات و قوانین ثبت‌نام را علامت بزنید."; status.classList.add("error"); return; }
+  if (isNewAccount && password !== passwordConfirm) { status.textContent="رمز عبور و تکرار آن یکسان نیستند."; status.classList.add("error"); return; }
   if (!tournamentId) { status.textContent="لطفاً یک تورنمنت انتخاب کنید."; status.classList.add("error"); return; }
   if (fullName.length<3 || audioPlayerId.length<2) { status.textContent="نام و آیدی بازیکن را بررسی کنید."; status.classList.add("error"); return; }
   if (!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(username)) { status.textContent="نام کاربری باید ۳ تا ۳۰ نویسه انگلیسی باشد."; status.classList.add("error"); return; }
@@ -250,18 +303,49 @@ document.getElementById("registration-form").addEventListener("submit", async fu
   const phoneDigits = phone.replace(/[^0-9]/g,"");
   if (phoneDigits.length<7 || phoneDigits.length>15) { status.textContent="شماره تماس معتبر وارد کنید."; status.classList.add("error"); return; }
   button.disabled=true; button.textContent="در حال ارسال...";
+  let temporarySession = false;
   try {
+    let authorization = SUPABASE_KEY;
+    if (!isNewAccount) {
+      const {data:loginData,error:loginError} = await registrationAuthClient.auth.signInWithPassword({
+        email: username + "@users.apexarena.invalid",
+        password
+      });
+      if (loginError || !loginData.session || !loginData.user) {
+        throw new Error("ورود ناموفق بود؛ نام کاربری و رمز عبور حساب قبلی را بررسی کن.");
+      }
+      authorization = loginData.session.access_token;
+      temporarySession = true;
+    }
     const response = await fetch(SUPABASE_URL+"/functions/v1/register-player",{
-      method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify({full_name:fullName,audio_player_id:audioPlayerId,phone:phoneDigits,username,password,tournament_id:tournamentId})
+      method:"POST",
+      headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+authorization,"Content-Type":"application/json"},
+      body:JSON.stringify({
+        account_mode: accountType,
+        full_name:fullName,
+        audio_player_id:audioPlayerId,
+        phone:phoneDigits,
+        username,
+        password: isNewAccount ? password : undefined,
+        tournament_id:tournamentId
+      })
     });
     const result = await response.json().catch(()=>({}));
-    if (!response.ok || !result.ok) throw new Error(result.message || result.error || "ثبت‌نام ناموفق بود.");
+    if (!response.ok || !result.ok) throw new Error(result.message || result.error || result.error || "ثبت‌نام ناموفق بود.");
     status.textContent=result.message || "درخواست شما ارسال شد و در انتظار تأیید مدیر است.";
-    status.classList.add("success"); form.reset();
+    status.classList.add("success");
+    form.reset();
+    // پس از ساخت حساب، ثبت‌نام بعدی با همان حساب انجام می‌شود.
+    accountTypeSelect.value = "existing";
+    passwordConfirmWrap.classList.add("hidden");
+    passwordConfirmInput.required = false;
+    document.getElementById("reg-password").autocomplete = "current-password";
   } catch(error) {
     console.error("Registration error:",error); status.textContent=error.message || "ارتباط با سامانه برقرار نشد."; status.classList.add("error");
   } finally {
+    if (temporarySession) {
+      await registrationAuthClient.auth.signOut().catch(()=>{});
+    }
     button.disabled=document.getElementById("reg-tournament").options.length<=1;
     button.textContent="ارسال درخواست ثبت‌نام";
   }
@@ -327,6 +411,7 @@ async function verifyAdmin(user) {
 
 // دریافت و نمایش درخواست‌های عضویت (فقط پس از تأیید نقش admin)
 async function loadRegistrationRequests() {
+  const loadId=++registrationRequestsLoadId;
   const status=document.getElementById("registration-requests-status");
   const list=document.getElementById("registration-requests-list");
   const refresh=document.getElementById("refresh-registration-requests");
@@ -338,7 +423,12 @@ async function loadRegistrationRequests() {
       .select("id,tournament_id,user_id,full_name,audio_player_id,phone,username,status,created_at")
       .eq("status","pending").order("created_at",{ascending:true});
     if (error) throw error;
+    if (loadId!==registrationRequestsLoadId) return;
     if (!requests || requests.length===0) { status.textContent="در حال حاضر درخواست در انتظار بررسی وجود ندارد."; return; }
+    const {data:tournaments,error:tournamentsError}=await supabaseClient.rpc("get_manageable_tournaments");
+    if (tournamentsError) throw tournamentsError;
+    const tournamentNames=new Map((tournaments || []).map(t=>[t.tournament_id,t.tournament_name]));
+    if (loadId!==registrationRequestsLoadId) return;
     status.textContent=requests.length+" درخواست در انتظار بررسی وجود دارد.";
     requests.forEach(request=>{
       const card=makeElement("article","registration-request-card");
@@ -347,7 +437,7 @@ async function loadRegistrationRequests() {
         ["نام کاربری",request.username],
         ["آیدی بازیکن صوتی",request.audio_player_id],
         ["شماره تماس",request.phone],
-        ["شناسه تورنمنت",request.tournament_id],
+        ["نام تورنمنت",tournamentNames.get(request.tournament_id) || "تورنمنت یافت نشد"],
         ["تاریخ درخواست",request.created_at ? new Date(request.created_at).toLocaleString("fa-IR") : "نامشخص"]
       ];
       fields.forEach(([label,value])=>card.appendChild(makeElement("p","",label+": "+(value || "ثبت نشده"))));
@@ -383,9 +473,11 @@ async function loadRegistrationRequests() {
       actions.append(approve,reject); card.appendChild(actions); list.appendChild(card);
     });
   } catch(error) {
-    status.textContent="خطا در دریافت درخواست‌ها: "+error.message; status.classList.add("error"); console.error("Registration requests error:",error);
+    if (loadId===registrationRequestsLoadId) {
+      status.textContent="خطا در دریافت درخواست‌ها: "+error.message; status.classList.add("error"); console.error("Registration requests error:",error);
+    }
   } finally {
-    if (refresh) refresh.disabled=false;
+    if (loadId===registrationRequestsLoadId && refresh) refresh.disabled=false;
   }
 }
 
@@ -533,8 +625,11 @@ document.getElementById("login-button").onclick=async()=>{
   if (!email || !password) { showMessage("ایمیل و رمز عبور را وارد کنید.",true); return; }
   const button=document.getElementById("login-button"); setButtonLoading(button,true,"در حال ورود...");
   try {
-    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-    if (error) throw error; await updateAdminInterface(data.user);
+    const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if (error) throw error;
+    // The SIGNED_IN auth-state listener below loads the admin interface.
+    // Do not call updateAdminInterface here as well; that caused duplicate
+    // concurrent registration-request loads and duplicate cards.
   } catch(error) { showMessage("ورود ناموفق بود: "+error.message,true); }
   finally { setButtonLoading(button,false); }
 };

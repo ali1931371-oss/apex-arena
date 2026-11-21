@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
+<title>پنل داوری | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+main{max-width:1050px;margin:auto;padding:18px 14px 60px}header,.panel{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1,h2,h3,h4{color:#e4c46e;margin-top:0}h1{font-size:22px}h2{font-size:19px}p{color:#cfc6b2}
+label{display:block;color:#e4c46e;margin:10px 0 5px}input,select,textarea{width:100%;padding:11px;border:1px solid #80652e;border-radius:8px;background:#101010;color:#fff;font:inherit}
+button,.link{display:inline-block;padding:11px 14px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 0}
+button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;color:#f5f0df;border:1px solid #80652e}.danger{background:#7d2828;color:#fff}
+.hidden{display:none!important}.muted{font-size:13px;color:#aaa}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}.card{border:1px solid #51401f;border-radius:10px;padding:14px;margin:12px 0;background:#202020}
+.criteria{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #3c321e}.criteria small{display:block;color:#aaa}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:160px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:14px 0}
+.metric{background:#101010;border:1px solid #51401f;border-radius:10px;padding:10px;text-align:center}.metric strong{display:block;color:#e4c46e;font-size:20px}
+@media(max-width:560px){header{display:block;text-align:center}.criteria{grid-template-columns:minmax(0,1fr) 85px}.actions button{width:100%}}
+</style>
+</head>
+<body>
+<main>
+<header><div><h1>APEX ARENA | پنل داوری</h1><div class="muted">ثبت ارزیابی بازیکنان در تورنمنت‌های منصوب‌شده</div></div><div class="actions"><a class="link secondary" href="index.html">بازگشت به سایت</a><button id="logoutButton" class="danger hidden">خروج</button></div></header>
+<section id="loginPanel" class="panel"><h2>ورود داور</h2><p>با حسابی وارد شو که مدیریت، آن را به‌عنوان داور در تورنمنت موردنظر منصوب کرده است.</p>
+<label for="email">ایمیل</label><input id="email" type="email" autocomplete="username"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
+<button id="loginButton">ورود</button><p id="loginStatus" class="status" role="status"></p></section>
+<section id="judgePanel" class="hidden">
+<section class="panel"><h2>تورنمنت‌های من</h2><p id="judgeIdentity" class="muted">حساب داور</p><label for="tournamentSelect">انتخاب تورنمنت منصوب‌شده</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p class="muted">داور به تمام بازی‌های تورنمنت انتخاب‌شده دسترسی دارد؛ بازی‌ها در این سایت ساخته نمی‌شوند.</p><p id="pageStatus" class="status" role="status"></p></section>
+<section id="gamePanel" class="panel hidden"><h2>مشخصات بازی و بازیکن</h2><div class="grid">
+<div><label for="stageName">نام مرحله</label><input id="stageName" maxlength="100" placeholder="مثلاً مرحله مقدماتی"></div>
+<div><label for="gameNumber">شماره بازی</label><input id="gameNumber" type="number" min="1" max="999" step="1" inputmode="numeric" placeholder="مثلاً ۱"></div>
+<div><label for="playerSelect">انتخاب بازیکن</label><select id="playerSelect"><option value="">ابتدا تورنمنت را انتخاب کن</option></select></div>
+</div><button id="loadFormButton">نمایش فرم امتیازدهی</button><p class="muted">نام مرحله و شماره بازی را مطابق اطلاعات مسابقه‌ای که در اپلیکیشن مافیای صوتی برگزار شده وارد کن.</p></section>
+<section id="scoreArea" class="panel hidden"><h2 id="scoreHeading">فرم امتیازدهی</h2>
+<div class="grid">
+<div><label for="sideSelect">ساید بازیکن</label><select id="sideSelect"><option value="شهروند">شهروند</option><option value="مافیا">مافیا</option></select></div>
+<div><label for="roleName">نقش بازیکن</label><input id="roleName" maxlength="100" placeholder="نام دقیق نقش"></div>
+</div>
+<p class="muted">ساید و نقش را بر اساس اطلاعات بازی وارد کن. معیارهای اختصاصی با توجه به ساید انتخاب‌شده نمایش داده می‌شوند.</p>
+<div id="criteriaArea"></div>
+<div class="summary">
+<div class="metric">امتیاز فنی<strong id="technicalTotal">۰</strong></div>
+<div class="metric">تشویقی<strong id="bonusTotal">۰</strong></div>
+<div class="metric">جریمه<strong id="penaltyTotal">۰</strong></div>
+<div class="metric">امتیاز نهایی<strong id="finalTotal">۰</strong></div>
+</div>
+<p class="muted">امتیاز نهایی = امتیاز فنی + تشویقی − جریمه. امتیاز هر معیار باید در بازه تعیین‌شده همان معیار باشد.</p>
+<div class="actions"><button id="saveDraftButton" class="secondary">ذخیره پیش‌نویس</button><button id="submitScoreButton">ارسال نهایی امتیاز</button></div>
+<p id="formStatus" class="status" role="status"></p>
+</section>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let user=null,assignedTournaments=[],tournamentData=null,currentSubmission=null,workingValues=new Map(),formLocked=false;
+function node(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function setStatus(id,text,error=false){$(id).textContent=text||"";$(id).className="status "+(error?"error":text?"success":"")}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+function normalizeStage(value){return String(value||"").trim().toLocaleLowerCase("fa")}
+function selectedPlayer(){return (tournamentData?.players||[]).find(p=>p.player_id===$("playerSelect").value)||null}
+function criteriaForSide(side){
+ const group=side==="مافیا"?"mafia":"citizen";
+ return (tournamentData?.criteria||[]).filter(c=>["general",group,"bonus","penalty"].includes(c.criterion_group));
+}
+function collectWorkingValues(){
+ $("criteriaArea").querySelectorAll("[data-criterion-id]").forEach(input=>{
+  if(input.value.trim()!=="")workingValues.set(input.dataset.criterionId,input.value);
+ });
+}
+function updateTotals(){
+ let technical=0,bonus=0,penalty=0;
+ $("criteriaArea").querySelectorAll("[data-criterion-id]").forEach(input=>{
+  const value=Number(input.value)||0,group=input.dataset.group;
+  if(["general","citizen","mafia"].includes(group))technical+=value;
+  else if(group==="bonus")bonus+=value;
+  else if(group==="penalty")penalty+=value;
+ });
+ $("technicalTotal").textContent=technical.toFixed(2);
+ $("bonusTotal").textContent=bonus.toFixed(2);
+ $("penaltyTotal").textContent=penalty.toFixed(2);
+ $("finalTotal").textContent=(technical+bonus-penalty).toFixed(2);
+}
+function renderCriteria(){
+ const area=$("criteriaArea");area.replaceChildren();
+ const criteria=criteriaForSide($("sideSelect").value);
+ if(!criteria.length){area.append(node("p","برای این تورنمنت معیار امتیازدهی فعالی ثبت نشده است. با مدیر تماس بگیر.","error"));return}
+ const groups=[
+  ["general","معیارهای عمومی"],
+  [$("sideSelect").value==="مافیا"?"mafia":"citizen",$("sideSelect").value==="مافیا"?"معیارهای اختصاصی مافیا":"معیارهای اختصاصی شهروندی"],
+  ["bonus","امتیازهای تشویقی"],
+  ["penalty","امتیازهای جریمه"]
+ ];
+ groups.forEach(([group,title])=>{
+  const items=criteria.filter(c=>c.criterion_group===group);
+  if(!items.length)return;
+  area.append(node("h3",title));
+  items.forEach(criterion=>{
+   const row=node("div",undefined,"criteria"),description=node("div");
+   description.append(node("strong",criterion.criterion_name),node("small","حد مجاز: "+criterion.min_points+" تا "+criterion.max_points+(criterion.description?" — "+criterion.description:"")));
+   const input=node("input");input.type="number";input.inputMode="decimal";input.min=criterion.min_points;input.max=criterion.max_points;input.step="any";input.required=true;input.disabled=formLocked;
+   input.dataset.criterionId=criterion.id;input.dataset.group=criterion.criterion_group;
+   const saved=workingValues.get(criterion.id);
+   input.value=saved!==undefined?saved:(group==="bonus"||group==="penalty"?"0":"10");
+   input.addEventListener("input",()=>{workingValues.set(criterion.id,input.value);updateTotals()});
+   row.append(description,input);area.append(row);
+  });
+ });
+ updateTotals();
+}
+async function signIn(){
+ const b=$("loginButton");b.disabled=true;setStatus("loginStatus","در حال ورود...");
+ try{
+  const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+  if(error)throw error;
+  user=data.user;$("loginPanel").classList.add("hidden");$("judgePanel").classList.remove("hidden");$("logoutButton").classList.remove("hidden");
+  await loadTournaments();
+ }catch(e){setStatus("loginStatus",e.message,true);await db.auth.signOut()}
+ finally{b.disabled=false}
+}
+async function loadTournaments(){
+ setStatus("pageStatus","در حال دریافت تورنمنت‌های منصوب‌شده...");
+ $("gamePanel").classList.add("hidden");$("scoreArea").classList.add("hidden");
+ try{
+  const dashboard=await rpc("get_my_judge_dashboard");
+  $("judgeIdentity").textContent="داور: "+(dashboard?.judge_name||"حساب داوری");
+  assignedTournaments=dashboard?.tournaments||[];
+  const select=$("tournamentSelect");const placeholder=node("option","انتخاب تورنمنت");placeholder.value="";placeholder.disabled=true;placeholder.selected=true;select.replaceChildren(placeholder);select.value="";
+  (assignedTournaments||[]).forEach(t=>{
+   const option=node("option",t.tournament_name+(t.tournament_status?" — "+t.tournament_status:""));
+   option.value=t.tournament_id;select.append(option);
+  });
+  if(!assignedTournaments?.length){select.disabled=true;setStatus("pageStatus","برای این حساب کاربری هیچ تورنمنت فعالی به‌عنوان داور منصوب نشده است. از مدیر بخواه در صفحه «مدیریت داوران» همین حساب را به یک تورنمنت منصوب کند؛ سپس از این صفحه خارج شو و دوباره وارد شو.");return}
+  select.disabled=false;
+  setStatus("pageStatus","تورنمنت‌های منصوب‌شده دریافت شد. تورنمنت موردنظر را انتخاب کن.");
+ }catch(e){setStatus("pageStatus","دریافت تورنمنت‌ها ناموفق بود: "+e.message,true)}
+}
+async function loadTournament(tournamentId){
+ $("scoreArea").classList.add("hidden");$("gamePanel").classList.add("hidden");tournamentData=null;currentSubmission=null;workingValues.clear();
+ if(!tournamentId){setStatus("pageStatus","ابتدا یک تورنمنت منصوب‌شده را انتخاب کن.");return}
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tournamentId)){setStatus("pageStatus","شناسه تورنمنت معتبر نیست؛ دوباره از فهرست انتخاب کن.",true);return}
+ setStatus("pageStatus","در حال دریافت اعضا و معیارهای تورنمنت...");
+ try{
+  tournamentData=await rpc("get_judge_tournament_data",{p_tournament_id:tournamentId});
+  if(!tournamentData||!tournamentData.tournament)throw new Error("اطلاعات تورنمنت پیدا نشد.");
+  const select=$("playerSelect");const playerPlaceholder=node("option","انتخاب بازیکن");playerPlaceholder.value="";playerPlaceholder.disabled=true;playerPlaceholder.selected=true;select.replaceChildren(playerPlaceholder);
+  (tournamentData.players||[]).forEach(p=>{
+   const option=node("option",p.display_name+(p.player_code?" — "+p.player_code:""));
+   option.value=p.player_id;select.append(option);
+  });
+  $("gamePanel").classList.remove("hidden");
+  if(!tournamentData.players?.length)setStatus("pageStatus","در این تورنمنت بازیکن فعال قابل داوری وجود ندارد.");
+  else if(!tournamentData.criteria?.length)setStatus("pageStatus","اعضای تورنمنت دریافت شدند، اما معیار فعالی برای امتیازدهی تعریف نشده است.");
+  else setStatus("pageStatus","اطلاعات تورنمنت و "+tournamentData.players.length+" بازیکن دریافت شد.");
+ }catch(e){setStatus("pageStatus","دریافت اطلاعات تورنمنت ناموفق بود: "+e.message,true)}
+}
+function loadSelectedForm(){
+ const stage=$("stageName").value.trim(),game=Number($("gameNumber").value),player=selectedPlayer();
+ if(!tournamentData){setStatus("pageStatus","ابتدا تورنمنت را انتخاب کن.",true);return}
+ if(!stage||stage.length>100){setStatus("pageStatus","نام مرحله را وارد کن (حداکثر ۱۰۰ نویسه).",true);$("stageName").focus();return}
+ if(!Number.isInteger(game)||game<1||game>999){setStatus("pageStatus","شماره بازی باید عددی بین ۱ تا ۹۹۹ باشد.",true);$("gameNumber").focus();return}
+ if(!player){setStatus("pageStatus","بازیکن را از فهرست اعضای تورنمنت انتخاب کن.",true);$("playerSelect").focus();return}
+ const match=(tournamentData.submissions||[]).find(s=>
+  normalizeStage(s.stage_name)===normalizeStage(stage)&&Number(s.game_number)===game&&s.player_id===player.player_id
+ );
+ currentSubmission=match||null;workingValues=new Map();
+ if(match){
+  $("sideSelect").value=match.side;
+  $("roleName").value=match.role_name||"";
+  (match.items||[]).forEach(item=>workingValues.set(item.criterion_id,String(item.raw_points)));
+ }else{
+  $("sideSelect").value="شهروند";$("roleName").value="";
+ }
+ formLocked=Boolean(match&&["pending_review","approved"].includes(match.status));
+ $("scoreHeading").textContent="ارزیابی "+player.display_name+" | "+stage+" | بازی "+game;
+ $("saveDraftButton").disabled=formLocked;$("submitScoreButton").disabled=formLocked;
+ $("sideSelect").disabled=formLocked;$("roleName").disabled=formLocked;
+ $("scoreArea").classList.remove("hidden");
+ renderCriteria();
+ if(match?.status==="pending_review")setStatus("formStatus","این ارزیابی ارسال شده و در انتظار تأیید مدیر است؛ تا اعلام نتیجه امکان ویرایش ندارد.");
+ else if(match?.status==="approved")setStatus("formStatus","این ارزیابی توسط مدیر تأیید شده و در نتایج عمومی قابل نمایش است.");
+ else if(match?.status==="rejected")setStatus("formStatus","این ارزیابی توسط مدیر برگشت داده شده است. پس از اصلاح می‌توانی دوباره ارسال کنی."+(match.review_note?" توضیح مدیر: "+match.review_note:""),true);
+ else if(match)setStatus("formStatus","پیش‌نویس قبلی این بازیکن بارگذاری شد؛ می‌توانی آن را ویرایش یا نهایی کنی.");
+ else setStatus("formStatus","فرم آماده است. پس از تکمیل امتیازها، پیش‌نویس را ذخیره یا ارسال نهایی کن.");
+}
+async function refreshTournamentData(){
+ tournamentData=await rpc("get_judge_tournament_data",{p_tournament_id:$("tournamentSelect").value});
+}
+async function saveScore(finalize){
+ const player=selectedPlayer(),stage=$("stageName").value.trim(),game=Number($("gameNumber").value);
+ const side=$("sideSelect").value,role=$("roleName").value.trim();
+ if(!player||!stage||!Number.isInteger(game)){setStatus("formStatus","مشخصات تورنمنت، مرحله، بازی و بازیکن را بررسی کن.",true);return}
+ if(!role){setStatus("formStatus","نام نقش بازیکن را وارد کن.",true);$("roleName").focus();return}
+ const criteria=criteriaForSide(side),items=[];
+ for(const criterion of criteria){
+  const input=$("criteriaArea").querySelector('[data-criterion-id="'+criterion.id+'"]');
+  const raw=input?.value.trim()??"";
+  if(raw===""){setStatus("formStatus","برای معیار «"+criterion.criterion_name+"» امتیاز وارد کن.",true);input?.focus();return}
+  const value=Number(raw);
+  if(!Number.isFinite(value)||value<Number(criterion.min_points)||value>Number(criterion.max_points)){
+   setStatus("formStatus","امتیاز معیار «"+criterion.criterion_name+"» باید بین "+criterion.min_points+" و "+criterion.max_points+" باشد.",true);input?.focus();return;
+  }
+  items.push({criterion_id:criterion.id,raw_points:value,notes:null});
+ }
+ if(!items.length){setStatus("formStatus","هیچ معیار فعالی برای ثبت وجود ندارد.",true);return}
+ const saveButton=$("saveDraftButton"),submitButton=$("submitScoreButton");
+ saveButton.disabled=true;submitButton.disabled=true;setStatus("formStatus",finalize?"در حال ارسال نهایی امتیاز...":"در حال ذخیره پیش‌نویس...");
+ try{
+  await rpc("save_judge_game_score",{
+   p_tournament_id:$("tournamentSelect").value,
+   p_stage_name:stage,
+   p_game_number:game,
+   p_player_id:player.player_id,
+   p_side:side,
+   p_role_name:role,
+   p_items:items,
+   p_finalize:finalize
+  });
+  await refreshTournamentData();
+  loadSelectedForm();
+  setStatus("formStatus",finalize?"امتیاز ارسال شد و تا تأیید مدیر در نتایج عمومی نمایش داده نمی‌شود.":"پیش‌نویس با موفقیت ذخیره شد.");
+ }catch(e){
+  setStatus("formStatus","ثبت امتیاز انجام نشد: "+e.message,true);
+  saveButton.disabled=formLocked;submitButton.disabled=formLocked;
+ }
+}
+$("loginButton").addEventListener("click",signIn);
+$("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
+$("tournamentSelect").addEventListener("change",()=>loadTournament($("tournamentSelect").value));
+$("loadFormButton").addEventListener("click",loadSelectedForm);
+$("sideSelect").addEventListener("change",()=>{collectWorkingValues();renderCriteria()});
+$("saveDraftButton").addEventListener("click",()=>saveScore(false));
+$("submitScoreButton").addEventListener("click",()=>{
+ if(formLocked)return;
+ if(confirm("پس از ارسال نهایی، این ارزیابی برای شما قفل می‌شود. از ارسال آن مطمئنی؟"))saveScore(true);
+});
+$("logoutButton").addEventListener("click",async()=>{
+ await db.auth.signOut();user=null;tournamentData=null;currentSubmission=null;
+ $("judgePanel").classList.add("hidden");$("scoreArea").classList.add("hidden");$("gamePanel").classList.add("hidden");
+ $("loginPanel").classList.remove("hidden");$("logoutButton").classList.add("hidden");
+});
+db.auth.getSession().then(async({data,error})=>{
+ if(error){setStatus("loginStatus","بررسی ورود ناموفق بود: "+error.message,true);return}
+ if(data.session?.user){
+  user=data.session.user;$("loginPanel").classList.add("hidden");$("judgePanel").classList.remove("hidden");$("logoutButton").classList.remove("hidden");
+  await loadTournaments();
+ }
+});
+</script>
+</body>
+</html>
