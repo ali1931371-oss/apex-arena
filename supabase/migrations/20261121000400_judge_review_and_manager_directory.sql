@@ -42,7 +42,7 @@ RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
 DECLARE
   v_submission_id uuid;
   v_existing_status text;
@@ -221,7 +221,7 @@ BEGIN
     'status', CASE WHEN p_finalize THEN 'pending_review' ELSE 'draft' END
   );
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.get_judge_tournament_data(p_tournament_id uuid)
 RETURNS jsonb
@@ -229,7 +229,7 @@ LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
 DECLARE
   v_result jsonb;
 BEGIN
@@ -330,7 +330,7 @@ BEGIN
 
   RETURN v_result;
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.get_my_judge_dashboard()
 RETURNS jsonb
