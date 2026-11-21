@@ -30,6 +30,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 <section id="dashboard" class="hidden">
 <section class="panel"><div class="grid"><div><h2>انتخاب تورنمنت</h2><p class="muted">نقش داور فقط در همین تورنمنت اعمال می‌شود؛ نقش عمومی حساب تغییر نمی‌کند.</p></div><div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select></div><div><button id="refreshButton" class="secondary">به‌روزرسانی</button><button id="logoutButton" class="danger">خروج</button></div></div><p id="dashboardStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2><p>فقط بازیکن تأییدشده همان تورنمنت قابل انتخاب است. پیش از انتصاب، نباید در مسابقه‌های آن تورنمنت به‌عنوان بازیکن ثبت شده باشد.</p><div class="grid"><div><label for="candidateSelect">بازیکن واجد شرایط</label><select id="candidateSelect"><option value="">انتخاب بازیکن</option></select></div><div><button id="appointButton">انتصاب به‌عنوان داور</button></div></div><p id="candidateStatus" class="status"></p></section>
+<section class="panel"><h2>انتصاب داور قبلی به این تورنمنت</h2><p>از میان افرادی که قبلاً در هر تورنمنتی داور شده‌اند انتخاب کن. برای این انتصاب، ثبت‌نام در تورنمنت مقصد لازم نیست. انتصاب‌های قبلی او حفظ می‌شوند. فردی که در تورنمنت مقصد بازیکن فعال یا ثبت‌نام تأییدشده باشد، در این فهرست نمایش داده نمی‌شود.</p><div class="grid"><div><label for="existingJudgeSelect">داور دارای سابقه</label><select id="existingJudgeSelect"><option value="">ابتدا تورنمنت را انتخاب کن</option></select></div><div><button id="appointExistingJudgeButton">انتصاب داور در این تورنمنت</button></div></div><p id="existingJudgeStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>داوران تورنمنت</h2><p class="muted">هنگام لغو داوری، می‌توانی تعیین کنی شخص به فهرست بازیکنان همین تورنمنت برگردد یا خیر.</p><div id="judgeList"></div></section>
 </section>
 </main>
@@ -65,11 +66,12 @@ async function loadTournamentData(){
  const tid=$("tournamentSelect").value;if(!tid){clearLists();return}
  setStatus("dashboardStatus","در حال دریافت اطلاعات داوران...");
  try{
-  const [c,j]=await Promise.all([
+  const [c,j,e]=await Promise.all([
    rpc("get_tournament_judge_candidates",{p_tournament_id:tid}),
-   rpc("get_tournament_judges",{p_tournament_id:tid})
+   rpc("get_tournament_judges",{p_tournament_id:tid}),
+   rpc("get_existing_tournament_judges",{p_tournament_id:tid})
   ]);
-  judges=j||[];renderCandidates(c||[]);renderJudges();
+  judges=j||[];renderCandidates(c||[]);renderExistingJudges(e||[]);renderJudges();
   setStatus("dashboardStatus","اطلاعات به‌روزرسانی شد. "+(c||[]).length+" بازیکن واجد شرایط و "+judges.filter(x=>x.is_active).length+" داور فعال.");
  }catch(e){setStatus("dashboardStatus","خطا در دریافت اطلاعات: "+e.message,true)}
 }
@@ -155,6 +157,35 @@ function renderCandidates(rows){
  rows.forEach(p=>{const o=node("option",p.display_name+" — "+(p.player_code||"بدون کد"));o.value=p.user_id;s.append(o)});
  if(!rows.length)s.append(node("option","بازیکن واجد شرایطی وجود ندارد"));
  setStatus("candidateStatus",rows.length?rows.length+" بازیکن واجد شرایط پیدا شد.":"بازیکن واجد شرایطی برای انتصاب وجود ندارد.");
+}
+function renderExistingJudges(rows){
+ const s=$("existingJudgeSelect");s.replaceChildren();
+ const placeholder=node("option","انتخاب داور قبلی");placeholder.value="";placeholder.disabled=true;placeholder.selected=true;s.append(placeholder);
+ (rows||[]).forEach(j=>{
+  const o=node("option",j.display_name+" — "+(j.player_code||"بدون کد"));
+  o.value=j.user_id;s.append(o);
+ });
+ s.disabled=!rows||rows.length===0;
+ $("appointExistingJudgeButton").disabled=s.disabled;
+ setStatus("existingJudgeStatus",rows&&rows.length
+  ? rows.length+" داور دارای سابقه برای انتصاب در این تورنمنت واجد شرایط است."
+  : "داور قبلیِ واجد شرایطی برای این تورنمنت پیدا نشد.");
+}
+async function appointExistingJudge(){
+ const tid=$("tournamentSelect").value;
+ const jid=$("existingJudgeSelect").value;
+ if(!tid||!jid){setStatus("existingJudgeStatus","ابتدا تورنمنت و داور قبلی را انتخاب کن.",true);return}
+ if(!confirm("این داور بدون نیاز به ثبت‌نام در تورنمنت مقصد منصوب می‌شود. انتصاب‌های او در سایر تورنمنت‌ها باقی می‌مانند. ادامه می‌دهی؟"))return;
+ const b=$("appointExistingJudgeButton");b.disabled=true;
+ try{
+  await rpc("appoint_existing_judge_to_tournament",{p_tournament_id:tid,p_judge_id:jid});
+  setStatus("existingJudgeStatus","داور با موفقیت به این تورنمنت اضافه شد؛ انتصاب‌های قبلی او حفظ شدند.");
+  await loadTournamentData();
+ }catch(e){
+  setStatus("existingJudgeStatus","انتصاب انجام نشد: "+e.message,true);
+ }finally{
+  b.disabled=!$("existingJudgeSelect").value;
+ }
 }
 function renderJudges(){
  const box=$("judgeList");box.replaceChildren();
@@ -244,6 +275,7 @@ $("loginButton").addEventListener("click",signIn);
 $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",loadTournamentData);
 $("appointButton").addEventListener("click",appoint);
+$("appointExistingJudgeButton").addEventListener("click",appointExistingJudge);
 $("refreshButton").addEventListener("click",loadTournamentData);
 $("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden")});
 db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
