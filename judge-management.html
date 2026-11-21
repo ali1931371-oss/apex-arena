@@ -20,7 +20,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 </head>
 <body>
 <main>
-<header><div><h1>APEX ARENA | مدیریت داوران</h1><div class="muted">انتصاب تورنمنت‌محور و تخصیص امن مسابقه‌ها</div></div><a class="link secondary" href="index.html">بازگشت به سایت</a></header>
+<header><div><h1>APEX ARENA | مدیریت داوران</h1><div class="muted">انتصاب و لغو انتصاب داور در سطح تورنمنت</div></div><a class="link secondary" href="index.html">بازگشت به سایت</a></header>
 <section id="loginPanel" class="panel">
 <h2>ورود مدیر یا مسئول مسابقه</h2><p>فقط حساب دارای نقش admin یا manager اجازه مدیریت داوران را دارد.</p>
 <label for="email">ایمیل</label><input id="email" type="email" autocomplete="username">
@@ -31,33 +31,6 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 <section class="panel"><div class="grid"><div><h2>انتخاب تورنمنت</h2><p class="muted">نقش داور فقط در همین تورنمنت اعمال می‌شود؛ نقش عمومی حساب تغییر نمی‌کند.</p></div><div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select></div><div><button id="refreshButton" class="secondary">به‌روزرسانی</button><button id="logoutButton" class="danger">خروج</button></div></div><p id="dashboardStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2><p>فقط بازیکن تأییدشده همان تورنمنت قابل انتخاب است. پیش از انتصاب، نباید در مسابقه‌های آن تورنمنت به‌عنوان بازیکن ثبت شده باشد.</p><div class="grid"><div><label for="candidateSelect">بازیکن واجد شرایط</label><select id="candidateSelect"><option value="">انتخاب بازیکن</option></select></div><div><button id="appointButton">انتصاب به‌عنوان داور</button></div></div><p id="candidateStatus" class="status"></p></section>
 <section class="panel"><h2>داوران تورنمنت</h2><p class="muted">هنگام لغو داوری، می‌توانی تعیین کنی شخص به فهرست بازیکنان همین تورنمنت برگردد یا خیر.</p><div id="judgeList"></div></section>
-<section class="panel"><h2>تخصیص مسابقه به داور</h2><p>داور فقط به مسابقه‌هایی دسترسی دارد که اینجا به او تخصیص داده شده‌اند.</p><div id="matchList"></div></section>
-
-<section class="panel" id="scenarioManagementPanel">
-<h2>مدیریت سناریوها و نقش‌های داوری</h2>
-<p class="muted">سناریو و ترکیب نقش‌ها را برای استفاده در داوری تعریف کن. تغییرات فقط با زدن دکمه ذخیره ثبت می‌شوند.</p>
-<div class="grid">
- <div><label for="scenarioSelect">سناریوی موردنظر</label><select id="scenarioSelect"><option value="">در حال دریافت سناریوها...</option></select></div>
- <div><label for="newScenarioName">نام سناریوی جدید</label><input id="newScenarioName" maxlength="120" placeholder="نام سناریوی جدید"></div>
- <div><button type="button" id="addScenarioButton" class="secondary">افزودن سناریو</button></div>
-</div>
-<div class="card">
- <h3>افزودن نقش به سناریوی انتخاب‌شده</h3>
- <div class="grid">
-  <div><label for="newRoleName">نام نقش</label><input id="newRoleName" maxlength="120" placeholder="مثلاً کارآگاه"></div>
-  <div><label for="newRoleSide">جناح</label><select id="newRoleSide"><option value="شهروند">شهروند</option><option value="مافیا">مافیا</option></select></div>
-  <div><label for="newRoleCount">تعداد</label><input id="newRoleCount" type="number" min="1" max="20" value="1"></div>
-  <div><button type="button" id="addRoleButton">افزودن نقش به فهرست</button></div>
- </div>
-</div>
-<div id="scenarioRolesList"></div>
-<div class="actions"><button type="button" id="saveScenarioButton">ذخیره سناریو و نقش‌ها</button><button type="button" id="reloadScenariosButton" class="secondary">بازخوانی فهرست</button></div>
-<p id="scenarioStatus" class="status" role="status"></p>
-</section>
-
-<section class="panel"><h2>ثبت اطلاعات بازیکنان مسابقه</h2><p>مدیر می‌تواند قبل یا بعد از بازی، ساید، نقش واقعی و شماره صندلی اختیاری هر بازیکن را برای همان مسابقه ثبت یا اصلاح کند. این اطلاعات عمومی نیست.</p>
-<div class="grid"><div><label for="playerDetailsMatch">انتخاب مسابقه</label><select id="playerDetailsMatch"><option value="">انتخاب مسابقه</option></select></div><div><button id="loadPlayerDetails" class="secondary">نمایش بازیکنان مسابقه</button></div></div>
-<div id="playerDetailsList"></div><p id="playerDetailsStatus" class="status" role="status"></p></section>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -87,16 +60,18 @@ async function loadTournaments(){
  try{tournaments=await rpc("get_manageable_tournaments");const s=$("tournamentSelect");s.replaceChildren(node("option","انتخاب تورنمنت"));s.firstChild.value="";(tournaments||[]).forEach(t=>{const o=node("option",t.tournament_name+" — "+t.tournament_status);o.value=t.tournament_id;s.append(o)});if(tournaments.length){s.value=tournaments[0].tournament_id;await loadTournamentData()}else{clearLists();setStatus("dashboardStatus","تورنمنتی برای مدیریت وجود ندارد.",true)}}
  catch(e){setStatus("dashboardStatus","خطا در دریافت تورنمنت‌ها: "+e.message,true)}
 }
-function clearLists(){$("candidateSelect").replaceChildren(node("option","تورنمنتی انتخاب نشده"));$("judgeList").replaceChildren();$("matchList").replaceChildren()}
+function clearLists(){$("candidateSelect").replaceChildren(node("option","تورنمنتی انتخاب نشده"));$("judgeList").replaceChildren()}
 async function loadTournamentData(){
  const tid=$("tournamentSelect").value;if(!tid){clearLists();return}
- setStatus("dashboardStatus","در حال دریافت اطلاعات...");
- try{const [c,j,m]=await Promise.all([
-  rpc("get_tournament_judge_candidates",{p_tournament_id:tid}),
-  rpc("get_tournament_judges",{p_tournament_id:tid}),
-  rpc("get_tournament_matches",{p_tournament_id:tid})
- ]);judges=j||[];matches=m||[];renderCandidates(c||[]);renderJudges();renderMatches();await loadScenarioConfiguration();setStatus("dashboardStatus","اطلاعات به‌روزرسانی شد. "+(c||[]).length+" بازیکن واجد شرایط، "+judges.filter(x=>x.is_active).length+" داور فعال و "+matches.length+" مسابقه.");}
- catch(e){setStatus("dashboardStatus","خطا در دریافت اطلاعات: "+e.message,true)}
+ setStatus("dashboardStatus","در حال دریافت اطلاعات داوران...");
+ try{
+  const [c,j]=await Promise.all([
+   rpc("get_tournament_judge_candidates",{p_tournament_id:tid}),
+   rpc("get_tournament_judges",{p_tournament_id:tid})
+  ]);
+  judges=j||[];renderCandidates(c||[]);renderJudges();
+  setStatus("dashboardStatus","اطلاعات به‌روزرسانی شد. "+(c||[]).length+" بازیکن واجد شرایط و "+judges.filter(x=>x.is_active).length+" داور فعال.");
+ }catch(e){setStatus("dashboardStatus","خطا در دریافت اطلاعات: "+e.message,true)}
 }
 
 function renderScenarioRoles(){
@@ -269,12 +244,6 @@ $("loginButton").addEventListener("click",signIn);
 $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",loadTournamentData);
 $("appointButton").addEventListener("click",appoint);
-$("loadPlayerDetails").addEventListener("click",loadPlayerDetails);
-$("scenarioSelect").addEventListener("change",async()=>{selectedScenarioKey=$("scenarioSelect").value;await loadSelectedScenarioRoles()});
-$("addScenarioButton").addEventListener("click",addScenario);
-$("addRoleButton").addEventListener("click",addScenarioRole);
-$("saveScenarioButton").addEventListener("click",saveScenarioConfiguration);
-$("reloadScenariosButton").addEventListener("click",loadScenarioConfiguration);
 $("refreshButton").addEventListener("click",loadTournamentData);
 $("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden")});
 db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
