@@ -42,7 +42,7 @@ RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
-AS $$
+AS $
 DECLARE
   v_submission_id uuid;
   v_existing_status text;
@@ -221,7 +221,116 @@ BEGIN
     'status', CASE WHEN p_finalize THEN 'pending_review' ELSE 'draft' END
   );
 END;
-$$;
+$;
+
+CREATE OR REPLACE FUNCTION public.get_judge_tournament_data(p_tournament_id uuid)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+DECLARE
+  v_result jsonb;
+BEGIN
+  IF auth.uid() IS NULL OR NOT EXISTS (
+    SELECT 1
+    FROM public.tournament_judges tj
+    WHERE tj.tournament_id = p_tournament_id
+      AND tj.judge_id = auth.uid()
+      AND tj.is_active = true
+  ) THEN
+    RAISE EXCEPTION 'شما داور فعال این تورنمنت نیستید.';
+  END IF;
+
+  SELECT jsonb_build_object(
+    'tournament', jsonb_build_object(
+      'id', t.id,
+      'name', t.name,
+      'status', t.status
+    ),
+    'players', COALESCE((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'player_id', pl.id,
+          'display_name', pl.display_name,
+          'player_code', pl.player_code
+        )
+        ORDER BY pl.display_name, pl.player_code
+      )
+      FROM public.tournament_memberships tm
+      JOIN public.players pl ON pl.id = tm.player_id
+      WHERE tm.tournament_id = t.id
+        AND tm.status = 'active'
+        AND NOT EXISTS (
+          SELECT 1
+          FROM public.tournament_judges tj2
+          WHERE tj2.tournament_id = t.id
+            AND tj2.judge_id = tm.user_id
+            AND tj2.is_active = true
+            AND tj2.is_player_restored = false
+        )
+    ), '[]'::jsonb),
+    'criteria', COALESCE((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'id', tc.id,
+          'criterion_name', tc.criterion_name,
+          'description', tc.description,
+          'min_points', tc.min_points,
+          'max_points', tc.max_points,
+          'weight', tc.weight,
+          'score_type', tc.score_type,
+          'calculation_type', tc.calculation_type,
+          'aggregation_method', tc.aggregation_method,
+          'display_order', tc.display_order,
+          'criterion_group', tc.criterion_group
+        )
+        ORDER BY tc.display_order
+      )
+      FROM public.tournament_criteria tc
+      WHERE tc.tournament_id = t.id
+        AND tc.is_active = true
+    ), '[]'::jsonb),
+    'submissions', COALESCE((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'id', s.id,
+          'stage_name', s.stage_name,
+          'game_number', s.game_number,
+          'player_id', s.player_id,
+          'side', s.side,
+          'role_name', s.role_name,
+          'status', s.status,
+          'submitted_at', s.submitted_at,
+          'reviewed_at', s.reviewed_at,
+          'review_note', s.review_note,
+          'items', COALESCE((
+            SELECT jsonb_agg(
+              jsonb_build_object(
+                'criterion_id', si.criterion_id,
+                'raw_points', si.raw_points,
+                'notes', si.notes
+              )
+            )
+            FROM public.judge_game_score_items si
+            WHERE si.submission_id = s.id
+          ), '[]'::jsonb)
+        )
+        ORDER BY s.created_at DESC
+      )
+      FROM public.judge_game_submissions s
+      WHERE s.tournament_id = t.id
+        AND s.judge_id = auth.uid()
+    ), '[]'::jsonb)
+  )
+  INTO v_result
+  FROM public.tournaments t
+  WHERE t.id = p_tournament_id;
+
+  RETURN v_result;
+END;
+$;
 
 CREATE OR REPLACE FUNCTION public.get_my_judge_dashboard()
 RETURNS jsonb
@@ -365,7 +474,7 @@ BEGIN
     RAISE EXCEPTION 'فقط مدیر یا مسئول مسابقه می‌تواند ارزیابی را بررسی کند.';
   END IF;
 
-  IF p_decision NOT IN ('approved','rejected') THEN
+  IF p_decision IS NULL OR p_decision NOT IN ('approved','rejected') THEN
     RAISE EXCEPTION 'تصمیم باید تأیید یا رد باشد.';
   END IF;
 
