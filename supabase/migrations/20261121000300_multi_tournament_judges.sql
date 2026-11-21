@@ -85,12 +85,12 @@ BEGIN
     RAISE EXCEPTION 'فقط مدیر یا مسئول مجاز می‌تواند داور منصوب کند.';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1
-    FROM public.tournaments t
-    WHERE t.id = p_tournament_id
-    FOR UPDATE
-  ) THEN
+  PERFORM 1
+  FROM public.tournaments t
+  WHERE t.id = p_tournament_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'تورنمنت مقصد پیدا نشد.';
   END IF;
 
