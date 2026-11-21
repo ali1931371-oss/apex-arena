@@ -614,11 +614,30 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION public.get_public_judge_result_tournaments()
+RETURNS TABLE (
+  tournament_id uuid,
+  tournament_name text
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $
+  SELECT DISTINCT t.id, t.name
+  FROM public.tournaments t
+  JOIN public.judge_game_submissions s ON s.tournament_id = t.id
+  WHERE s.status = 'approved'
+  ORDER BY t.name;
+$;
+
+REVOKE ALL ON FUNCTION public.get_public_judge_result_tournaments() FROM PUBLIC; 
 REVOKE ALL ON FUNCTION public.get_my_judge_dashboard() FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.get_manager_judge_directory() FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.get_manager_judge_game_submissions(uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.review_judge_game_submission(uuid, text, text) FROM PUBLIC, anon;
 
+GRANT EXECUTE ON FUNCTION public.get_public_judge_result_tournaments() TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_my_judge_dashboard() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_manager_judge_directory() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_manager_judge_game_submissions(uuid) TO authenticated;
