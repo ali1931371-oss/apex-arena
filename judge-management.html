@@ -32,7 +32,6 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 <section class="panel"><h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2><p>فقط بازیکن تأییدشده همان تورنمنت قابل انتخاب است. پیش از انتصاب، نباید در مسابقه‌های آن تورنمنت به‌عنوان بازیکن ثبت شده باشد.</p><div class="grid"><div><label for="candidateSelect">بازیکن واجد شرایط</label><select id="candidateSelect"><option value="">انتخاب بازیکن</option></select></div><div><button id="appointButton">انتصاب به‌عنوان داور</button></div></div><p id="candidateStatus" class="status"></p></section>
 <section class="panel"><h2>انتصاب داور قبلی به این تورنمنت</h2><p>از میان افرادی که قبلاً در هر تورنمنتی داور شده‌اند انتخاب کن. برای این انتصاب، ثبت‌نام در تورنمنت مقصد لازم نیست. انتصاب‌های قبلی او حفظ می‌شوند. فردی که در تورنمنت مقصد بازیکن فعال یا ثبت‌نام تأییدشده باشد، در این فهرست نمایش داده نمی‌شود.</p><div class="grid"><div><label for="existingJudgeSelect">داور دارای سابقه</label><select id="existingJudgeSelect" disabled><option value="">ابتدا تورنمنت را انتخاب کن</option></select></div><div><button id="appointExistingJudgeButton">انتصاب داور در این تورنمنت</button></div></div><p id="existingJudgeStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>داوران تورنمنت</h2><p class="muted">هنگام لغو داوری، می‌توانی تعیین کنی شخص به فهرست بازیکنان همین تورنمنت برگردد یا خیر.</p><div id="judgeList"></div></section>
-<section class="panel"><h2>فهرست کلی داوران</h2><p class="muted">این فهرست فقط برای مدیر قابل مشاهده است و نام هر داور را همراه تورنمنت‌های انتصاب‌شده نشان می‌دهد.</p><button id="loadJudgeDirectoryButton" class="secondary">نمایش فهرست همه داوران و تورنمنت‌ها</button><div id="judgeDirectoryList"></div><p id="judgeDirectoryStatus" class="status"></p></section>
 <section class="panel"><h2>بررسی امتیازهای ارسالی داوران</h2><p class="muted">فقط پس از تأیید مدیر، امتیاز در نتایج عمومی منتشر می‌شود. ارزیابی ردشده برای اصلاح به داور بازمی‌گردد.</p><button id="loadReviewButton">دریافت ارزیابی‌های این تورنمنت</button><div id="reviewList"></div><p id="reviewStatus" class="status"></p></section>
 </section>
 </main>
@@ -273,20 +272,6 @@ async function unassign(matchId,judgeId){
  if(!confirm("تخصیص این داور از مسابقه لغو شود؟"))return;
  try{await rpc("unassign_judge_from_match",{p_match_id:matchId,p_judge_id:judgeId});await loadTournamentData()}catch(e){setStatus("dashboardStatus","لغو تخصیص انجام نشد: "+e.message,true)}
 }
-async function loadJudgeDirectory(){
- const box=$("judgeDirectoryList");box.replaceChildren();setStatus("judgeDirectoryStatus","در حال دریافت فهرست داوران...");
- try{
-  const rows=await rpc("get_manager_judge_directory");
-  if(!rows?.length){box.append(node("p","هنوز انتصابی ثبت نشده است.","muted"));setStatus("judgeDirectoryStatus","فهرست خالی است.");return}
-  rows.forEach(r=>{
-   const card=node("article",undefined,"card");
-   card.append(node("strong",r.judge_name||"بدون نام"));
-   card.append(node("p",r.tournament_name+" — "+(r.is_active?"داور فعال":"انتصاب لغوشده"),"muted"));
-   box.append(card);
-  });
-  setStatus("judgeDirectoryStatus",rows.length+" انتصاب در "+new Set(rows.map(x=>x.tournament_id)).size+" تورنمنت دریافت شد.");
- }catch(e){setStatus("judgeDirectoryStatus","دریافت فهرست انجام نشد: "+e.message,true)}
-}
 async function loadReviewSubmissions(){
  const tid=$("tournamentSelect").value,box=$("reviewList");box.replaceChildren();
  if(!tid){setStatus("reviewStatus","ابتدا تورنمنت را انتخاب کن.",true);return}
@@ -334,7 +319,6 @@ $("tournamentSelect").addEventListener("change",loadTournamentData);
 $("appointButton").addEventListener("click",appoint);
 $("appointExistingJudgeButton").addEventListener("click",appointExistingJudge);
 $("refreshButton").addEventListener("click",loadTournamentData);
-$("loadJudgeDirectoryButton").addEventListener("click",loadJudgeDirectory);
 $("loadReviewButton").addEventListener("click",loadReviewSubmissions);
 $("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden")});
 db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
