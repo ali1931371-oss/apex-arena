@@ -117,11 +117,21 @@ Deno.serve(async (req:Request)=>{
     }
 
     const {data:existingRequest,error:requestCheckError}=await supabase.from("tournament_registration_requests")
-      .select("id").eq("tournament_id",tournamentId).eq("user_id",userId).limit(1).maybeSingle();
+      .select("id,status").eq("tournament_id",tournamentId).eq("user_id",userId).limit(1).maybeSingle();
     if(requestCheckError)throw requestCheckError;
     if(existingRequest){
+      if(["cancelled","rejected"].includes(existingRequest.status)&&accountMode==="existing"){
+        const {error:reopenError}=await supabase.from("tournament_registration_requests")
+          .update({
+            requested_display_name:fullName,status:"pending",reviewed_by:null,review_note:null,reviewed_at:null,
+            created_at:new Date().toISOString(),full_name:fullName,audio_player_id:audioPlayerId,phone,username
+          })
+          .eq("id",existingRequest.id).eq("status",existingRequest.status);
+        if(reopenError)throw reopenError;
+        return jsonResponse(201,{ok:true,status:"pending",message:"درخواست قبلی شما دوباره برای بررسی ارسال شد"},origin);
+      }
       if(accountMode==="new")await supabase.auth.admin.deleteUser(userId);
-      return jsonResponse(409,{error:"برای این تورنمنت قبلاً درخواست ثبت‌نام ارسال کرده‌اید"},origin);
+      return jsonResponse(409,{error:"برای این تورنمنت قبلاً درخواست ثبت‌نام ارسال کرده‌اید یا درخواست شما در حال بررسی است"},origin);
     }
 
     const {error:insertError}=await supabase.from("tournament_registration_requests").insert({
