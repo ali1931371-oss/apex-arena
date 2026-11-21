@@ -45,11 +45,14 @@ async function loadDirectory(){
    const card=node("article",undefined,"judge-card");
    const info=node("div",undefined,"judge-info");
    info.append(node("div",row.judge_name||"داور","judge-name"));
-   info.append(node("div",row.tournament_name||"تورنمنت","tournament-name"));
+   const tournaments=node("div",undefined,"tournament-name");
+   (row.tournaments||[]).forEach(t=>tournaments.append(node("div","• "+(t.tournament_name||"تورنمنت"))));
+   info.append(tournaments);
    const enter=node("a","ورود","enter");enter.href="judge-portal.html";enter.setAttribute("aria-label","ورود به پنل داوری "+(row.judge_name||"داور"));
    card.append(info,enter);box.append(card);
   });
-  setStatus(rows.length+" انتصاب فعال در "+new Set(rows.map(r=>r.tournament_id)).size+" تورنمنت دریافت شد.");
+  const assignmentCount=rows.reduce((sum,r)=>sum+(r.tournaments||[]).length,0);
+  setStatus(rows.length+" داور فعال و "+assignmentCount+" انتصاب در "+new Set(rows.flatMap(r=>(r.tournaments||[]).map(t=>t.tournament_id))).size+" تورنمنت دریافت شد.");
  }catch(e){setStatus("دریافت فهرست داوران ناموفق بود: "+e.message,true)}
 }
 loadDirectory();
