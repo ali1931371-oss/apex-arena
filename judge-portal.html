@@ -26,7 +26,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 <label for="email">ایمیل</label><input id="email" type="email" autocomplete="username"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
 <button id="loginButton">ورود</button><p id="loginStatus" class="status" role="status"></p></section>
 <section id="judgePanel" class="hidden">
-<section class="panel"><h2>تورنمنت‌های من</h2><label for="tournamentSelect">انتخاب تورنمنت منصوب‌شده</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p class="muted">داور به تمام بازی‌های تورنمنت انتخاب‌شده دسترسی دارد؛ بازی‌ها در این سایت ساخته نمی‌شوند.</p><p id="pageStatus" class="status" role="status"></p></section>
+<section class="panel"><h2>تورنمنت‌های من</h2><p id="judgeIdentity" class="muted">حساب داور</p><label for="tournamentSelect">انتخاب تورنمنت منصوب‌شده</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p class="muted">داور به تمام بازی‌های تورنمنت انتخاب‌شده دسترسی دارد؛ بازی‌ها در این سایت ساخته نمی‌شوند.</p><p id="pageStatus" class="status" role="status"></p></section>
 <section id="gamePanel" class="panel hidden"><h2>مشخصات بازی و بازیکن</h2><div class="grid">
 <div><label for="stageName">نام مرحله</label><input id="stageName" maxlength="100" placeholder="مثلاً مرحله مقدماتی"></div>
 <div><label for="gameNumber">شماره بازی</label><input id="gameNumber" type="number" min="1" max="999" step="1" inputmode="numeric" placeholder="مثلاً ۱"></div>
@@ -127,7 +127,9 @@ async function loadTournaments(){
  setStatus("pageStatus","در حال دریافت تورنمنت‌های منصوب‌شده...");
  $("gamePanel").classList.add("hidden");$("scoreArea").classList.add("hidden");
  try{
-  assignedTournaments=await rpc("get_my_judge_tournaments");
+  const dashboard=await rpc("get_my_judge_dashboard");
+  $("judgeIdentity").textContent="داور: "+(dashboard?.judge_name||"حساب داوری");
+  assignedTournaments=dashboard?.tournaments||[];
   const select=$("tournamentSelect");const placeholder=node("option","انتخاب تورنمنت");placeholder.value="";placeholder.disabled=true;placeholder.selected=true;select.replaceChildren(placeholder);select.value="";
   (assignedTournaments||[]).forEach(t=>{
    const option=node("option",t.tournament_name+(t.tournament_status?" — "+t.tournament_status:""));
@@ -174,13 +176,15 @@ function loadSelectedForm(){
  }else{
   $("sideSelect").value="شهروند";$("roleName").value="";
  }
- formLocked=Boolean(match&&match.status==="submitted");
+ formLocked=Boolean(match&&["pending_review","approved"].includes(match.status));
  $("scoreHeading").textContent="ارزیابی "+player.display_name+" | "+stage+" | بازی "+game;
  $("saveDraftButton").disabled=formLocked;$("submitScoreButton").disabled=formLocked;
  $("sideSelect").disabled=formLocked;$("roleName").disabled=formLocked;
  $("scoreArea").classList.remove("hidden");
  renderCriteria();
- if(formLocked)setStatus("formStatus","این ارزیابی قبلاً نهایی شده و برای این داور قفل است.");
+ if(match?.status==="pending_review")setStatus("formStatus","این ارزیابی ارسال شده و در انتظار تأیید مدیر است؛ تا اعلام نتیجه امکان ویرایش ندارد.");
+ else if(match?.status==="approved")setStatus("formStatus","این ارزیابی توسط مدیر تأیید شده و در نتایج عمومی قابل نمایش است.");
+ else if(match?.status==="rejected")setStatus("formStatus","این ارزیابی توسط مدیر برگشت داده شده است. پس از اصلاح می‌توانی دوباره ارسال کنی."+(match.review_note?" توضیح مدیر: "+match.review_note:""),true);
  else if(match)setStatus("formStatus","پیش‌نویس قبلی این بازیکن بارگذاری شد؛ می‌توانی آن را ویرایش یا نهایی کنی.");
  else setStatus("formStatus","فرم آماده است. پس از تکمیل امتیازها، پیش‌نویس را ذخیره یا ارسال نهایی کن.");
 }
@@ -219,7 +223,7 @@ async function saveScore(finalize){
   });
   await refreshTournamentData();
   loadSelectedForm();
-  setStatus("formStatus",finalize?"امتیاز با موفقیت ارسال نهایی و قفل شد.":"پیش‌نویس با موفقیت ذخیره شد.");
+  setStatus("formStatus",finalize?"امتیاز ارسال شد و تا تأیید مدیر در نتایج عمومی نمایش داده نمی‌شود.":"پیش‌نویس با موفقیت ذخیره شد.");
  }catch(e){
   setStatus("formStatus","ثبت امتیاز انجام نشد: "+e.message,true);
   saveButton.disabled=formLocked;submitButton.disabled=formLocked;
