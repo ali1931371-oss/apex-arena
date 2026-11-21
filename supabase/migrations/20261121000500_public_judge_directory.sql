@@ -6,8 +6,7 @@ BEGIN;
 CREATE OR REPLACE FUNCTION public.get_public_judge_directory()
 RETURNS TABLE (
   judge_name text,
-  tournament_id uuid,
-  tournament_name text
+  tournaments jsonb
 )
 LANGUAGE sql
 STABLE
@@ -16,13 +15,22 @@ SET search_path = ''
 AS $$
   SELECT
     COALESCE(NULLIF(btrim(p.display_name), ''), 'داور') AS judge_name,
-    tj.tournament_id,
-    t.name AS tournament_name
+    COALESCE(
+      jsonb_agg(
+        jsonb_build_object(
+          'tournament_id', tj.tournament_id,
+          'tournament_name', t.name
+        )
+        ORDER BY t.name
+      ),
+      '[]'::jsonb
+    ) AS tournaments
   FROM public.tournament_judges AS tj
   JOIN public.tournaments AS t ON t.id = tj.tournament_id
   JOIN public.profiles AS p ON p.id = tj.judge_id
   WHERE tj.is_active = true
-  ORDER BY p.display_name, t.name;
+  GROUP BY p.id, p.display_name
+  ORDER BY p.display_name;
 $$;
 
 REVOKE ALL ON FUNCTION public.get_public_judge_directory() FROM PUBLIC;
