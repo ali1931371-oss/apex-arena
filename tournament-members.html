@@ -31,7 +31,7 @@ label{display:block;color:#e4c46e;margin:9px 0 4px}.grid{display:grid;grid-templ
 <header><div><h1>APEX ARENA | فهرست اعضای تورنمنت</h1><div id="tournamentName" class="muted">در حال دریافت اطلاعات تورنمنت...</div></div><a class="link secondary" href="index.html">بازگشت به سایت</a></header>
 <section class="panel"><p class="notice">در فهرست عمومی فقط نام نمایشی و کد بازیکن نمایش داده می‌شود. اطلاعات تکمیلی و ابزارهای مدیریت فقط برای مدیر واردشده از پنل مدیریت تورنمنت نمایش داده می‌شوند.</p><p id="pageStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>بازیکنان تأییدشده</h2><div id="publicMembers"><p class="muted">در حال دریافت فهرست...</p></div></section>
-<section class="panel">
+<section id="managerPanel" class="panel hidden">
 <h2>فهرست مدیریتی اعضا</h2>
 <p id="managerStatus" class="status muted"></p>
 <div id="managerMembers" class="hidden">
@@ -85,6 +85,7 @@ function renderManagerCard(m,mode){
  return card;
 }
 function renderManager(data){
+ $("managerPanel").classList.remove("hidden");
  tournamentStatus=data.tournament_status||"";
  const rows=Array.isArray(data.members)?data.members:[];
  const active=rows.filter(x=>x.membership_status==="active");
