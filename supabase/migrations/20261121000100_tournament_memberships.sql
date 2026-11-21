@@ -147,6 +147,16 @@ BEGIN
         LIMIT 1
       ) r ON true
       WHERE tm.tournament_id = t.id
+        AND (
+          tm.status <> 'active'
+          OR NOT EXISTS (
+            SELECT 1 FROM public.tournament_judges tj
+            WHERE tj.tournament_id = tm.tournament_id
+              AND tj.judge_id = tm.user_id
+              AND tj.is_active = true
+              AND tj.is_player_restored = false
+          )
+        )
     ), '[]'::jsonb)
   ) INTO v_result
   FROM public.tournaments t
