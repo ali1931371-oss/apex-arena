@@ -233,7 +233,7 @@ async function loadTournaments() {
         makeElement("p","","بازیکنان تأییدشده: " + tournament.approved_players),
         makeElement("p","","ظرفیت باقی‌مانده: " + tournament.available_slots)
       );
-      const membersLink=makeElement("a","مشاهده فهرست اعضا","link secondary");
+      const membersLink=makeElement("a","link secondary","مشاهده فهرست اعضا");
       membersLink.href="tournament-members.html?id="+encodeURIComponent(tournament.tournament_id);
       card.appendChild(membersLink);
       list.appendChild(card);
