@@ -128,23 +128,25 @@ async function loadTournaments(){
  $("gamePanel").classList.add("hidden");$("scoreArea").classList.add("hidden");
  try{
   assignedTournaments=await rpc("get_my_judge_tournaments");
-  const select=$("tournamentSelect");select.replaceChildren(node("option","انتخاب تورنمنت"));select.value="";
+  const select=$("tournamentSelect");const placeholder=node("option","انتخاب تورنمنت");placeholder.value="";placeholder.disabled=true;placeholder.selected=true;select.replaceChildren(placeholder);select.value="";
   (assignedTournaments||[]).forEach(t=>{
    const option=node("option",t.tournament_name+(t.tournament_status?" — "+t.tournament_status:""));
    option.value=t.tournament_id;select.append(option);
   });
-  if(!assignedTournaments?.length){setStatus("pageStatus","هیچ تورنمنت فعالی به‌عنوان داور به حساب شما منصوب نشده است.");return}
+  if(!assignedTournaments?.length){select.disabled=true;setStatus("pageStatus","برای این حساب کاربری هیچ تورنمنت فعالی به‌عنوان داور منصوب نشده است. از مدیر بخواه در صفحه «مدیریت داوران» همین حساب را به یک تورنمنت منصوب کند؛ سپس از این صفحه خارج شو و دوباره وارد شو.");return}
+  select.disabled=false;
   setStatus("pageStatus","تورنمنت‌های منصوب‌شده دریافت شد. تورنمنت موردنظر را انتخاب کن.");
  }catch(e){setStatus("pageStatus","دریافت تورنمنت‌ها ناموفق بود: "+e.message,true)}
 }
 async function loadTournament(tournamentId){
  $("scoreArea").classList.add("hidden");$("gamePanel").classList.add("hidden");tournamentData=null;currentSubmission=null;workingValues.clear();
- if(!tournamentId){setStatus("pageStatus","ابتدا یک تورنمنت انتخاب کن.");return}
+ if(!tournamentId){setStatus("pageStatus","ابتدا یک تورنمنت منصوب‌شده را انتخاب کن.");return}
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(tournamentId)){setStatus("pageStatus","شناسه تورنمنت معتبر نیست؛ دوباره از فهرست انتخاب کن.",true);return}
  setStatus("pageStatus","در حال دریافت اعضا و معیارهای تورنمنت...");
  try{
   tournamentData=await rpc("get_judge_tournament_data",{p_tournament_id:tournamentId});
   if(!tournamentData||!tournamentData.tournament)throw new Error("اطلاعات تورنمنت پیدا نشد.");
-  const select=$("playerSelect");select.replaceChildren(node("option","انتخاب بازیکن"));
+  const select=$("playerSelect");const playerPlaceholder=node("option","انتخاب بازیکن");playerPlaceholder.value="";playerPlaceholder.disabled=true;playerPlaceholder.selected=true;select.replaceChildren(playerPlaceholder);
   (tournamentData.players||[]).forEach(p=>{
    const option=node("option",p.display_name+(p.player_code?" — "+p.player_code:""));
    option.value=p.player_id;select.append(option);
