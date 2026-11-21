@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
+<title>پنل داوری | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:2}
+main{max-width:900px;margin:auto;padding:22px 14px 60px}
+header,.panel,.judge-card{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:23px}p{color:#cfc6b2}
+a{color:#e4c46e}.muted{color:#aaa;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere}
+.error{color:#ff9999}.success{color:#8be0a2}.judge-card{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:#202020}
+.judge-info{min-width:0;flex:1}.judge-name{font-size:18px;font-weight:bold;color:#f5f0df}.tournament-name{color:#b9ad92;font-size:14px}
+.enter{display:inline-block;text-decoration:none;text-align:center;background:#d8b45a;color:#17120a;padding:10px 20px;border-radius:8px;font-weight:bold;min-width:105px}
+.back{display:inline-block;padding:8px 12px;border:1px solid #80652e;border-radius:8px;text-decoration:none}
+.hidden{display:none!important}@media(max-width:520px){header{display:block;text-align:center}.judge-card{align-items:stretch}.enter{width:100%}}
+</style></head>
+<body><main>
+<header><div><h1>APEX ARENA | پنل داوری</h1><div class="muted">فهرست داوران فعال و تورنمنت‌هایی که برای داوری به آن‌ها منصوب شده‌اند.</div></div><a class="back" href="index.html">بازگشت به سایت</a></header>
+<section class="panel">
+<h2>فهرست داوران</h2>
+<p>نام هر داور و تورنمنت مربوط به او را پیدا کن و برای ورود به پنل شخصی داوری، دکمه ورود را بزن. برای ثبت امتیاز، ورود با حساب و رمز عبور شخصی داور الزامی است.</p>
+<p id="pageStatus" class="status" role="status">در حال دریافت فهرست داوران...</p>
+<div id="judgeList"></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
+function setStatus(message,error=false){$("pageStatus").textContent=message;$("pageStatus").className="status "+(error?"error":message?"success":"")}
+async function loadDirectory(){
+ const box=$("judgeList");box.replaceChildren();setStatus("در حال دریافت فهرست داوران فعال...");
+ try{
+  const {data,error}=await db.rpc("get_public_judge_directory");
+  if(error)throw error;
+  const rows=data||[];
+  if(!rows.length){setStatus("در حال حاضر داور فعالی برای هیچ تورنمنتی ثبت نشده است.");return}
+  rows.forEach(row=>{
+   const card=node("article",undefined,"judge-card");
+   const info=node("div",undefined,"judge-info");
+   info.append(node("div",row.judge_name||"داور","judge-name"));
+   info.append(node("div",row.tournament_name||"تورنمنت","tournament-name"));
+   const enter=node("a","ورود","enter");enter.href="judge-portal.html";enter.setAttribute("aria-label","ورود به پنل داوری "+(row.judge_name||"داور"));
+   card.append(info,enter);box.append(card);
+  });
+  setStatus(rows.length+" انتصاب فعال در "+new Set(rows.map(r=>r.tournament_id)).size+" تورنمنت دریافت شد.");
+ }catch(e){setStatus("دریافت فهرست داوران ناموفق بود: "+e.message,true)}
+}
+loadDirectory();
+</script></body></html>
