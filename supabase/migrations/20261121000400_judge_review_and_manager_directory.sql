@@ -623,7 +623,7 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
   SELECT DISTINCT t.id, t.name
   FROM public.tournaments t
   JOIN public.judge_game_submissions s ON s.tournament_id = t.id
