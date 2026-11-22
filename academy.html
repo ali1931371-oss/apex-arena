@@ -8,7 +8,7 @@
 const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co",SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69",BUCKET_NAME="apex-education";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 function makeElement(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined&&text!==null)el.textContent=text;return el;}
-function getYouTubeEmbedUrl(input){if(!input)return null;try{const url=new URL(input.trim()),host=url.hostname.replace(/^www\\./,"");let id="";if(host==="youtu.be")id=url.pathname.split("/").filter(Boolean)[0]||"";else if(["youtube.com","m.youtube.com","youtube-nocookie.com"].includes(host)){if(url.pathname==="/watch")id=url.searchParams.get("v")||"";else if(url.pathname.startsWith("/embed/")||url.pathname.startsWith("/shorts/"))id=url.pathname.split("/")[2]||"";}else return null;return /^[a-zA-Z0-9_-]{11}$/.test(id)?"https://www.youtube-nocookie.com/embed/"+id:null;}catch(e){return null;}}
+function getYouTubeEmbedUrl(input){if(!input)return null;try{const url=new URL(input.trim()),host=url.hostname.replace(/^www\./,"");let id="";if(host==="youtu.be")id=url.pathname.split("/").filter(Boolean)[0]||"";else if(["youtube.com","m.youtube.com","youtube-nocookie.com"].includes(host)){if(url.pathname==="/watch")id=url.searchParams.get("v")||"";else if(url.pathname.startsWith("/embed/")||url.pathname.startsWith("/shorts/"))id=url.pathname.split("/")[2]||"";}else return null;return /^[a-zA-Z0-9_-]{11}$/.test(id)?"https://www.youtube-nocookie.com/embed/"+id:null;}catch(e){return null;}}
 async function loadAcademyPosts(){
  const status=document.getElementById("academy-status"),list=document.getElementById("academy-list");list.replaceChildren();
  try{
