@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010"><meta name="description" content="فهرست عمومی مسابقات و تورنمنت‌های APEX ARENA"><title>مشاهده مسابقات | APEX ARENA</title><style>*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;text-align:center}header{padding:16px 18px;border-bottom:1px solid #80652e;background:#161616;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}h1{color:#d8b45a;letter-spacing:2px;font-size:25px;margin:0}h2{font-size:23px;color:#e4c46e}p{color:#d0c8b5;line-height:2}.page-intro{padding:35px 15px;background:radial-gradient(ellipse at 50% 0%,#493714 0%,#211a0d 35%,#101010 76%)}.page-wrap{max-width:1000px;margin:20px auto;padding:22px}.page-card{border:1px solid #80652e;border-radius:12px;padding:18px;margin:15px 0;text-align:right;background:#202020}.page-card h3{color:#e4c46e}.tournament-rules{white-space:pre-wrap;border-right:3px solid #80652e;padding:9px 12px;background:#191919;border-radius:7px;color:#e4d7b8;line-height:2}.academy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}.academy-card{border:1px solid #80652e;border-radius:12px;padding:15px;text-align:right;background:#202020;overflow:hidden}.academy-card h3{color:#e4c46e}.academy-card img{width:100%;max-height:240px;object-fit:cover;border-radius:8px;margin-bottom:10px}.academy-card p{overflow-wrap:anywhere}.post-summary{color:#e4c46e}.post-date{color:#a99b79;font-size:12px}.post-body{white-space:pre-wrap;text-align:right;line-height:2.2;overflow-wrap:anywhere;color:#e5dece}.post-video{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin:12px 0}.status{color:#d8b45a}.error{color:#ff8c8c!important}.empty{color:#aaa}.page-link{display:inline-block;padding:10px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none}footer{padding:25px;color:#a99b79;font-size:13px}@media(max-width:600px){header{display:block}header .page-link{margin-top:12px}.page-wrap{padding:12px}}</style></head><body>
+<header><h1>APEX ARENA</h1><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
+<section class="page-intro"><h2>فهرست مسابقات APEX ARENA</h2><p>تورنمنت‌های آماده ثبت‌نام و جزئیات هر رقابت را در این صفحه مشاهده کنید.</p></section>
+<main class="page-wrap"><p id="connection-status" class="status">در حال دریافت اطلاعات تورنمنت‌ها...</p><div id="tournament-list"></div></main><footer>© APEX ARENA — All Rights Reserved</footer>
+<script>
+"use strict";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+function makeElement(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined&&text!==null)el.textContent=text;return el;}
+async function loadTournaments(){
+ const status=document.getElementById("connection-status"),list=document.getElementById("tournament-list");
+ try{
+  const response=await fetch(SUPABASE_URL+"/rest/v1/rpc/get_open_tournaments",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:"{}"});
+  if(!response.ok)throw new Error("خطا در دریافت اطلاعات: "+response.status);
+  const tournaments=await response.json(),rulesByTournament=new Map();
+  if(Array.isArray(tournaments)&&tournaments.length){
+   const ids=tournaments.map(t=>t.tournament_id).filter(Boolean);
+   if(ids.length){const params=new URLSearchParams({select:"tournament_id,rules_text",tournament_id:"in.("+ids.join(",")+")"});
+    const rulesResponse=await fetch(SUPABASE_URL+"/rest/v1/tournament_public_rules?"+params.toString(),{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+    if(rulesResponse.ok){const rows=await rulesResponse.json();(rows||[]).forEach(row=>rulesByTournament.set(row.tournament_id,row.rules_text||""));}
+    else console.warn("قوانین تورنمنت‌ها فعلاً دریافت نشدند:",rulesResponse.status);
+   }
+  }
+  status.textContent="فهرست مسابقات به‌روز شد.";
+  if(!Array.isArray(tournaments)||!tournaments.length){list.replaceChildren(makeElement("p","empty","در حال حاضر تورنمنتی برای ثبت‌نام وجود ندارد."));return;}
+  list.replaceChildren();
+  tournaments.forEach(t=>{
+   const card=makeElement("article","page-card");
+   card.append(makeElement("h3","",t.tournament_name),makeElement("p","",t.tournament_description||"توضیحاتی ثبت نشده است."),makeElement("p","","ظرفیت کل: "+t.max_players),makeElement("p","","بازیکنان تأییدشده: "+t.approved_players),makeElement("p","","ظرفیت باقی‌مانده: "+t.available_slots));
+   const rules=rulesByTournament.get(t.tournament_id);
+   if(rules&&rules.trim())card.append(makeElement("h4","","قوانین تورنمنت"),makeElement("p","tournament-rules",rules));
+   const link=makeElement("a","page-link","مشاهده فهرست اعضا");link.href="tournament-members.html?id="+encodeURIComponent(t.tournament_id);card.appendChild(link);list.appendChild(card);
+  });
+ }catch(error){status.textContent="دریافت اطلاعات با مشکل مواجه شد. لطفاً بعداً تلاش کنید.";status.classList.add("error");console.error(error);}
+}
+loadTournaments();
+</script></body></html>
