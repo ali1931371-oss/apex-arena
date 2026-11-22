@@ -8,7 +8,7 @@
 main{max-width:1120px;margin:auto;padding:18px 14px 55px}header,.panel{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:23px}h2{font-size:19px}p{color:#cfc6b2}
-label{display:block;color:#e4c46e;margin:12px 0 6px}input,select{width:100%;padding:12px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font:inherit}
+label{display:block;color:#e4c46e;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font:inherit}textarea{resize:vertical;min-height:130px;line-height:1.9}
 button,.link{display:inline-block;padding:11px 14px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 0}
 button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;color:#f5f0df;border:1px solid #80652e}
 .hidden{display:none!important}.muted{color:#aaa;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
@@ -52,6 +52,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
   <div id="demo-tournament" class="demo-pane">
     <h3>مشخصات و ظرفیت</h3>
     <div class="demo-grid">
+      <div class="demo-field" style="grid-column:1/-1"><label for="demoRules">قوانین تورنمنت (نمایش عمومی)</label><textarea id="demoRules" rows="7" maxlength="12000" placeholder="قوانین این تورنمنت را به‌صورت دستی بنویس..."></textarea><p class="muted">این متن در فهرست عمومی، زیر همین تورنمنت نمایش داده می‌شود.</p></div>
       <div class="demo-field"><label for="demoName">نام تورنمنت</label><input id="demoName" value="APEX ARENA — تورنمنت آزمایشی"></div>
       <div class="demo-field"><label for="demoCapacity">ظرفیت کل بازیکنان</label><input id="demoCapacity" type="number" min="2" max="500" value="50"></div>
       <div class="demo-field"><label for="demoRegistration">وضعیت ثبت‌نام</label><select id="demoRegistration"><option value="open">باز</option><option value="closed">بسته</option></select></div>
@@ -99,6 +100,7 @@ function renderTable(target,headers,rows,empty){const box=$(target);box.replaceC
 async function loadTournament(){const tid=$("tournamentSelect").value;if(!tid)return;status("dashboardStatus","در حال خواندن ساختار تورنمنت...");
 const jobs=[
 ["tournament",()=>db.from("tournaments").select("name").eq("id",tid).maybeSingle()],
+["rules",()=>db.from("tournament_public_rules").select("rules_text").eq("tournament_id",tid).maybeSingle()],
 ["registration",()=>db.from("tournament_registration_settings").select("max_players,registration_open,require_admin_approval").eq("tournament_id",tid).maybeSingle()],
 ["stages",()=>db.from("tournament_stages").select("id,name,stage_number,settings").eq("tournament_id",tid).order("stage_number")],
 ["matches",()=>db.from("matches").select("id,match_number,status,stage_id,group_id").eq("tournament_id",tid).order("match_number")],
@@ -108,6 +110,7 @@ const results=await Promise.all(jobs.map(async([key,fn])=>{try{const {data,error
 const data=Object.fromEntries(results.map(([k,v,e])=>[k,{rows:v,error:e}]));
 const tournament=data.tournament.rows,registration=data.registration.rows;
 if(tournament)demo$("demoName").value=tournament.name||"";
+demo$("demoRules").value=data.rules.rows?.rules_text||"";
 if(registration){
  demo$("demoCapacity").value=registration.max_players??"";
  demo$("demoRegistration").value=registration.registration_open?"open":"closed";
@@ -137,7 +140,7 @@ let demoTournamentId=null;
 function demoStatus(t){demo$("demoStatus").textContent=t}
 function demoNewTournament(){
  demoTournamentId=null;demoState=demoDefaults();demoOrderedStages=[];demoStageDraft=null;
- ["demoName","demoCapacity"].forEach((id,i)=>demo$(id).value=i===0?"":"");
+ ["demoName","demoCapacity","demoRules"].forEach((id,i)=>demo$(id).value=i===0?"":"");
  demo$("demoRegistration").value="open";demo$("demoApproval").value="yes";
  ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).disabled=false);
  status("demoSaveTournamentStatus","","");demoRenderAll();
@@ -168,6 +171,7 @@ async function demoSaveTournament(){
    });
    if(error)throw error;
    if(!data)throw new Error("شناسه تورنمنت از سرور دریافت نشد.");
+   await rpc("save_tournament_public_rules",{p_tournament_id:data,p_rules_text:demo$("demoRules").value});
    await loadTournaments();
    $("tournamentSelect").value=data;
    await loadTournament();
@@ -175,7 +179,8 @@ async function demoSaveTournament(){
   }else{
    const {error}=await db.rpc("save_tournament_stage_configuration",{p_tournament_id:demoTournamentId,p_stages:stages});
    if(error)throw error;
-   status("demoSaveTournamentStatus","مراحل و گروه‌ها ذخیره شدند. مشخصات اصلی تورنمنت در حالت ویرایش فعلاً فقط قابل مشاهده‌اند.");
+   await rpc("save_tournament_public_rules",{p_tournament_id:demoTournamentId,p_rules_text:demo$("demoRules").value});
+   status("demoSaveTournamentStatus","مراحل، گروه‌ها و قوانین تورنمنت با موفقیت ذخیره شدند.");
    await loadTournament();
   }
  }catch(e){status("demoSaveTournamentStatus","ذخیره انجام نشد: "+e.message,true)}
