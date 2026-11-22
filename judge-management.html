@@ -29,6 +29,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 </section>
 <section id="dashboard" class="hidden">
 <section class="panel"><div class="grid"><div><h2>انتخاب تورنمنت</h2><p class="muted">نقش داور فقط در همین تورنمنت اعمال می‌شود؛ نقش عمومی حساب تغییر نمی‌کند.</p></div><div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select></div><div><button id="refreshButton" class="secondary">به‌روزرسانی</button><button id="logoutButton" class="danger">خروج</button></div></div><p id="dashboardStatus" class="status" role="status"></p></section>
+<section class="panel"><h2>داوری مستقل مدیر</h2><p>مدیر می‌تواند در این تورنمنت مانند یک داور مستقل ارزیابی ثبت کند. امتیازهای سایر داوران فقط از مسیر بررسی و تأیید یا رد قابل مدیریت هستند و قابل ویرایش توسط مدیر نیستند.</p><button id="appointSelfButton">انتصاب خودم به‌عنوان داور در این تورنمنت</button><p id="selfJudgeStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2><p>فقط بازیکن تأییدشده همان تورنمنت قابل انتخاب است. پیش از انتصاب، نباید در مسابقه‌های آن تورنمنت به‌عنوان بازیکن ثبت شده باشد.</p><div class="grid"><div><label for="candidateSelect">بازیکن واجد شرایط</label><select id="candidateSelect"><option value="">انتخاب بازیکن</option></select></div><div><button id="appointButton">انتصاب به‌عنوان داور</button></div></div><p id="candidateStatus" class="status"></p></section>
 <section class="panel"><h2>انتصاب داور قبلی به این تورنمنت</h2><p>از میان افرادی که قبلاً در هر تورنمنتی داور شده‌اند انتخاب کن. برای این انتصاب، ثبت‌نام در تورنمنت مقصد لازم نیست. انتصاب‌های قبلی او حفظ می‌شوند. فردی که در تورنمنت مقصد بازیکن فعال یا ثبت‌نام تأییدشده باشد، در این فهرست نمایش داده نمی‌شود.</p><div class="grid"><div><label for="existingJudgeSelect">داور دارای سابقه</label><select id="existingJudgeSelect" disabled><option value="">ابتدا تورنمنت را انتخاب کن</option></select></div><div><button id="appointExistingJudgeButton">انتصاب داور در این تورنمنت</button></div></div><p id="existingJudgeStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>داوران تورنمنت</h2><p class="muted">هنگام لغو داوری، می‌توانی تعیین کنی شخص به فهرست بازیکنان همین تورنمنت برگردد یا خیر.</p><div id="judgeList"></div></section>
@@ -42,7 +43,7 @@ const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
 const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
-let tournaments=[],judges=[],matches=[];
+let tournaments=[],judges=[],matches=[],managerUserId=null;
 let scenarioRecords=[],selectedScenarioKey="",scenarioRolesDraft=[];
 function node(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 function setStatus(id,text,error=false){$(id).textContent=text||"";$(id).className="status "+(error?"error":text?"success":"")}
@@ -53,7 +54,7 @@ async function checkManager(user){
 }
 async function signIn(){
  const b=$("loginButton");b.disabled=true;setStatus("loginStatus","در حال ورود...");
- try{const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;await checkManager(data.user);$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");await loadTournaments()}
+ try{const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;await checkManager(data.user);managerUserId=data.user.id;$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");await loadTournaments()}
  catch(e){await db.auth.signOut();setStatus("loginStatus",e.message,true)}
  finally{b.disabled=false}
 }
@@ -62,7 +63,7 @@ async function loadTournaments(){
  try{tournaments=await rpc("get_manageable_tournaments");const s=$("tournamentSelect");s.replaceChildren(node("option","انتخاب تورنمنت"));s.firstChild.value="";(tournaments||[]).forEach(t=>{const o=node("option",t.tournament_name+" — "+t.tournament_status);o.value=t.tournament_id;s.append(o)});if(tournaments.length){s.value=tournaments[0].tournament_id;await loadTournamentData()}else{clearLists();setStatus("dashboardStatus","تورنمنتی برای مدیریت وجود ندارد.",true)}}
  catch(e){setStatus("dashboardStatus","خطا در دریافت تورنمنت‌ها: "+e.message,true)}
 }
-function clearLists(){$("candidateSelect").replaceChildren(node("option","تورنمنتی انتخاب نشده"));$("existingJudgeSelect").replaceChildren(node("option","تورنمنتی انتخاب نشده"));$("existingJudgeSelect").disabled=true;$("appointExistingJudgeButton").disabled=true;$("judgeList").replaceChildren()}
+function clearLists(){$("candidateSelect").replaceChildren(node("option","تورنمنتی انتخاب نشده"));$("existingJudgeSelect").replaceChildren(node("option","تورنمنتی انتخاب نشده"));$("existingJudgeSelect").disabled=true;$("appointExistingJudgeButton").disabled=true;$("appointSelfButton").disabled=true;setStatus("selfJudgeStatus","ابتدا یک تورنمنت را انتخاب کن.");$("judgeList").replaceChildren()}
 async function loadTournamentData(){
  const tid=$("tournamentSelect").value;if(!tid){clearLists();return}
  setStatus("dashboardStatus","در حال دریافت اطلاعات داوران...");
@@ -73,8 +74,21 @@ async function loadTournamentData(){
    rpc("get_existing_tournament_judges",{p_tournament_id:tid})
   ]);
   judges=j||[];renderCandidates(c||[]);renderExistingJudges(e||[]);renderJudges();
+  const selfAssigned=judges.some(x=>x.user_id===managerUserId&&x.is_active);
+  $("appointSelfButton").disabled=selfAssigned;
+  $("appointSelfButton").textContent=selfAssigned?"مدیر در این تورنمنت داور فعال است":"انتصاب خودم به‌عنوان داور در این تورنمنت";
+  setStatus("selfJudgeStatus",selfAssigned?"حساب مدیر به‌عنوان داور فعال این تورنمنت منصوب شده است؛ برای ثبت ارزیابی وارد پنل داوری شو.":"در صورت نیاز می‌توانی حساب مدیر را فقط برای همین تورنمنت به‌عنوان داور منصوب کنی.");
   setStatus("dashboardStatus","اطلاعات به‌روزرسانی شد. "+(c||[]).length+" بازیکن واجد شرایط و "+judges.filter(x=>x.is_active).length+" داور فعال.");
  }catch(e){setStatus("dashboardStatus","خطا در دریافت اطلاعات: "+e.message,true)}
+}
+
+async function appointSelfAsJudge(){
+ const tid=$("tournamentSelect").value;
+ if(!tid){setStatus("selfJudgeStatus","ابتدا تورنمنت را انتخاب کن.",true);return}
+ if(!confirm("حساب مدیر فقط در همین تورنمنت به‌عنوان داور فعال می‌شود. ادامه می‌دهی؟"))return;
+ const b=$("appointSelfButton");b.disabled=true;setStatus("selfJudgeStatus","در حال انتصاب مدیر به‌عنوان داور...");
+ try{await rpc("appoint_manager_as_tournament_judge",{p_tournament_id:tid});await loadTournamentData();setStatus("selfJudgeStatus","انتصاب مدیر به‌عنوان داور انجام شد. اکنون می‌توانی از پنل داوری وارد شوی.")}
+ catch(e){setStatus("selfJudgeStatus","انتصاب انجام نشد: "+e.message,true);b.disabled=false}
 }
 
 function renderScenarioRoles(){
@@ -317,11 +331,12 @@ $("loginButton").addEventListener("click",signIn);
 $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",loadTournamentData);
 $("appointButton").addEventListener("click",appoint);
+$("appointSelfButton").addEventListener("click",appointSelfAsJudge);
 $("appointExistingJudgeButton").addEventListener("click",appointExistingJudge);
 $("refreshButton").addEventListener("click",loadTournamentData);
 $("loadReviewButton").addEventListener("click",loadReviewSubmissions);
 $("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();$("dashboard").classList.add("hidden");$("loginPanel").classList.remove("hidden")});
-db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
+db.auth.getSession().then(({data,error})=>{if(!error&&data.session)checkManager(data.session.user).then(()=>{managerUserId=data.session.user.id;$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");loadTournaments()}).catch(async()=>db.auth.signOut())});
 </script>
 </body>
 </html>
