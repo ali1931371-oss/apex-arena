@@ -61,10 +61,6 @@
     .admin-post { text-align:right; border:1px solid #59451e; padding:14px; margin:12px 0; border-radius:8px; background:#202020; }
     .admin-post strong { color:#e4c46e; }
     .preview-image { max-width:100%; max-height:220px; border-radius:8px; margin-top:10px; }
-    .registration-request-card { text-align:right; border:1px solid #80652e; border-radius:10px; padding:15px; margin:14px 0; background:#202020; overflow-wrap:anywhere; }
-    .registration-request-card h3 { color:#e4c46e; margin-top:0; }
-    .request-actions { display:flex; gap:10px; flex-wrap:wrap; }
-    .request-actions button { flex:1; min-width:130px; }
     footer { padding:25px; color:#a99b79; font-size:13px; }
     @media(max-width:700px) { header { position:static; display:block; text-align:center; } .site-brand { text-align:center; } .main-nav { justify-content:center; margin-top:12px; } .main-nav a { padding:8px 9px; font-size:12px; } .hero { padding:55px 15px; } }
     @media(max-width:600px) { .section { margin:15px 10px; padding:17px; } h1 { font-size:25px; } h2 { font-size:21px; } .hero-actions a { width:100%; max-width:320px; } .registration-grid { grid-template-columns:1fr; } .registration-grid .full-row { grid-column:auto; } }
@@ -107,14 +103,7 @@
       <p><a href="judge-management.html" style="display:inline-block;padding:11px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">ورود به پنل مدیریت داوران</a></p>
       <p><a href="tournament-management.html" style="display:inline-block;padding:11px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">ورود به پنل مدیریت تورنمنت‌ها</a></p>
 
-      <!-- مدیریت درخواست‌های عضویت بازیکنان -->
-      <section class="admin-box" id="registration-requests-section">
-        <h2>مدیریت درخواست‌های عضویت بازیکنان</h2>
-        <p>درخواست‌های در انتظار بررسی در این قسمت نمایش داده می‌شوند.</p>
-        <button type="button" id="refresh-registration-requests" class="secondary-button">به‌روزرسانی درخواست‌ها</button>
-        <p id="registration-requests-status" class="status">در حال دریافت درخواست‌ها...</p>
-        <div id="registration-requests-list"></div>
-      </section>
+      <p><a href="membership-requests.html" style="display:inline-block;padding:12px 18px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">مدیریت درخواست‌های عضویت بازیکنان</a></p>
 
       <hr style="border-color:#59451e;margin:25px 0;">
       <h2>پنل مدیریت آکادمی</h2>
@@ -152,7 +141,6 @@ const newPasswordBox = document.getElementById("new-password-box");
 const adminDashboard = document.getElementById("admin-dashboard");
 let currentAdmin = null;
 let currentImagePath = null;
-let registrationRequestsLoadId = 0;
 
 function showMessage(text, isError = false) {
   message.textContent = text;
@@ -321,78 +309,6 @@ async function verifyAdmin(user) {
   return !!data && data.role==="admin";
 }
 
-// دریافت و نمایش درخواست‌های عضویت (فقط پس از تأیید نقش admin)
-async function loadRegistrationRequests() {
-  const loadId=++registrationRequestsLoadId;
-  const status=document.getElementById("registration-requests-status");
-  const list=document.getElementById("registration-requests-list");
-  const refresh=document.getElementById("refresh-registration-requests");
-  if (!currentAdmin || !status || !list) return;
-  status.textContent="در حال دریافت درخواست‌ها..."; status.className="status"; list.replaceChildren();
-  if (refresh) refresh.disabled=true;
-  try {
-    const {data:requests,error}=await supabaseClient.from("tournament_registration_requests")
-      .select("id,tournament_id,user_id,full_name,audio_player_id,phone,username,status,created_at")
-      .eq("status","pending").order("created_at",{ascending:true});
-    if (error) throw error;
-    if (loadId!==registrationRequestsLoadId) return;
-    if (!requests || requests.length===0) { status.textContent="در حال حاضر درخواست در انتظار بررسی وجود ندارد."; return; }
-    const {data:tournaments,error:tournamentsError}=await supabaseClient.rpc("get_manageable_tournaments");
-    if (tournamentsError) throw tournamentsError;
-    const tournamentNames=new Map((tournaments || []).map(t=>[t.tournament_id,t.tournament_name]));
-    if (loadId!==registrationRequestsLoadId) return;
-    status.textContent=requests.length+" درخواست در انتظار بررسی وجود دارد.";
-    requests.forEach(request=>{
-      const card=makeElement("article","registration-request-card");
-      card.appendChild(makeElement("h3","",request.full_name || "بدون نام"));
-      const fields=[
-        ["نام کاربری",request.username],
-        ["آیدی بازیکن صوتی",request.audio_player_id],
-        ["شماره تماس",request.phone],
-        ["نام تورنمنت",tournamentNames.get(request.tournament_id) || "تورنمنت یافت نشد"],
-        ["تاریخ درخواست",request.created_at ? new Date(request.created_at).toLocaleString("fa-IR") : "نامشخص"]
-      ];
-      fields.forEach(([label,value])=>card.appendChild(makeElement("p","",label+": "+(value || "ثبت نشده"))));
-      const actions=makeElement("div","request-actions");
-      const approve=makeElement("button","","تأیید درخواست"); approve.type="button";
-      const reject=makeElement("button","danger-button","رد درخواست"); reject.type="button";
-      approve.addEventListener("click",async()=>{
-        if (!window.confirm("با تأیید این درخواست، حساب بازیکن و کد بازیکنی ساخته می‌شود. ادامه می‌دهید؟")) return;
-        approve.disabled=true; reject.disabled=true;
-        try {
-          const {data,error}=await supabaseClient.rpc("approve_player_registration",{p_request_id:request.id});
-          if (error) throw error;
-          alert("درخواست تأیید شد.\nکد بازیکن: "+(data && data.player_code ? data.player_code : "ساخته شد"));
-          await loadRegistrationRequests();
-        } catch(error) {
-          alert("تأیید درخواست انجام نشد: "+error.message); approve.disabled=false; reject.disabled=false;
-        }
-      });
-      reject.addEventListener("click",async()=>{
-        if (!window.confirm("آیا از رد این درخواست مطمئن هستید؟")) return;
-        const note=window.prompt("دلیل رد درخواست (اختیاری):");
-        if (note===null) return;
-        approve.disabled=true; reject.disabled=true;
-        try {
-          const {error}=await supabaseClient.rpc("reject_player_registration",{p_request_id:request.id,p_review_note:note.trim() || null});
-          if (error) throw error;
-          alert("درخواست با موفقیت رد شد.");
-          await loadRegistrationRequests();
-        } catch(error) {
-          alert("رد درخواست انجام نشد: "+error.message); approve.disabled=false; reject.disabled=false;
-        }
-      });
-      actions.append(approve,reject); card.appendChild(actions); list.appendChild(card);
-    });
-  } catch(error) {
-    if (loadId===registrationRequestsLoadId) {
-      status.textContent="خطا در دریافت درخواست‌ها: "+error.message; status.classList.add("error"); console.error("Registration requests error:",error);
-    }
-  } finally {
-    if (loadId===registrationRequestsLoadId && refresh) refresh.disabled=false;
-  }
-}
-
 async function updateAdminInterface(user) {
   if (!user) {
     currentAdmin=null; adminDashboard.classList.add("hidden"); loginBox.classList.remove("hidden"); return;
@@ -405,7 +321,7 @@ async function updateAdminInterface(user) {
   }
   currentAdmin=user; loginBox.classList.add("hidden"); recoveryBox.classList.add("hidden"); newPasswordBox.classList.add("hidden");
   adminDashboard.classList.remove("hidden"); showMessage("ورود مدیر با موفقیت انجام شد.");
-  await Promise.all([loadAdminPosts(),loadRegistrationRequests()]);
+  await loadAdminPosts();
 }
 
 // نمایش مطالب در پنل مدیر
@@ -567,7 +483,6 @@ document.getElementById("logout-button").onclick=async()=>{
   if (error) { showMessage("خروج انجام نشد: "+error.message,true); return; }
   currentAdmin=null; adminDashboard.classList.add("hidden"); loginBox.classList.remove("hidden"); showMessage("از حساب مدیریت خارج شدی.");
 };
-document.getElementById("refresh-registration-requests").addEventListener("click",loadRegistrationRequests);
 document.getElementById("save-post-button").onclick=()=>savePost(false);
 document.getElementById("publish-post-button").onclick=()=>savePost(true);
 document.getElementById("cancel-edit-button").onclick=()=>{ resetPostForm(); showAcademyAdminMessage("ویرایش لغو شد."); };
