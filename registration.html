@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010"><meta name="description" content="فرم ثبت‌نام در تورنمنت‌های APEX ARENA"><title>ورود به رقابت | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;text-align:center}header{padding:16px 18px;border-bottom:1px solid #80652e;background:#161616;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}h1{color:#d8b45a;letter-spacing:2px;font-size:25px;margin:0}h2{font-size:23px;color:#e4c46e}p{color:#d0c8b5;line-height:2}.page-intro{padding:35px 15px;background:radial-gradient(ellipse at 50% 0%,#493714 0%,#211a0d 35%,#101010 76%)}.section{max-width:900px;margin:25px auto;padding:25px;border:1px solid #59451e;border-radius:14px;background:#191919}.admin-box{max-width:600px;margin:20px auto;text-align:right}.registration-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}.registration-grid .full-row{grid-column:1/-1}.field-hint{color:#a99b79;font-size:12px;margin:2px 0 8px}.consent-row{display:flex;align-items:flex-start;gap:10px;color:#d0c8b5;font-size:13px;line-height:1.9;margin:18px 0}.consent-row input{width:auto;margin:5px 0 0;accent-color:#d8b45a}.trust-note{border-right:3px solid #d8b45a;padding:10px 14px;background:#211b10;border-radius:8px;text-align:right;color:#d8cba9;font-size:13px;line-height:2}input,select{display:block;width:100%;margin:12px 0;padding:13px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font-family:inherit;font-size:15px}label{display:block;margin-top:15px;color:#e4c46e}button{width:100%;padding:13px;margin-top:10px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font-family:inherit;font-size:15px;font-weight:bold;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.message{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;margin-top:15px}.error{color:#ff8c8c!important}.success{color:#8be0a2!important}.hidden{display:none!important}.page-link{display:inline-block;padding:10px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none}footer{padding:25px;color:#a99b79;font-size:13px}@media(max-width:600px){header{display:block}.page-link{margin-top:12px}.section{margin:15px 10px;padding:17px}.registration-grid{grid-template-columns:1fr}.registration-grid .full-row{grid-column:auto}}
+</style></head><body>
+<header><h1>APEX ARENA</h1><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
+<section class="page-intro"><h2>ورود به رقابت</h2><p>فرم ثبت‌نام تورنمنت را تکمیل کن تا درخواست شرکت در مسابقه برای مدیریت ارسال شود.</p></section>
+<main><section class="section" id="player-registration">
+<h2>ورود بازیکنان و ثبت درخواست شرکت</h2>
+<p>هر بازیکن فقط یک حساب و یک پروفایل دارد. با همان حساب می‌توانی در چند تورنمنت مختلف شرکت کنی؛ برای هر تورنمنت فقط یک درخواست ثبت‌نام مجاز است.</p>
+<p class="trust-note">اگر هنوز حساب نداری، «بازیکن جدید» را انتخاب کن. پس از ساخت حساب، برای تورنمنت‌های بعدی همیشه از گزینه «بازیکن دارای حساب» استفاده کن؛ حساب جدید نساز.</p>
+<form id="registration-form" class="admin-box">
+<div class="registration-grid">
+<div class="full-row"><label for="reg-tournament">انتخاب تورنمنت</label><select id="reg-tournament" required><option value="">در حال دریافت تورنمنت‌ها...</option></select></div>
+<div><label for="reg-full-name">نام و نام خانوادگی</label><input id="reg-full-name" type="text" minlength="3" maxlength="120" autocomplete="name" placeholder="نام واقعی شما" required></div>
+<div><label for="reg-audio-id">آیدی بازیکن در اپلیکیشن صوتی</label><input id="reg-audio-id" type="text" minlength="2" maxlength="120" placeholder="آیدی دقیق داخل اپلیکیشن" required></div>
+<div><label for="reg-phone">شماره تماس</label><input id="reg-phone" type="tel" inputmode="tel" maxlength="25" autocomplete="tel" placeholder="شماره همراه" required></div>
+<div class="full-row"><label for="reg-account-type">نوع حساب</label><select id="reg-account-type"><option value="new">بازیکن جدید — ساخت حساب</option><option value="existing">بازیکن دارای حساب — ورود و ثبت‌نام در تورنمنت</option></select><p class="field-hint">اگر قبلاً در APEX ARENA حساب ساخته‌ای، گزینه دوم را انتخاب کن.</p></div>
+<div><label for="reg-username">نام کاربری انگلیسی</label><input id="reg-username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,29}" autocomplete="username" placeholder="فقط حروف انگلیسی و اعداد" required><p class="field-hint">۳ تا ۳۰ نویسه؛ حروف انگلیسی، عدد، نقطه، خط تیره یا زیرخط.</p></div>
+<div><label for="reg-password">رمز عبور حساب</label><input id="reg-password" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="حداقل ۱۲ نویسه" required></div>
+<div id="reg-password-confirm-wrap"><label for="reg-password-confirm">تکرار رمز عبور</label><input id="reg-password-confirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="رمز را دوباره وارد کنید" required></div>
+</div>
+<label class="consent-row"><input id="reg-consent" type="checkbox" required><span>اطلاعات واردشده صحیح است و می‌دانم درخواست من پس از بررسی و تأیید مدیریت نهایی می‌شود.</span></label>
+<p class="trust-note">رمز عبور خود را با هیچ‌کس به اشتراک نگذارید. اطلاعات تماس شما برای سایر بازیکنان نمایش داده نمی‌شود.</p>
+<button id="registration-button" type="submit" disabled>ارسال درخواست ثبت‌نام</button>
+<p id="registration-message" class="message" role="status"></p>
+</form></section></main><footer>© APEX ARENA — All Rights Reserved</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+"use strict";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+function updateRegistrationTournamentOptions(tournaments){
+ const select=document.getElementById("reg-tournament"),button=document.getElementById("registration-button"),items=Array.isArray(tournaments)?tournaments:[];
+ select.replaceChildren();const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent=items.length?"یک تورنمنت انتخاب کنید":"تورنمنتی برای ثبت‌نام وجود ندارد";select.appendChild(placeholder);
+ items.forEach(t=>{if(!t.tournament_id)return;const option=document.createElement("option");option.value=t.tournament_id;option.textContent=t.tournament_name+" — ظرفیت باقی‌مانده: "+t.available_slots;select.appendChild(option);});button.disabled=select.options.length<=1;
+}
+async function loadTournaments(){
+ const select=document.getElementById("reg-tournament");
+ try{const response=await fetch(SUPABASE_URL+"/rest/v1/rpc/get_open_tournaments",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:"{}"});
+ if(!response.ok)throw new Error("خطا در دریافت تورنمنت‌ها: "+response.status);const tournaments=await response.json();updateRegistrationTournamentOptions(tournaments);
+ }catch(error){console.error(error);select.replaceChildren();const option=document.createElement("option");option.value="";option.textContent="دریافت تورنمنت‌ها ناموفق بود؛ صفحه را دوباره بارگذاری کنید.";select.appendChild(option);document.getElementById("registration-message").textContent="ارتباط با فهرست تورنمنت‌ها برقرار نشد.";document.getElementById("registration-message").classList.add("error");}
+}
+function normalizeRegistrationPhone(value){return value.replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));}
+const registrationAuthClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
+const accountTypeSelect=document.getElementById("reg-account-type"),passwordConfirmWrap=document.getElementById("reg-password-confirm-wrap"),passwordConfirmInput=document.getElementById("reg-password-confirm");
+accountTypeSelect.addEventListener("change",()=>{const isNew=accountTypeSelect.value==="new";passwordConfirmWrap.classList.toggle("hidden",!isNew);passwordConfirmInput.required=isNew;document.getElementById("reg-password").autocomplete=isNew?"new-password":"current-password";});
+document.getElementById("registration-form").addEventListener("submit",async function(event){
+ event.preventDefault();const form=event.currentTarget,button=document.getElementById("registration-button"),status=document.getElementById("registration-message"),tournamentId=document.getElementById("reg-tournament").value,fullName=document.getElementById("reg-full-name").value.trim(),audioPlayerId=document.getElementById("reg-audio-id").value.trim(),phone=normalizeRegistrationPhone(document.getElementById("reg-phone").value.trim()),username=document.getElementById("reg-username").value.trim().toLowerCase(),password=document.getElementById("reg-password").value,accountType=accountTypeSelect.value,isNewAccount=accountType==="new",passwordConfirm=passwordConfirmInput.value,consent=document.getElementById("reg-consent").checked;
+ status.textContent="";status.className="message";
+ if(!consent){status.textContent="برای ادامه، تأیید صحت اطلاعات و قوانین ثبت‌نام را علامت بزنید.";status.classList.add("error");return;}
+ if(isNewAccount&&password!==passwordConfirm){status.textContent="رمز عبور و تکرار آن یکسان نیستند.";status.classList.add("error");return;}
+ if(!tournamentId){status.textContent="لطفاً یک تورنمنت انتخاب کنید.";status.classList.add("error");return;}
+ if(fullName.length<3||audioPlayerId.length<2){status.textContent="نام و آیدی بازیکن را بررسی کنید.";status.classList.add("error");return;}
+ if(!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(username)){status.textContent="نام کاربری باید ۳ تا ۳۰ نویسه انگلیسی باشد.";status.classList.add("error");return;}
+ if(password.length<12||password.length>128){status.textContent="رمز عبور باید بین ۱۲ تا ۱۲۸ نویسه باشد.";status.classList.add("error");return;}
+ const phoneDigits=phone.replace(/[^0-9]/g,"");if(phoneDigits.length<7||phoneDigits.length>15){status.textContent="شماره تماس معتبر وارد کنید.";status.classList.add("error");return;}
+ button.disabled=true;button.textContent="در حال ارسال...";let temporarySession=false;
+ try{let authorization=SUPABASE_KEY;
+  if(!isNewAccount){const {data:loginData,error:loginError}=await registrationAuthClient.auth.signInWithPassword({email:username+"@users.apexarena.invalid",password});
+   if(loginError||!loginData.session||!loginData.user)throw new Error("ورود ناموفق بود؛ نام کاربری و رمز عبور حساب قبلی را بررسی کن.");authorization=loginData.session.access_token;temporarySession=true;}
+  const response=await fetch(SUPABASE_URL+"/functions/v1/register-player",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+authorization,"Content-Type":"application/json"},body:JSON.stringify({account_mode:accountType,full_name:fullName,audio_player_id:audioPlayerId,phone:phoneDigits,username,password:isNewAccount?password:undefined,tournament_id:tournamentId})});
+  const result=await response.json().catch(()=>({}));if(!response.ok||!result.ok)throw new Error(result.message||result.error||"ثبت‌نام ناموفق بود.");
+  status.textContent=result.message||"درخواست شما ارسال شد و در انتظار تأیید مدیر است.";status.classList.add("success");form.reset();accountTypeSelect.value="existing";passwordConfirmWrap.classList.add("hidden");passwordConfirmInput.required=false;document.getElementById("reg-password").autocomplete="current-password";
+ }catch(error){console.error("Registration error:",error);status.textContent=error.message||"ارتباط با سامانه برقرار نشد.";status.classList.add("error");}
+ finally{if(temporarySession)await registrationAuthClient.auth.signOut().catch(()=>{});button.disabled=document.getElementById("reg-tournament").options.length<=1;button.textContent="ارسال درخواست ثبت‌نام";}
+});
+loadTournaments();
+</script></body></html>
