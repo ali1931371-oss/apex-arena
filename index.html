@@ -28,6 +28,7 @@
     .section { max-width:900px; margin:25px auto; padding:25px; border:1px solid #59451e; border-radius:14px; background:#191919; }
     .tournament { border:1px solid #80652e; border-radius:10px; padding:18px; margin:15px 0; text-align:right; background:#202020; }
     .tournament h3,.academy-card h3 { color:#e4c46e; }
+    .tournament-rules { white-space:pre-wrap; border-right:3px solid #80652e; padding:9px 12px; background:#191919; border-radius:7px; color:#e4d7b8; line-height:2; }
     .status { color:#d8b45a; font-size:14px; }
     .error { color:#ff8c8c !important; } .success { color:#8be0a2 !important; } .empty { color:#aaa; }
     .admin-box { max-width:600px; margin:20px auto; text-align:right; }
@@ -216,6 +217,19 @@ async function loadTournaments() {
     });
     if (!response.ok) throw new Error("خطا در دریافت اطلاعات: " + response.status);
     const tournaments = await response.json();
+    const rulesByTournament = new Map();
+    if (Array.isArray(tournaments) && tournaments.length) {
+      const ids = tournaments.map(t => t.tournament_id).filter(Boolean);
+      if (ids.length) {
+        const params = new URLSearchParams({select:"tournament_id,rules_text",tournament_id:"in.("+ids.join(",")+")"});
+        const rulesResponse = await fetch(SUPABASE_URL + "/rest/v1/tournament_public_rules?" + params.toString(), {
+          headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}
+        });
+        if (!rulesResponse.ok) throw new Error("خطا در دریافت قوانین تورنمنت‌ها: " + rulesResponse.status);
+        const rulesRows = await rulesResponse.json();
+        (rulesRows || []).forEach(row => rulesByTournament.set(row.tournament_id, row.rules_text || ""));
+      }
+    }
     updateRegistrationTournamentOptions(tournaments);
     status.textContent = "اتصال به پایگاه داده برقرار شد.";
     status.classList.remove("error");
@@ -233,6 +247,12 @@ async function loadTournaments() {
         makeElement("p","","بازیکنان تأییدشده: " + tournament.approved_players),
         makeElement("p","","ظرفیت باقی‌مانده: " + tournament.available_slots)
       );
+      const rulesText = rulesByTournament.get(tournament.tournament_id);
+      if (rulesText && rulesText.trim()) {
+        const rulesHeading = makeElement("h4","","قوانین تورنمنت");
+        const rules = makeElement("p","tournament-rules",rulesText);
+        card.append(rulesHeading,rules);
+      }
       const membersLink=makeElement("a","link secondary","مشاهده فهرست اعضا");
       membersLink.href="tournament-members.html?id="+encodeURIComponent(tournament.tournament_id);
       card.appendChild(membersLink);
