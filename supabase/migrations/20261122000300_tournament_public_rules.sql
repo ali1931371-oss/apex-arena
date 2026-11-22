@@ -7,6 +7,7 @@ create table if not exists public.tournament_public_rules (
 );
 
 alter table public.tournament_public_rules enable row level security;
+grant select on table public.tournament_public_rules to anon, authenticated;
 
 drop policy if exists "Public can read tournament rules" on public.tournament_public_rules;
 create policy "Public can read tournament rules"
