@@ -225,9 +225,12 @@ async function loadTournaments() {
         const rulesResponse = await fetch(SUPABASE_URL + "/rest/v1/tournament_public_rules?" + params.toString(), {
           headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}
         });
-        if (!rulesResponse.ok) throw new Error("خطا در دریافت قوانین تورنمنت‌ها: " + rulesResponse.status);
-        const rulesRows = await rulesResponse.json();
-        (rulesRows || []).forEach(row => rulesByTournament.set(row.tournament_id, row.rules_text || ""));
+        if (rulesResponse.ok) {
+          const rulesRows = await rulesResponse.json();
+          (rulesRows || []).forEach(row => rulesByTournament.set(row.tournament_id, row.rules_text || ""));
+        } else {
+          console.warn("قوانین تورنمنت‌ها فعلاً دریافت نشدند:", rulesResponse.status);
+        }
       }
     }
     updateRegistrationTournamentOptions(tournaments);
