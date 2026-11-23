@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
+<title>داوری جایگزین مدیر | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+main{max-width:1000px;margin:auto;padding:18px 14px 60px}header,.panel{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:22px}h2{font-size:19px}
+label{display:block;color:#e4c46e;margin:10px 0 5px}input,select{width:100%;padding:11px;border:1px solid #80652e;border-radius:8px;background:#101010;color:#fff;font:inherit}
+button,.link{display:inline-block;padding:11px 14px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 0}
+button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;color:#f5f0df;border:1px solid #80652e}.danger{background:#7d2828;color:#fff}
+.hidden{display:none!important}.muted{font-size:13px;color:#aaa}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;align-items:end}.criteria{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #3c321e}.criteria small{display:block;color:#aaa}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:14px 0}.metric{background:#101010;border:1px solid #51401f;border-radius:10px;padding:10px;text-align:center}.metric strong{display:block;color:#e4c46e;font-size:20px}
+@media(max-width:560px){header{display:block;text-align:center}.criteria{grid-template-columns:minmax(0,1fr) 85px}}
+</style>
+</head>
+<body><main>
+<header><div><h1>APEX ARENA | داوری جایگزین مدیر</h1><div class="muted">ثبت امتیاز به‌جای داور غایب، بدون تغییر امتیاز سایر داوران</div></div><a class="link secondary" href="judge-management.html">بازگشت به مدیریت داوران</a></header>
+<section id="loginPanel" class="panel"><h2>ورود مدیر یا مسئول مسابقه</h2><label for="email">ایمیل</label><input id="email" type="email" autocomplete="username"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password"><button id="loginButton">ورود</button><p id="loginStatus" class="status"></p></section>
+<section id="managerPanel" class="hidden">
+<section class="panel"><h2>انتخاب تورنمنت و داور غایب</h2><div class="grid">
+<div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">انتخاب تورنمنت</option></select></div>
+<div><label for="absentJudgeSelect">داوری که جایگزین او می‌شوی</label><select id="absentJudgeSelect"><option value="">ابتدا تورنمنت را انتخاب کن</option></select></div>
+<div><label for="stageName">نام مرحله</label><input id="stageName" maxlength="100" placeholder="مثلاً مقدماتی"></div>
+<div><label for="gameNumber">شماره بازی</label><input id="gameNumber" type="number" min="1" max="999" step="1" placeholder="مثلاً ۱"></div>
+<div><label for="playerSelect">بازیکن</label><select id="playerSelect"><option value="">ابتدا تورنمنت را انتخاب کن</option></select></div>
+<div><label for="sideSelect">ساید بازیکن</label><select id="sideSelect"><option value="شهروند">شهروند</option><option value="مافیا">مافیا</option></select></div>
+<div><label for="roleName">نقش بازیکن</label><input id="roleName" maxlength="100" placeholder="نام دقیق نقش"></div>
+</div>
+<p id="dataStatus" class="status"></p>
+<p class="muted">این فرم فقط برای پرکردن جای خالی داور غایب است. مدیر نمی‌تواند امتیاز ثبت‌شده داور دیگر را ویرایش کند. پس از ارسال نهایی، داور اصلی برای همین بازیکن و بازی دیگر امکان ارسال امتیاز نخواهد داشت.</p>
+<button id="loadFormButton">نمایش فرم امتیازدهی جایگزین</button></section>
+<section id="scorePanel" class="panel hidden"><h2 id="scoreTitle">فرم امتیازدهی جایگزین</h2><div id="criteriaArea"></div>
+<div class="summary"><div class="metric">امتیاز فنی<strong id="technicalTotal">۰</strong></div><div class="metric">تشویقی<strong id="bonusTotal">۰</strong></div><div class="metric">جریمه<strong id="penaltyTotal">۰</strong></div><div class="metric">امتیاز نهایی<strong id="finalTotal">۰</strong></div></div>
+<p class="muted">این ارزیابی با نام حساب مدیر ثبت می‌شود، اما در محاسبه میانگین به‌عنوان سهم همان داور غایب منظور خواهد شد.</p><button id="submitButton">ثبت نهایی امتیاز جایگزین</button><p id="formStatus" class="status"></p></section>
+</section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let manager=null,tournaments=[],data=null,working=new Map(),formReady=false;
+function node(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function status(id,msg,error=false){$(id).textContent=msg||"";$(id).className="status "+(error?"error":msg?"success":"")}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+async function verifyManager(user){const {data,error}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();if(error)throw error;if(!data||!["admin","manager"].includes(data.role))throw new Error("این حساب مجوز مدیریت داوری را ندارد.")}
+async function signIn(){const b=$("loginButton");b.disabled=true;status("loginStatus","در حال ورود...");
+try{const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;await verifyManager(data.user);manager=data.user;$("loginPanel").classList.add("hidden");$("managerPanel").classList.remove("hidden");await loadTournaments()}
+catch(e){await db.auth.signOut();status("loginStatus",e.message,true)}finally{b.disabled=false}}
+async function loadTournaments(){status("dataStatus","در حال دریافت تورنمنت‌ها...");
+try{tournaments=await rpc("get_manageable_tournaments");const s=$("tournamentSelect");s.replaceChildren(node("option","انتخاب تورنمنت"));s.firstChild.value="";(tournaments||[]).forEach(t=>{const o=node("option",t.tournament_name);o.value=t.tournament_id;s.append(o)});if(tournaments.length){s.value=tournaments[0].tournament_id;await loadTournamentData()}else status("dataStatus","تورنمنتی برای مدیریت وجود ندارد.",true)}
+catch(e){status("dataStatus","دریافت تورنمنت‌ها انجام نشد: "+e.message,true)}}
+async function loadTournamentData(){data=null;formReady=false;$("scorePanel").classList.add("hidden");const tid=$("tournamentSelect").value;if(!tid)return;
+try{data=await rpc("get_manager_judge_tournament_data",{p_tournament_id:tid});
+const judges=$("absentJudgeSelect");judges.replaceChildren(node("option","انتخاب داور غایب"));judges.firstChild.value="";
+(data.judges||[]).forEach(j=>{const o=node("option",j.display_name);o.value=j.user_id;judges.append(o)});
+const players=$("playerSelect");players.replaceChildren(node("option","انتخاب بازیکن"));players.firstChild.value="";
+(data.players||[]).forEach(p=>{const o=node("option",p.display_name+(p.player_code?" — "+p.player_code:""));o.value=p.player_id;players.append(o)});
+const active=(data.judges||[]).length,required=Number(data.required_judge_count);
+status("dataStatus","تورنمنت: "+data.tournament.name+" | تعداد داوران موردنیاز: "+required+" | داوران فعال: "+active+" | بازیکنان: "+(data.players||[]).length+(active===required?"":" | تعداد داوران فعال با تنظیم تورنمنت برابر نیست؛ ابتدا تنظیمات را اصلاح کن."),active!==required);
+}catch(e){status("dataStatus","دریافت اطلاعات تورنمنت انجام نشد: "+e.message,true)}}
+function criteriaForSide(){const group=$("sideSelect").value==="مافیا"?"mafia":"citizen";return(data?.criteria||[]).filter(c=>["general",group,"bonus","penalty"].includes(c.criterion_group))}
+function totals(){let t=0,b=0,p=0;$("criteriaArea").querySelectorAll("[data-criterion-id]").forEach(i=>{const n=Number(i.value)||0;if(["general","citizen","mafia"].includes(i.dataset.group))t+=n;else if(i.dataset.group==="bonus")b+=n;else if(i.dataset.group==="penalty")p+=n});$("technicalTotal").textContent=t.toFixed(2);$("bonusTotal").textContent=b.toFixed(2);$("penaltyTotal").textContent=p.toFixed(2);$("finalTotal").textContent=(t+b-p).toFixed(2)}
+function renderCriteria(){const area=$("criteriaArea");area.replaceChildren();const criteria=criteriaForSide();const groups=[["general","معیارهای عمومی"],[$("sideSelect").value==="مافیا"?"mafia":"citizen",$("sideSelect").value==="مافیا"?"معیارهای اختصاصی مافیا":"معیارهای اختصاصی شهروندی"],["bonus","امتیازهای تشویقی"],["penalty","امتیازهای جریمه"]];
+groups.forEach(([g,title])=>{const rows=criteria.filter(c=>c.criterion_group===g);if(!rows.length)return;area.append(node("h3",title));rows.forEach(c=>{const row=node("div",undefined,"criteria"),desc=node("div");desc.append(node("strong",c.criterion_name),node("small","محدوده: "+c.min_points+" تا "+c.max_points+(c.description?" — "+c.description:"")));const input=node("input");input.type="number";input.step="any";input.min=c.min_points;input.max=c.max_points;input.value=(g==="bonus"||g==="penalty")?"0":"10";input.dataset.criterionId=c.id;input.dataset.group=c.criterion_group;input.addEventListener("input",totals);row.append(desc,input);area.append(row)})});totals()}
+function showForm(){if(!data){status("dataStatus","ابتدا تورنمنت را انتخاب کن.",true);return}
+const judge=$("absentJudgeSelect").value,player=$("playerSelect").value,stage=$("stageName").value.trim(),game=Number($("gameNumber").value),role=$("roleName").value.trim();
+if(!judge||!player||!stage||!Number.isInteger(game)||game<1||game>999||!role){status("dataStatus","داور غایب، بازیکن، مرحله، شماره بازی و نقش را کامل کن.",true);return}
+if(data.judges.length!==Number(data.required_judge_count)){status("dataStatus","تعداد داوران فعال باید دقیقاً با تعداد تعیین‌شده در تورنمنت برابر باشد.",true);return}
+working.clear();$("scoreTitle").textContent="جایگزینی داور | "+stage+" | بازی "+game;$("scorePanel").classList.remove("hidden");renderCriteria();formReady=true;status("formStatus","فرم آماده است. امتیازها را بررسی و ارسال نهایی کن.")}
+async function submit(){if(!formReady)return;const target=$("absentJudgeSelect").value,player=$("playerSelect").value,stage=$("stageName").value.trim(),game=Number($("gameNumber").value),role=$("roleName").value.trim(),side=$("sideSelect").value;
+const items=[];for(const c of criteriaForSide()){const input=$("criteriaArea").querySelector('[data-criterion-id="'+c.id+'"]');const raw=input?.value.trim()??"";const value=Number(raw);if(raw===""||!Number.isFinite(value)||value<Number(c.min_points)||value>Number(c.max_points)){status("formStatus","امتیاز معیار «"+c.criterion_name+"» باید بین "+c.min_points+" و "+c.max_points+" باشد.",true);input?.focus();return}items.push({criterion_id:c.id,raw_points:value,notes:null})}
+if(!confirm("امتیاز به‌جای داور انتخاب‌شده ثبت شود؟ پس از ثبت، داور اصلی دیگر برای این بازیکن و بازی امکان ارسال امتیاز نخواهد داشت."))return;
+const b=$("submitButton");b.disabled=true;status("formStatus","در حال ثبت داوری جایگزین...");
+try{await rpc("save_judge_game_score",{p_tournament_id:$("tournamentSelect").value,p_stage_name:stage,p_game_number:game,p_player_id:player,p_side:side,p_role_name:role,p_items:items,p_finalize:true,p_replacement_for_judge_id:target});formReady=false;$("scorePanel").classList.add("hidden");status("formStatus","");status("dataStatus","امتیاز جایگزین با موفقیت ثبت شد. مدیر می‌تواند پس از تکمیل همه ارزیابی‌های بازی، آن را تأیید و منتشر کند.");}
+catch(e){status("formStatus","ثبت انجام نشد: "+e.message,true)}finally{b.disabled=false}}
+$("loginButton").addEventListener("click",signIn);$("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});$("tournamentSelect").addEventListener("change",loadTournamentData);$("loadFormButton").addEventListener("click",showForm);$("sideSelect").addEventListener("change",()=>{if(formReady)renderCriteria()});$("submitButton").addEventListener("click",submit);
+db.auth.getSession().then(async({data,error})=>{if(error)return;if(data.session?.user){try{await verifyManager(data.session.user);manager=data.session.user;$("loginPanel").classList.add("hidden");$("managerPanel").classList.remove("hidden");await loadTournaments()}catch(e){await db.auth.signOut()}}});
+</script></body></html>
