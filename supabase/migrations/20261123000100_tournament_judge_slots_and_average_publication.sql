@@ -708,7 +708,7 @@ RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
 DECLARE
   v_snapshot jsonb;
   v_audit_id uuid;
@@ -782,7 +782,7 @@ BEGIN
     'message', 'بازی برای اصلاح رسمی باز شد؛ نسخه قبلی امتیازها در سوابق ثبت شده است.'
   );
 END;
-$;
+$$;
 
 REVOKE ALL ON FUNCTION public.reopen_judge_game_for_correction(uuid, text, integer, text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.reopen_judge_game_for_correction(uuid, text, integer, text) TO authenticated;
