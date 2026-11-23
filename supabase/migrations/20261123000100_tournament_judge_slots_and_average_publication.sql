@@ -22,6 +22,9 @@ LEFT JOIN public.tournament_judges tj
 GROUP BY t.id
 ON CONFLICT (tournament_id) DO NOTHING;
 
+ALTER TABLE public.tournament_judging_settings ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.tournament_judging_settings FROM PUBLIC, anon, authenticated;
+
 CREATE OR REPLACE FUNCTION public.seed_tournament_judging_settings()
 RETURNS trigger
 LANGUAGE plpgsql
