@@ -29,11 +29,12 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 </section>
 <section id="dashboard" class="hidden">
 <section class="panel"><div class="grid"><div><h2>انتخاب تورنمنت</h2><p class="muted">نقش داور فقط در همین تورنمنت اعمال می‌شود؛ نقش عمومی حساب تغییر نمی‌کند.</p></div><div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select></div><div><button id="refreshButton" class="secondary">به‌روزرسانی</button><button id="logoutButton" class="danger">خروج</button></div></div><p id="dashboardStatus" class="status" role="status"></p></section>
+<section class="panel"><h2>ساختار داوری تورنمنت</h2><p>تعداد داوران برای تمام بازی‌های این تورنمنت ثابت است. فقط میانگین امتیازها پس از تأیید کامل هر بازی منتشر می‌شود.</p><div class="grid"><div><label for="judgeCountSelect">تعداد داوران هر بازی</label><select id="judgeCountSelect"><option value="1">یک داور</option><option value="2">دو داور</option><option value="3">سه داور</option></select></div><div><button id="saveJudgeCountButton">ذخیره تعداد داوران</button></div></div><p id="judgeConfigStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>داوری مستقل مدیر</h2><p>مدیر می‌تواند در این تورنمنت مانند یک داور مستقل ارزیابی ثبت کند. امتیازهای سایر داوران فقط از مسیر بررسی و تأیید یا رد قابل مدیریت هستند و قابل ویرایش توسط مدیر نیستند.</p><button id="appointSelfButton">انتصاب خودم به‌عنوان داور در این تورنمنت</button><p id="selfJudgeStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>انتصاب بازیکن تأییدشده به‌عنوان داور</h2><p>فقط بازیکن تأییدشده همان تورنمنت قابل انتخاب است. پیش از انتصاب، نباید در مسابقه‌های آن تورنمنت به‌عنوان بازیکن ثبت شده باشد.</p><div class="grid"><div><label for="candidateSelect">بازیکن واجد شرایط</label><select id="candidateSelect"><option value="">انتخاب بازیکن</option></select></div><div><button id="appointButton">انتصاب به‌عنوان داور</button></div></div><p id="candidateStatus" class="status"></p></section>
 <section class="panel"><h2>انتصاب داور قبلی به این تورنمنت</h2><p>از میان افرادی که قبلاً در هر تورنمنتی داور شده‌اند انتخاب کن. برای این انتصاب، ثبت‌نام در تورنمنت مقصد لازم نیست. انتصاب‌های قبلی او حفظ می‌شوند. فردی که در تورنمنت مقصد بازیکن فعال یا ثبت‌نام تأییدشده باشد، در این فهرست نمایش داده نمی‌شود.</p><div class="grid"><div><label for="existingJudgeSelect">داور دارای سابقه</label><select id="existingJudgeSelect" disabled><option value="">ابتدا تورنمنت را انتخاب کن</option></select></div><div><button id="appointExistingJudgeButton">انتصاب داور در این تورنمنت</button></div></div><p id="existingJudgeStatus" class="status" role="status"></p></section>
 <section class="panel"><h2>داوران تورنمنت</h2><p class="muted">هنگام لغو داوری، می‌توانی تعیین کنی شخص به فهرست بازیکنان همین تورنمنت برگردد یا خیر.</p><div id="judgeList"></div></section>
-<section class="panel"><h2>بررسی امتیازهای ارسالی داوران</h2><p class="muted">فقط پس از تأیید مدیر، امتیاز در نتایج عمومی منتشر می‌شود. ارزیابی ردشده برای اصلاح به داور بازمی‌گردد.</p><button id="loadReviewButton">دریافت ارزیابی‌های این تورنمنت</button><div id="reviewList"></div><p id="reviewStatus" class="status"></p></section>
+<section class="panel"><h2>بررسی و انتشار نتایج بازی‌ها</h2><p class="muted">مدیر فقط ارزیابی‌ها را بررسی و تأیید گروهی می‌کند و اجازه ویرایش امتیاز داوران را ندارد. با تأیید هر بازی، سایت میانگین را محاسبه و خودکار منتشر می‌کند.</p><a class="link secondary" href="manager-judge-replacement.html">ثبت امتیاز جایگزین داور غایب</a><button id="loadReviewButton">دریافت ارزیابی‌های این تورنمنت</button><div id="reviewList"></div><p id="reviewStatus" class="status"></p></section>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -43,7 +44,7 @@ const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
 const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
-let tournaments=[],judges=[],matches=[],managerUserId=null;
+let tournaments=[],judges=[],matches=[],managerUserId=null,judgingConfig=null;
 let scenarioRecords=[],selectedScenarioKey="",scenarioRolesDraft=[];
 function node(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 function setStatus(id,text,error=false){$(id).textContent=text||"";$(id).className="status "+(error?"error":text?"success":"")}
@@ -68,12 +69,15 @@ async function loadTournamentData(){
  const tid=$("tournamentSelect").value;if(!tid){clearLists();return}
  setStatus("dashboardStatus","در حال دریافت اطلاعات داوران...");
  try{
-  const [c,j,e]=await Promise.all([
+  const [c,j,e,cfg]=await Promise.all([
    rpc("get_tournament_judge_candidates",{p_tournament_id:tid}),
    rpc("get_tournament_judges",{p_tournament_id:tid}),
-   rpc("get_existing_tournament_judges",{p_tournament_id:tid})
+   rpc("get_existing_tournament_judges",{p_tournament_id:tid}),
+   rpc("get_tournament_judging_config",{p_tournament_id:tid})
   ]);
-  judges=j||[];renderCandidates(c||[]);renderExistingJudges(e||[]);renderJudges();
+  judges=j||[];judgingConfig=cfg;renderCandidates(c||[]);renderExistingJudges(e||[]);renderJudges();
+  $("judgeCountSelect").value=String(cfg.required_judge_count);
+  setStatus("judgeConfigStatus","تعداد تعیین‌شده: "+cfg.required_judge_count+" داور | داور فعال: "+cfg.active_judge_count+" نفر | روش انتشار: فقط میانگین");
   const selfAssigned=judges.some(x=>x.user_id===managerUserId&&x.is_active);
   $("appointSelfButton").disabled=selfAssigned;
   $("appointSelfButton").textContent=selfAssigned?"مدیر در این تورنمنت داور فعال است":"انتصاب خودم به‌عنوان داور در این تورنمنت";
@@ -286,6 +290,17 @@ async function unassign(matchId,judgeId){
  if(!confirm("تخصیص این داور از مسابقه لغو شود؟"))return;
  try{await rpc("unassign_judge_from_match",{p_match_id:matchId,p_judge_id:judgeId});await loadTournamentData()}catch(e){setStatus("dashboardStatus","لغو تخصیص انجام نشد: "+e.message,true)}
 }
+async function saveJudgeCount(){
+ const tid=$("tournamentSelect").value,count=Number($("judgeCountSelect").value);
+ if(!tid){setStatus("judgeConfigStatus","ابتدا تورنمنت را انتخاب کن.",true);return}
+ const b=$("saveJudgeCountButton");b.disabled=true;setStatus("judgeConfigStatus","در حال ذخیره ساختار داوری...");
+ try{
+  const result=await rpc("set_tournament_judge_count",{p_tournament_id:tid,p_required_judge_count:count});
+  setStatus("judgeConfigStatus","ساختار ذخیره شد: "+result.required_judge_count+" داور. اکنون باید دقیقاً همین تعداد داور فعال در تورنمنت منصوب باشد.");
+  await loadTournamentData();
+ }catch(e){setStatus("judgeConfigStatus","ذخیره ساختار انجام نشد: "+e.message,true)}
+ finally{b.disabled=false}
+}
 async function loadReviewSubmissions(){
  const tid=$("tournamentSelect").value,box=$("reviewList");box.replaceChildren();
  if(!tid){setStatus("reviewStatus","ابتدا تورنمنت را انتخاب کن.",true);return}
@@ -293,37 +308,60 @@ async function loadReviewSubmissions(){
  try{
   const rows=await rpc("get_manager_judge_game_submissions",{p_tournament_id:tid});
   if(!rows?.length){box.append(node("p","برای این تورنمنت هنوز ارزیابی ارسال‌شده‌ای وجود ندارد.","muted"));setStatus("reviewStatus","موردی برای نمایش وجود ندارد.");return}
+  const groups=new Map();
   rows.forEach(r=>{
+   const key=String(r.stage_name||"").trim().toLocaleLowerCase("fa")+"|"+Number(r.game_number);
+   if(!groups.has(key))groups.set(key,{stage_name:r.stage_name,game_number:r.game_number,rows:[]});
+   groups.get(key).rows.push(r);
+  });
+  let pendingTotal=0;
+  [...groups.values()].forEach(g=>{
    const card=node("article",undefined,"card");
-   card.append(node("h3",(r.player_name||"بازیکن")+" — "+r.stage_name+" | بازی "+r.game_number));
-   card.append(node("p","داور: "+(r.judge_name||"نامشخص")+" | "+r.side+" | نقش: "+r.role_name,"muted"));
-   const statusLabel={pending_review:"در انتظار تأیید",approved:"تأیید شده و منتشرشده",rejected:"ردشده و برگشت‌خورده"}[r.status]||r.status;
-   card.append(node("span",statusLabel,"chip"));
-   const list=node("div");
-   (r.items||[]).forEach(it=>list.append(node("p",it.criterion_name+": "+it.raw_points+(it.notes?" — "+it.notes:""),"muted")));
-   card.append(list);
-   if(r.review_note)card.append(node("p","توضیح مدیر: "+r.review_note,"muted"));
-   if(r.status==="pending_review"){
-    const actions=node("div",undefined,"actions");
-    const approve=node("button","تأیید و انتشار");approve.onclick=async()=>{
-     if(!confirm("این ارزیابی تأیید و در نتایج عمومی منتشر شود؟"))return;
+   card.append(node("h3",g.stage_name+" | بازی "+g.game_number));
+   const approved=g.rows.every(r=>r.status==="approved");
+   const pending=g.rows.filter(r=>r.status==="pending_review").length;
+   const rejected=g.rows.filter(r=>r.status==="rejected").length;
+   pendingTotal+=pending;
+   card.append(node("p","ارزیابی‌ها: "+g.rows.length+" | در انتظار بررسی: "+pending+" | برگشت‌خورده: "+rejected,"muted"));
+   g.rows.forEach(r=>{
+    const item=node("div",undefined,"card");
+    item.append(node("strong",r.player_name||"بازیکن"));
+    const evaluator=r.replacement_for_judge_id
+      ?"جایگزین داور "+(r.replacement_for_judge_name||"غایب")+" توسط مدیر "+r.judge_name
+      :"داور: "+(r.judge_name||"نامشخص");
+    item.append(node("p",evaluator+" | "+r.side+" | نقش: "+r.role_name,"muted"));
+    const statusLabel={pending_review:"در انتظار تأیید",approved:"تأییدشده و منتشرشده",rejected:"ردشده و نیازمند اصلاح",draft:"پیش‌نویس"}[r.status]||r.status;
+    item.append(node("span",statusLabel,"chip"));
+    (r.items||[]).forEach(it=>item.append(node("p",it.criterion_name+": "+it.raw_points,"muted")));
+    if(r.review_note)item.append(node("p","یادداشت بررسی: "+r.review_note,"muted"));
+    if(r.status==="pending_review"){
+     const reject=node("button","رد این ارزیابی برای اصلاح");reject.className="danger";
+     reject.onclick=async()=>{
+      const note=prompt("دلیل رد یا اصلاح موردنیاز را بنویس:");
+      if(!note||!note.trim())return;
+      reject.disabled=true;
+      try{await rpc("review_judge_game_submission",{p_submission_id:r.id,p_decision:"rejected",p_note:note.trim()});await loadReviewSubmissions()}
+      catch(e){setStatus("reviewStatus","رد ارزیابی انجام نشد: "+e.message,true);reject.disabled=false}
+     };
+     item.append(reject);
+    }
+    card.append(item);
+   });
+   if(!approved&&pending>0){
+    const approve=node("button","تأیید نهایی کل بازی و انتشار میانگین");
+    approve.onclick=async()=>{
+     if(!confirm("تمام ارزیابی‌های این بازی تأیید شوند؟ سایت میانگین را محاسبه و نتیجه را به‌صورت خودکار منتشر می‌کند. پس از انتشار امتیازدهی قفل خواهد شد."))return;
      approve.disabled=true;
-     try{await rpc("review_judge_game_submission",{p_submission_id:r.id,p_decision:"approved",p_note:null});await loadReviewSubmissions()}
-     catch(e){setStatus("reviewStatus","تأیید انجام نشد: "+e.message,true);approve.disabled=false}
+     try{
+      await rpc("approve_judge_game_results",{p_tournament_id:tid,p_stage_name:g.stage_name,p_game_number:Number(g.game_number)});
+      await loadReviewSubmissions();
+     }catch(e){setStatus("reviewStatus","تأیید گروهی انجام نشد: "+e.message,true);approve.disabled=false}
     };
-    const reject=node("button","رد و بازگشت برای اصلاح");reject.className="danger";reject.onclick=async()=>{
-     const note=prompt("دلیل رد یا اصلاح موردنیاز را بنویس:");
-     if(!note||!note.trim()){setStatus("reviewStatus","برای رد ارزیابی، توضیح الزامی است.",true);return}
-     reject.disabled=true;
-     try{await rpc("review_judge_game_submission",{p_submission_id:r.id,p_decision:"rejected",p_note:note.trim()});await loadReviewSubmissions()}
-     catch(e){setStatus("reviewStatus","رد ارزیابی انجام نشد: "+e.message,true);reject.disabled=false}
-    };
-    actions.append(approve,reject);card.append(actions);
-   }
+    card.append(approve);
+   }else if(approved)card.append(node("p","این بازی تأیید و منتشر شده است؛ امتیازدهی آن قفل است.","success"));
    box.append(card);
   });
-  const pending=rows.filter(x=>x.status==="pending_review").length;
-  setStatus("reviewStatus",rows.length+" ارزیابی دریافت شد؛ "+pending+" مورد در انتظار بررسی است.");
+  setStatus("reviewStatus",groups.size+" بازی دریافت شد؛ "+pendingTotal+" ارزیابی در انتظار بررسی است. تأیید نهایی فقط برای کل بازی انجام می‌شود.");
  }catch(e){setStatus("reviewStatus","دریافت ارزیابی‌ها انجام نشد: "+e.message,true)}
 }
 
