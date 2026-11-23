@@ -381,6 +381,7 @@ async function loadReviewSubmissions(){
 $("loginButton").addEventListener("click",signIn);
 $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",loadTournamentData);
+$("saveJudgeCountButton").addEventListener("click",saveJudgeCount);
 $("appointButton").addEventListener("click",appoint);
 $("appointSelfButton").addEventListener("click",appointSelfAsJudge);
 $("appointExistingJudgeButton").addEventListener("click",appointExistingJudge);
