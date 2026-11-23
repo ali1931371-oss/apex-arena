@@ -86,9 +86,18 @@ AS $$
 DECLARE
   v_limit integer;
   v_active integer;
+  v_should_check boolean := false;
 BEGIN
-  IF NEW.is_active = true
-     AND (TG_OP = 'INSERT' OR OLD.is_active = false) THEN
+  IF NEW.is_active = true THEN
+    IF TG_OP = 'INSERT' THEN
+      v_should_check := true;
+    ELSE
+      v_should_check := OLD.is_active IS DISTINCT FROM NEW.is_active
+        OR OLD.tournament_id IS DISTINCT FROM NEW.tournament_id;
+    END IF;
+  END IF;
+
+  IF v_should_check THEN
     SELECT required_judge_count INTO v_limit
     FROM public.tournament_judging_settings
     WHERE tournament_id = NEW.tournament_id
@@ -635,6 +644,12 @@ BEGIN
     'judge_name', COALESCE(pr.display_name, pr.username, 'داور'),
     'replacement_for_judge_id', s.replacement_for_judge_id,
     'replacement_for_judge_name', COALESCE(slot.display_name, ''),
+    'group_approved', EXISTS (
+      SELECT 1 FROM public.judge_game_game_approvals ga
+      WHERE ga.tournament_id = s.tournament_id
+        AND ga.stage_key = s.stage_key
+        AND ga.game_number = s.game_number
+    ),
     'side', s.side,
     'role_name', s.role_name,
     'status', s.status,
@@ -664,6 +679,110 @@ BEGIN
   RETURN v_result;
 END;
 $$;
+
+
+CREATE TABLE IF NOT EXISTS public.judge_game_correction_audit (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tournament_id uuid NOT NULL REFERENCES public.tournaments(id) ON DELETE CASCADE,
+  stage_name text NOT NULL,
+  stage_key text GENERATED ALWAYS AS (lower(btrim(stage_name))) STORED,
+  game_number integer NOT NULL CHECK (game_number BETWEEN 1 AND 999),
+  reopened_by uuid NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
+  reason text NOT NULL CHECK (length(btrim(reason)) BETWEEN 5 AND 1000),
+  previous_scores jsonb NOT NULL,
+  reopened_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.judge_game_correction_audit ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.judge_game_correction_audit FROM PUBLIC, anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.reopen_judge_game_for_correction(
+  p_tournament_id uuid,
+  p_stage_name text,
+  p_game_number integer,
+  p_reason text
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $
+DECLARE
+  v_snapshot jsonb;
+  v_audit_id uuid;
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
+    RAISE EXCEPTION 'فقط مدیر یا مسئول مسابقه می‌تواند بازی منتشرشده را برای اصلاح باز کند.';
+  END IF;
+  IF p_reason IS NULL OR length(btrim(p_reason)) NOT BETWEEN 5 AND 1000 THEN
+    RAISE EXCEPTION 'دلیل اصلاح باید بین ۵ تا ۱۰۰۰ نویسه باشد.';
+  END IF;
+
+  PERFORM 1 FROM public.judge_game_game_approvals a
+  WHERE a.tournament_id = p_tournament_id
+    AND a.stage_key = lower(btrim(p_stage_name))
+    AND a.game_number = p_game_number
+  FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'این بازی از طریق تأیید گروهی منتشر نشده یا قبلاً برای اصلاح باز شده است.';
+  END IF;
+
+  SELECT COALESCE(jsonb_agg(jsonb_build_object(
+    'submission_id', s.id,
+    'judge_id', s.judge_id,
+    'replacement_for_judge_id', s.replacement_for_judge_id,
+    'status', s.status,
+    'side', s.side,
+    'role_name', s.role_name,
+    'items', COALESCE((
+      SELECT jsonb_agg(jsonb_build_object(
+        'criterion_id', si.criterion_id,
+        'raw_points', si.raw_points,
+        'notes', si.notes
+      ) ORDER BY si.criterion_id)
+      FROM public.judge_game_score_items si
+      WHERE si.submission_id = s.id
+    ), '[]'::jsonb)
+  ) ORDER BY s.player_id, s.judge_id), '[]'::jsonb)
+  INTO v_snapshot
+  FROM public.judge_game_submissions s
+  WHERE s.tournament_id = p_tournament_id
+    AND s.stage_key = lower(btrim(p_stage_name))
+    AND s.game_number = p_game_number
+    AND s.status = 'approved';
+
+  INSERT INTO public.judge_game_correction_audit (
+    tournament_id, stage_name, game_number, reopened_by, reason, previous_scores
+  ) VALUES (
+    p_tournament_id, btrim(p_stage_name), p_game_number, auth.uid(),
+    btrim(p_reason), v_snapshot
+  ) RETURNING id INTO v_audit_id;
+
+  DELETE FROM public.judge_game_game_approvals
+  WHERE tournament_id = p_tournament_id
+    AND stage_key = lower(btrim(p_stage_name))
+    AND game_number = p_game_number;
+
+  UPDATE public.judge_game_submissions
+  SET status = 'rejected',
+      reviewed_at = now(),
+      reviewed_by = auth.uid(),
+      review_note = 'بازگشایی رسمی برای اصلاح: ' || btrim(p_reason),
+      updated_at = now()
+  WHERE tournament_id = p_tournament_id
+    AND stage_key = lower(btrim(p_stage_name))
+    AND game_number = p_game_number
+    AND status = 'approved';
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'correction_audit_id', v_audit_id,
+    'message', 'بازی برای اصلاح رسمی باز شد؛ نسخه قبلی امتیازها در سوابق ثبت شده است.'
+  );
+END;
+$;
+
+REVOKE ALL ON FUNCTION public.reopen_judge_game_for_correction(uuid, text, integer, text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.reopen_judge_game_for_correction(uuid, text, integer, text) TO authenticated;
 
 REVOKE ALL ON FUNCTION public.get_tournament_judging_config(uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.set_tournament_judge_count(uuid, integer) FROM PUBLIC, anon;
