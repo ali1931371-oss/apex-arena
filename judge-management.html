@@ -358,7 +358,20 @@ async function loadReviewSubmissions(){
      }catch(e){setStatus("reviewStatus","تأیید گروهی انجام نشد: "+e.message,true);approve.disabled=false}
     };
     card.append(approve);
-   }else if(approved)card.append(node("p","این بازی تأیید و منتشر شده است؛ امتیازدهی آن قفل است.","success"));
+   }else if(approved){
+    card.append(node("p","این بازی تأیید و منتشر شده است؛ امتیازدهی آن قفل است.","success"));
+    if(g.rows.some(r=>r.group_approved)){
+     const reopen=node("button","بازگشایی رسمی بازی برای اصلاح");reopen.className="secondary";
+     reopen.onclick=async()=>{
+      const reason=prompt("دلیل رسمی بازگشایی و اصلاح این بازی را بنویس:");
+      if(!reason||reason.trim().length<5){setStatus("reviewStatus","دلیل اصلاح باید حداقل ۵ نویسه باشد.",true);return}
+      reopen.disabled=true;
+      try{await rpc("reopen_judge_game_for_correction",{p_tournament_id:tid,p_stage_name:g.stage_name,p_game_number:Number(g.game_number),p_reason:reason.trim()});await loadReviewSubmissions()}
+      catch(e){setStatus("reviewStatus","بازگشایی برای اصلاح انجام نشد: "+e.message,true);reopen.disabled=false}
+     };
+     card.append(reopen);
+    }
+   }
    box.append(card);
   });
   setStatus("reviewStatus",groups.size+" بازی دریافت شد؛ "+pendingTotal+" ارزیابی در انتظار بررسی است. تأیید نهایی فقط برای کل بازی انجام می‌شود.");
