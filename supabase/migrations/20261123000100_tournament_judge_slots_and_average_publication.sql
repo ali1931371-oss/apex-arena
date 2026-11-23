@@ -313,6 +313,9 @@ BEGIN
     IF NOT public.is_apex_manager() THEN
       RAISE EXCEPTION 'ثبت داوری جایگزین فقط برای مدیر یا مسئول مسابقه مجاز است.';
     END IF;
+    IF p_replacement_for_judge_id = auth.uid() THEN
+      RAISE EXCEPTION 'مدیر نمی‌تواند جایگزین امتیاز خودش شود.';
+    END IF;
     IF NOT EXISTS (
       SELECT 1 FROM public.tournament_judges tj
       WHERE tj.tournament_id = p_tournament_id
@@ -399,7 +402,7 @@ BEGIN
     SELECT 1 FROM public.judge_game_submissions s
     WHERE s.tournament_id = p_tournament_id
       AND s.stage_key = lower(btrim(p_stage_name))
-      AND s.game_number = p_game_number AND s.player_id = p_player_id
+      AND s.game_number = p_game_number
       AND s.replacement_for_judge_id = auth.uid()
   ) THEN
     RAISE EXCEPTION 'مدیر برای این بازی جایگزین شما شده است؛ دیگر امکان ثبت امتیاز ندارید.';
@@ -582,7 +585,7 @@ BEGIN
     AND s.status = 'pending_review';
 
   IF v_updated <> v_expected THEN
-    RAISE EXCEPTION 'تعداد ارزیابی‌های نهایی (%s) با تعداد موردنیاز (%s) برابر نیست.', v_updated, v_expected;
+    RAISE EXCEPTION 'تعداد ارزیابی‌های نهایی (%) با تعداد موردنیاز (%) برابر نیست.', v_updated, v_expected;
   END IF;
 
   INSERT INTO public.judge_game_game_approvals
