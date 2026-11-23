@@ -57,7 +57,7 @@ catch(e){status("dataStatus","دریافت تورنمنت‌ها انجام نش
 async function loadTournamentData(){data=null;formReady=false;$("scorePanel").classList.add("hidden");const tid=$("tournamentSelect").value;if(!tid)return;
 try{data=await rpc("get_manager_judge_tournament_data",{p_tournament_id:tid});
 const judges=$("absentJudgeSelect");judges.replaceChildren(node("option","انتخاب داور غایب"));judges.firstChild.value="";
-(data.judges||[]).forEach(j=>{const o=node("option",j.display_name);o.value=j.user_id;judges.append(o)});
+(data.judges||[]).filter(j=>j.user_id!==manager.id).forEach(j=>{const o=node("option",j.display_name);o.value=j.user_id;judges.append(o)});
 const players=$("playerSelect");players.replaceChildren(node("option","انتخاب بازیکن"));players.firstChild.value="";
 (data.players||[]).forEach(p=>{const o=node("option",p.display_name+(p.player_code?" — "+p.player_code:""));o.value=p.player_id;players.append(o)});
 const active=(data.judges||[]).length,required=Number(data.required_judge_count);
