@@ -4,15 +4,32 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
 <title>نتایج بازیکنان | APEX ARENA</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
-main{max-width:1100px;margin:auto;padding:20px 14px 60px}header,.panel,.result{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:23px}h2{font-size:19px}p{color:#cfc6b2}
-a{color:#e4c46e}label{display:block;color:#e4c46e;margin:10px 0 5px}select{width:100%;padding:12px;border:1px solid #80652e;border-radius:8px;background:#101010;color:#fff;font:inherit}
-.muted{color:#aaa;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.metric{background:#101010;border:1px solid #51401f;border-radius:10px;padding:10px;text-align:center}.metric strong{display:block;color:#e4c46e;font-size:21px}
-.result{background:#202020}.result-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.chip{display:inline-block;border:1px solid #80652e;border-radius:30px;padding:3px 10px;font-size:12px;margin:3px}
-.criteria{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:7px 0;border-bottom:1px solid #3c321e}.criteria:last-child{border:0}
-.hidden{display:none!important}@media(max-width:560px){header{display:block;text-align:center}}
+*{box-sizing:border-box}
+:root{color-scheme:dark;--gold:#ffd76a;--gold2:#f4b936;--gold3:#fff0b5;--line:rgba(255,211,99,.34)}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,rgba(255,195,65,.2),transparent 42%),linear-gradient(145deg,#100d07 0%,#211707 48%,#0d0b07 100%);color:#fff8e8;font-family:Tahoma,Arial,sans-serif;line-height:1.9;position:relative;overflow-x:hidden}
+body:before{content:"🏆";position:fixed;z-index:0;pointer-events:none;left:50%;top:48%;transform:translate(-50%,-50%);font-size:min(58vw,520px);line-height:1;opacity:.055;filter:drop-shadow(0 0 35px rgba(255,190,45,.5))}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(115deg,transparent 0 90px,rgba(255,220,130,.018) 91px 92px,transparent 93px 180px)}
+main{position:relative;z-index:1;max-width:1120px;margin:auto;padding:22px 14px 64px}
+header,.panel,.result{background:linear-gradient(145deg,rgba(47,36,17,.96),rgba(24,19,10,.96));border:1px solid var(--line);border-radius:18px;padding:20px;margin:15px 0;box-shadow:0 12px 34px rgba(0,0,0,.32),inset 0 1px rgba(255,239,184,.08)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-color:rgba(255,215,106,.55);background:linear-gradient(110deg,rgba(71,49,12,.97),rgba(28,22,11,.97) 58%,rgba(67,45,10,.96))}
+h1,h2,h3,h4{color:var(--gold3);margin-top:0;text-shadow:0 2px 14px rgba(255,190,45,.18)}
+h1{font-size:clamp(20px,4vw,28px);margin-bottom:5px}h2{font-size:20px}h3{font-size:17px;margin-bottom:4px}h4{font-size:15px;margin:15px 0 6px}
+p{color:#e3d6b8}a{color:#ffe39a;text-decoration:none;border-bottom:1px solid rgba(255,227,154,.35)}a:hover{color:#fff}
+label{display:block;color:var(--gold);margin:10px 0 5px}
+select{width:100%;padding:13px;border:1px solid rgba(255,211,99,.55);border-radius:11px;background:#171208;color:#fff8e8;font:inherit;outline:none}
+select:focus{border-color:var(--gold3);box-shadow:0 0 0 3px rgba(255,215,106,.13)}
+.muted{color:#c7b994;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere;padding:9px 12px;border-radius:10px;background:rgba(255,214,106,.06)}.error{color:#ffaaa0}.success{color:#ffe39a}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.metric{background:linear-gradient(145deg,rgba(255,215,106,.1),rgba(15,12,7,.78));border:1px solid rgba(255,211,99,.3);border-radius:13px;padding:12px;text-align:center}
+.metric strong{display:block;color:var(--gold3);font-size:23px;text-shadow:0 0 16px rgba(255,197,66,.2)}
+.result{position:relative;overflow:hidden;border-color:rgba(255,211,99,.3);background:linear-gradient(135deg,rgba(48,36,15,.97),rgba(22,18,11,.98))}
+.result:after{content:"🏅";position:absolute;left:14px;top:12px;font-size:44px;opacity:.10;pointer-events:none}
+.result-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
+.chip{display:inline-block;border:1px solid rgba(255,220,130,.7);background:linear-gradient(135deg,rgba(255,219,125,.2),rgba(255,183,35,.08));color:#ffe7a5;border-radius:30px;padding:4px 12px;font-size:13px;font-weight:bold}
+.criteria{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(255,211,99,.13);color:#eee1c4}
+.criteria:last-child{border:0}.criteria strong{color:var(--gold3)}
+.hidden{display:none!important}
+@media(max-width:560px){main{padding:12px 10px 40px}header{display:block;text-align:center}header a{display:inline-block;margin-top:8px}.panel,.result,header{padding:15px}.result:after{font-size:34px}}
 </style></head>
 <body><main>
 <header><div><h1>APEX ARENA | نتایج رسمی بازیکنان</h1><div class="muted">نتایج بازیکنان پس از تأیید ارزیابی‌های داوران توسط مدیریت، برای عموم منتشر می‌شوند.</div></div><a href="index.html">بازگشت به سایت</a></header>
