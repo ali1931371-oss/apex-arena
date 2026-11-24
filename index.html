@@ -62,7 +62,7 @@
     .admin-post strong { color:#e4c46e; }
     .preview-image { max-width:100%; max-height:220px; border-radius:8px; margin-top:10px; }
     footer { padding:25px; color:#a99b79; font-size:13px; }
-    @media(max-width:700px) { header { position:static; display:block; text-align:center; } .site-brand { text-align:center; } .main-nav { justify-content:center; margin-top:12px; } .main-nav a { padding:8px 9px; font-size:12px; } .hero { padding:55px 15px; } }
+    .home-ads{max-width:1100px;margin:26px auto;padding:0 20px;display:none}.home-ads-shell{position:relative;overflow:hidden;border:1px solid rgba(73,160,230,.4);border-radius:18px;background:linear-gradient(130deg,#102b49,#071321 70%);box-shadow:0 16px 38px rgba(0,0,0,.35)}.home-ads-heading{padding:15px 20px 0;color:#8bd8ff;font-size:12px;letter-spacing:2px}.home-ad-slide{display:none;position:relative;min-height:230px;align-items:center;text-align:right}.home-ad-slide.active{display:flex}.home-ad-slide a{display:grid;grid-template-columns:1.2fr 1fr;align-items:center;gap:20px;width:100%;padding:20px;color:inherit;text-decoration:none}.home-ad-slide img{width:100%;height:230px;object-fit:cover;border-radius:12px;border:1px solid rgba(110,190,255,.35)}.home-ad-copy h3{color:#f1f8ff;font-size:clamp(18px,3vw,26px);margin:0 0 10px}.home-ad-copy p{color:#b9cee3;margin:0;line-height:2}.home-ad-controls{display:flex;align-items:center;justify-content:center;gap:12px;padding:0 15px 15px}.home-ad-controls button{width:38px;height:34px;margin:0;padding:0;border:1px solid #367eb6;border-radius:8px;background:#0c2d4c;color:#eaf7ff;cursor:pointer}.home-ad-dots{display:flex;gap:7px;align-items:center}.home-ad-dot{width:8px;height:8px;border-radius:50%;background:#42617e}.home-ad-dot.active{width:22px;border-radius:9px;background:#4bbcff}@media(max-width:650px){.home-ads{padding:0 12px}.home-ad-slide a{grid-template-columns:1fr;padding:13px;gap:10px}.home-ad-slide img{height:170px}.home-ad-copy{text-align:center}.home-ad-slide{min-height:0}.home-ad-copy h3{font-size:18px}}\n    @media(max-width:700px) { header { position:static; display:block; text-align:center; } .site-brand { text-align:center; } .main-nav { justify-content:center; margin-top:12px; } .main-nav a { padding:8px 9px; font-size:12px; } .hero { padding:55px 15px; } }
     @media(max-width:600px) { .section { margin:15px 10px; padding:17px; } h1 { font-size:25px; } h2 { font-size:21px; } .hero-actions a { width:100%; max-width:320px; } .registration-grid { grid-template-columns:1fr; } .registration-grid .full-row { grid-column:auto; } }
   </style>
 </head>
@@ -75,6 +75,11 @@
 </header>
 <main>
   <section class="hero" id="home"><h2>به میدان رقابت خوش آمدید</h2><p class="tagline">در میدان اقتدار و برتری فقط نخبگان ماندگارند</p><p>جایی برای نمایش استعداد، مهارت و تفکر حرفه‌ای</p><div class="hero-actions"><a href="tournaments.html">مشاهده مسابقات</a><a class="outline" href="academy.html">آکادمی آموزش</a><a class="outline" href="registration.html">ورود به رقابت</a><a href="judge-directory.html">ورود به پنل داوری</a><a class="outline" href="judge-results.html">نتایج بازیکنان</a></div></section>
+  <section class="home-ads" id="home-ads" aria-label="تبلیغات و بنرهای تورنمنت">
+    <div class="home-ads-shell"><div class="home-ads-heading">APEX ARENA • PROMOTIONS</div><div id="home-ad-slides"></div>
+      <div class="home-ad-controls"><button type="button" id="home-ad-prev" aria-label="بنر قبلی">‹</button><div class="home-ad-dots" id="home-ad-dots"></div><button type="button" id="home-ad-next" aria-label="بنر بعدی">›</button></div>
+    </div>
+  </section>
   <section class="section"><h2>تورنمنت‌های APEX ARENA</h2><p>بستری برای برگزاری رقابت‌های متنوع مافیا صوتی، با قوانین، سناریوها و سیستم داوری قابل تنظیم.</p></section>
 
 
@@ -104,6 +109,7 @@
       <p><a href="tournament-management.html" style="display:inline-block;padding:11px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">ورود به پنل مدیریت تورنمنت‌ها</a></p>
 
       <p><a href="membership-requests.html" style="display:inline-block;padding:12px 18px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">مدیریت درخواست‌های عضویت بازیکنان</a></p>
+      <p><a href="homepage-ads.html" style="display:inline-block;padding:12px 18px;border:1px solid #168bff;border-radius:8px;color:#8bd8ff;text-decoration:none">مدیریت تبلیغات صفحه اصلی</a></p>
 
       <hr style="border-color:#59451e;margin:25px 0;">
       <h2>پنل مدیریت آکادمی</h2>
@@ -168,6 +174,34 @@ function makeElement(tag, className, text) {
   if (className) element.className = className;
   if (text !== undefined && text !== null) element.textContent = text;
   return element;
+}
+
+// نمایش بنرهای تبلیغاتی فعال در اسلایدر صفحه اصلی
+async function loadHomepageAds(){
+  const section=document.getElementById("home-ads"),slides=document.getElementById("home-ad-slides"),dots=document.getElementById("home-ad-dots");
+  if(!section||!slides||!dots)return;
+  try{
+    const {data,error}=await supabaseClient.from("homepage_ads").select("id,title,subtitle,image_path,target_url,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("created_at",{ascending:false});
+    if(error)throw error;
+    if(!data||!data.length)return;
+    section.style.display="block";slides.replaceChildren();dots.replaceChildren();
+    let current=0,timer=null;const slideNodes=[],dotNodes=[];
+    data.forEach((ad,index)=>{
+      const slide=makeElement("div","home-ad-slide"),link=makeElement("a"),image=makeElement("img"),copy=makeElement("div","home-ad-copy");
+      const target=typeof ad.target_url==="string"&&(/^(https:\\/\\/|\\/|[a-zA-Z0-9_-]+\\.html([?#].*)?$)/.test(ad.target_url))?ad.target_url:"tournaments.html";
+      link.href=target;image.src=supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(ad.image_path).data.publicUrl;image.alt=ad.title||"بنر تبلیغاتی APEX ARENA";image.loading=index===0?"eager":"lazy";
+      copy.append(makeElement("h3","",ad.title||"رقابت جدید در APEX ARENA"));if(ad.subtitle)copy.appendChild(makeElement("p","",ad.subtitle));
+      link.append(image,copy);slide.appendChild(link);slides.appendChild(slide);slideNodes.push(slide);
+      const dot=makeElement("button","home-ad-dot");dot.type="button";dot.setAttribute("aria-label","نمایش بنر "+(index+1));dot.addEventListener("click",()=>show(index));dots.appendChild(dot);dotNodes.push(dot);
+    });
+    function show(index){current=(index+slideNodes.length)%slideNodes.length;slideNodes.forEach((s,i)=>s.classList.toggle("active",i===current));dotNodes.forEach((d,i)=>d.classList.toggle("active",i===current));}
+    function start(){if(slideNodes.length>1){clearInterval(timer);timer=setInterval(()=>show(current+1),5500);}}
+    document.getElementById("home-ad-prev").addEventListener("click",()=>{show(current-1);start();});
+    document.getElementById("home-ad-next").addEventListener("click",()=>{show(current+1);start();});
+    section.addEventListener("mouseenter",()=>clearInterval(timer));section.addEventListener("mouseleave",start);
+    if(slideNodes.length<2)document.querySelector(".home-ad-controls").style.display="none";
+    show(0);start();
+  }catch(error){console.warn("Homepage ads could not be loaded:",error);}
 }
 
 // دریافت تورنمنت‌های آماده ثبت‌نام
@@ -500,6 +534,7 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
     setTimeout(()=>updateAdminInterface(session.user),0);
   }
 });
+loadHomepageAds();
 loadTournaments();
 loadAcademyPosts();
 checkExistingSession();
