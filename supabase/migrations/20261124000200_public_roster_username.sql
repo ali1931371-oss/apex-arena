@@ -1,7 +1,9 @@
 -- Public tournament roster: show only the username supplied during registration and player code.
 BEGIN;
 
-CREATE OR REPLACE FUNCTION public.get_tournament_public_members(p_tournament_id uuid)
+DROP FUNCTION IF EXISTS public.get_tournament_public_members(uuid);
+
+CREATE FUNCTION public.get_tournament_public_members(p_tournament_id uuid)
 RETURNS TABLE (username text, player_code text)
 LANGUAGE sql
 STABLE
