@@ -192,7 +192,7 @@ async function loadHomepageAds(){
       const slide=makeElement("div","home-ad-slide"),link=makeElement("a"),image=makeElement("img"),copy=makeElement("div","home-ad-copy");
 const rawTarget=typeof ad.target_url==="string"?ad.target_url:"";const safePage=/^[a-zA-Z0-9_-]+[.]html([?#].*)?$/.test(rawTarget);const target=(rawTarget.startsWith("https://")||(rawTarget.startsWith("/")&&!rawTarget.startsWith("//"))||safePage)?rawTarget:"tournaments.html";
       link.href=target;image.src=supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(ad.image_path).data.publicUrl;image.alt=ad.title||"بنر تبلیغاتی APEX ARENA";image.loading=index===0?"eager":"lazy";image.addEventListener("load",()=>{slide.classList.toggle("portrait",image.naturalHeight>image.naturalWidth);slide.classList.toggle("landscape",image.naturalWidth>=image.naturalHeight);},{once:true});
-      copy.append(makeElement("h3","",ad.title||"رقابت جدید در APEX ARENA"));if(ad.subtitle){const sentences=ad.subtitle.match(/[^.!?؟\\n]+[.!?؟]?/g)||[ad.subtitle];sentences.map(sentence=>sentence.trim()).filter(Boolean).forEach(sentence=>copy.appendChild(makeElement("p","",sentence)));}
+      copy.append(makeElement("h3","",ad.title||"رقابت جدید در APEX ARENA"));if(ad.subtitle){const sentences=ad.subtitle.match(/[^.!?؟\n]+[.!?؟]?/g)||[ad.subtitle];sentences.map(sentence=>sentence.trim()).filter(Boolean).forEach(sentence=>copy.appendChild(makeElement("p","",sentence)));}
       link.append(image,copy);slide.appendChild(link);slides.appendChild(slide);slideNodes.push(slide);
       const dot=makeElement("button","home-ad-dot");dot.type="button";dot.setAttribute("aria-label","نمایش بنر "+(index+1));dot.addEventListener("click",()=>show(index));dots.appendChild(dot);dotNodes.push(dot);
     });
