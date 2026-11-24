@@ -36,7 +36,7 @@ BEGIN
   SELECT pl.id INTO v_player_id
   FROM public.players pl
   WHERE pl.user_id = auth.uid()
-  ORDER BY pl.created_at DESC LIMIT 1;
+  ORDER BY pl.display_name LIMIT 1;
   IF v_player_id IS NULL THEN
     RETURN jsonb_build_object('player', NULL, 'games', '[]'::jsonb);
   END IF;
