@@ -68,6 +68,35 @@ table{border-radius:10px;overflow:hidden}th{background:rgba(255,210,41,.09);colo
 #demoSaveTournament{min-height:48px;padding-inline:22px}
 @media(max-width:600px){main{padding:12px 10px 38px}header{padding:18px 15px}header:after{display:none}.panel{padding:15px}}
 
+
+/* Soft crimson competitive theme */
+:root{--arena-gold:#d98b91;--arena-yellow:#f0b6ba;--arena-ink:#111018;--arena-panel:#211820;--arena-line:rgba(217,139,145,.25);--arena-muted:#bdb2ba}
+body{background:radial-gradient(ellipse at 50% -15%,rgba(190,86,99,.13),transparent 44%),radial-gradient(ellipse at 100% 45%,rgba(91,43,59,.24),transparent 40%),linear-gradient(145deg,#100d14 0%,#19121a 55%,#100d14 100%);color:#f5eef1}
+header,.panel{background:linear-gradient(145deg,rgba(36,25,34,.98),rgba(22,17,25,.99));border-color:var(--arena-line);box-shadow:0 15px 38px rgba(0,0,0,.26),inset 0 1px rgba(255,255,255,.025)}
+header{border-color:rgba(217,139,145,.38)}
+header:before,.panel:before{background:linear-gradient(180deg,#f3c9cc,#d98b91,#8f4d5c)}
+header:after{color:rgba(235,170,176,.28)}
+h1,h2,h3{color:#efb9bd;text-shadow:0 0 18px rgba(217,139,145,.1)}
+h2:before{background:#d98b91;box-shadow:0 0 12px rgba(217,139,145,.3)}
+p{color:#d0c3ca}.muted,.small{color:#b9abb4}
+label{color:#e6aeb4}
+input,select,textarea{background:#130f17;border-color:rgba(217,139,145,.27);color:#fbf5f7}
+input:focus,select:focus,textarea:focus{border-color:#d98b91;box-shadow:0 0 0 3px rgba(217,139,145,.1)}
+button,.link{background:linear-gradient(135deg,#edb9bd 0%,#d98b91 55%,#bd707c 100%);color:#241318;border:1px solid #efc3c6;box-shadow:0 5px 15px rgba(155,75,89,.14)}
+button:hover,.link:hover{filter:brightness(1.05);box-shadow:0 8px 18px rgba(155,75,89,.2)}
+.secondary{background:linear-gradient(135deg,#382632,#281c28);color:#e9b7bd;border:1px solid rgba(217,139,145,.3);box-shadow:none}
+.card,.demo-field,.stage-item,.tournament-management-item{background:linear-gradient(145deg,#2b202b,#211923);border-color:rgba(217,139,145,.19)}
+.stage-item.active{border-color:#d98b91;box-shadow:0 0 0 1px rgba(217,139,145,.4),0 0 20px rgba(217,139,145,.07)}
+.demo-banner,.notice{background:linear-gradient(100deg,rgba(217,139,145,.1),rgba(217,139,145,.025));border-color:rgba(217,139,145,.25);border-right-color:#d98b91;color:#e8c5ca}
+.tabs button.active{background:linear-gradient(135deg,#f0c6c9,#d98b91);color:#28171c;outline:2px solid rgba(240,198,201,.25)}
+.chip,.preview-pill{background:rgba(217,139,145,.08);border-color:rgba(217,139,145,.28);color:#e9b9be}
+th{background:rgba(217,139,145,.075);color:#eab8bd}th,td{border-bottom-color:rgba(217,139,145,.12)}
+.tournament-management-list{border-top-color:var(--arena-line)}
+.delete-preview-button{background:linear-gradient(135deg,#743b48,#512633);color:#ffe9ec;border:1px solid #a75d6b;box-shadow:none}
+#interactiveDemo{border-color:rgba(217,139,145,.34)}
+#interactiveDemo>.row{border-bottom-color:rgba(217,139,145,.13)}
+#demoSaveTournament{background:linear-gradient(135deg,#efc0c4,#d98b91 55%,#bd707c);color:#241318}
+
 </style>
 </head>
 <body><main>
