@@ -105,6 +105,7 @@
       transition:.2s;
     }
     #admin-dashboard a:hover { border-color:#8bd8ff!important; box-shadow:0 0 16px rgba(54,170,255,.2); }
+    #admin-dashboard .academy-admin-entry{display:inline-block;padding:13px 20px;border:1px solid #baff4d!important;border-radius:10px;color:#142000!important;background:linear-gradient(135deg,#baff35,#5d9d00)!important;font-weight:bold;text-decoration:none;box-shadow:0 0 20px #9be90035;}
 
     /* Admin login color refinement */
     #login-button {
@@ -196,21 +197,7 @@
       <p><a href="membership-requests.html" style="display:inline-block;padding:12px 18px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">مدیریت درخواست‌های عضویت بازیکنان</a></p>
       <p><a href="homepage-ads.html" style="display:inline-block;padding:12px 18px;border:1px solid #168bff;border-radius:8px;color:#8bd8ff;text-decoration:none">مدیریت تبلیغات صفحه اصلی</a></p>
 
-      <hr style="border-color:#59451e;margin:25px 0;">
-      <h2>پنل مدیریت آکادمی</h2>
-      <div class="admin-box">
-        <h3 id="form-title">افزودن مطلب جدید</h3><input type="hidden" id="edit-post-id">
-        <label for="post-title">عنوان مطلب</label><input id="post-title" type="text" maxlength="180" placeholder="عنوان آموزش یا مقاله">
-        <label for="post-slug">آدرس کوتاه مطلب (اختیاری)</label><input id="post-slug" type="text" maxlength="180" placeholder="مثلاً: amoozesh-negotiator">
-        <label for="post-summary">خلاصه مطلب</label><textarea id="post-summary" maxlength="1000" placeholder="خلاصه‌ای کوتاه برای نمایش در صفحه آکادمی"></textarea>
-        <label for="post-body">متن کامل مطلب</label><textarea id="post-body" placeholder="متن آموزش یا مقاله را اینجا وارد کن..."></textarea>
-        <label for="post-type">نوع محتوا</label><select id="post-type"><option value="article">مقاله یا آموزش متنی</option><option value="video">ویدئو</option><option value="mixed">ترکیبی (متن، تصویر و ویدئو)</option></select>
-        <label for="post-image">تصویر مطلب</label><input id="post-image" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><img id="image-preview" class="preview-image hidden" alt="پیش‌نمایش تصویر">
-        <label for="post-video">لینک ویدئوی YouTube</label><input id="post-video" type="url" placeholder="https://www.youtube.com/watch?v=...">
-        <button id="save-post-button">ذخیره پیش‌نویس</button><button id="publish-post-button" class="secondary-button">ذخیره و انتشار</button>
-        <button id="cancel-edit-button" class="secondary-button hidden">لغو ویرایش</button><p id="academy-admin-message" class="message"></p>
-      </div>
-      <hr style="border-color:#59451e;margin:25px 0;"><h3>مدیریت مطالب ثبت‌شده</h3><div id="admin-post-list"></div>
+      <p><a href="academy-management.html" class="academy-admin-entry">ورود به پنل مدیریت آکادمی</a></p>
       <button id="logout-button" class="danger-button">خروج از حساب مدیریت</button>
     </div>
   </section>
@@ -444,115 +431,19 @@ async function updateAdminInterface(user) {
   await loadAdminPosts();
 }
 
-// نمایش مطالب در پنل مدیر
-async function loadAdminPosts() {
-  const list=document.getElementById("admin-post-list"); list.replaceChildren();
-  const {data,error}=await supabaseClient.from("educational_posts")
-    .select("id,title,content_type,is_published,created_at,published_at,image_path,video_url,summary,body,slug")
-    .order("created_at",{ascending:false});
-  if (error) { list.textContent="خطا در دریافت مطالب: "+error.message; return; }
-  if (!data || data.length===0) { list.appendChild(makeElement("p","empty","هنوز مطلبی ثبت نشده است.")); return; }
-  data.forEach(post=>{
-    const item=makeElement("div","admin-post");
-    item.appendChild(makeElement("strong","",post.title));
-    item.appendChild(makeElement("p","","وضعیت: "+(post.is_published ? "منتشرشده" : "پیش‌نویس")));
-    item.appendChild(makeElement("p","","نوع محتوا: "+postTypeLabel(post.content_type)));
-    const actions=makeElement("div","post-actions");
-    const edit=makeElement("button","secondary-button","ویرایش"); edit.type="button"; edit.addEventListener("click",()=>fillEditForm(post));
-    const del=makeElement("button","danger-button","حذف"); del.type="button"; del.addEventListener("click",()=>deletePost(post));
-    const toggle=makeElement("button","secondary-button",post.is_published ? "انتقال به پیش‌نویس" : "انتشار"); toggle.type="button"; toggle.addEventListener("click",()=>togglePublish(post));
-    actions.append(edit,toggle,del); item.appendChild(actions); list.appendChild(item);
-  });
-}
-function postTypeLabel(type) { if(type==="video") return "ویدئو"; if(type==="mixed") return "ترکیبی"; return "مقاله و آموزش متنی"; }
-
-function fillEditForm(post) {
-  document.getElementById("edit-post-id").value=post.id;
-  document.getElementById("post-title").value=post.title || "";
-  document.getElementById("post-slug").value=post.slug || "";
-  document.getElementById("post-summary").value=post.summary || "";
-  document.getElementById("post-body").value=post.body || "";
-  document.getElementById("post-type").value=post.content_type || "article";
-  document.getElementById("post-video").value=post.video_url || "";
-  currentImagePath=post.image_path || null;
-  const preview=document.getElementById("image-preview");
-  if (currentImagePath) { const {data}=supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(currentImagePath); preview.src=data.publicUrl; preview.classList.remove("hidden"); }
-  else { preview.removeAttribute("src"); preview.classList.add("hidden"); }
-  document.getElementById("form-title").textContent="ویرایش مطلب";
-  document.getElementById("cancel-edit-button").classList.remove("hidden");
-  showAcademyAdminMessage("اطلاعات مطلب برای ویرایش بارگذاری شد.");
-  document.getElementById("admin-dashboard").scrollIntoView({behavior:"smooth"});
-}
-function resetPostForm() {
-  ["edit-post-id","post-title","post-slug","post-summary","post-body","post-video","post-image"].forEach(id=>document.getElementById(id).value="");
-  document.getElementById("post-type").value="article"; currentImagePath=null;
-  const preview=document.getElementById("image-preview"); preview.removeAttribute("src"); preview.classList.add("hidden");
-  document.getElementById("form-title").textContent="افزودن مطلب جدید";
-  document.getElementById("cancel-edit-button").classList.add("hidden");
-}
-async function uploadPostImage(file) {
-  if (!file) return currentImagePath;
-  const allowed=["image/jpeg","image/png","image/webp","image/gif"];
-  if (!allowed.includes(file.type)) throw new Error("فرمت تصویر باید JPG، PNG، WEBP یا GIF باشد.");
-  if (file.size>5*1024*1024) throw new Error("حجم تصویر نباید بیشتر از ۵ مگابایت باشد.");
-  const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"}[file.type];
-  const path=currentAdmin.id+"/"+Date.now()+"-"+Math.random().toString(36).slice(2)+"."+ext;
-  const {data,error}=await supabaseClient.storage.from(BUCKET_NAME).upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
-  if (error) throw error; return data.path;
-}
-async function savePost(publish) {
-  if (!currentAdmin) { showAcademyAdminMessage("ابتدا باید با حساب مدیر وارد شوید.",true); return; }
-  const title=document.getElementById("post-title").value.trim();
-  const slug=document.getElementById("post-slug").value.trim();
-  const summary=document.getElementById("post-summary").value.trim();
-  const body=document.getElementById("post-body").value.trim();
-  const contentType=document.getElementById("post-type").value;
-  const videoUrl=document.getElementById("post-video").value.trim();
-  const imageFile=document.getElementById("post-image").files[0];
-  const editId=document.getElementById("edit-post-id").value;
-  if (!title) { showAcademyAdminMessage("لطفاً عنوان مطلب را وارد کن.",true); return; }
-  if (!body && !videoUrl && !imageFile && !currentImagePath) { showAcademyAdminMessage("برای مطلب، متن یا ویدئو یا تصویر وارد کن.",true); return; }
-  if (videoUrl && !getYouTubeEmbedUrl(videoUrl)) { showAcademyAdminMessage("لینک ویدئو معتبر نیست. لطفاً لینک YouTube را وارد کن.",true); return; }
-  const saveButton=document.getElementById(publish ? "publish-post-button" : "save-post-button");
-  setButtonLoading(saveButton,true,"در حال ذخیره...");
-  try {
-    let imagePath=currentImagePath; if (imageFile) imagePath=await uploadPostImage(imageFile);
-    const now=new Date().toISOString();
-    const record={title,slug:slug || null,summary:summary || null,body:body || null,content_type:contentType,image_path:imagePath || null,video_url:videoUrl || null,is_published:!!publish,published_at:publish ? now : null,updated_at:now};
-    if (!editId) { record.created_by=currentAdmin.id; record.created_at=now; const {error}=await supabaseClient.from("educational_posts").insert(record); if(error) throw error; }
-    else { const {error}=await supabaseClient.from("educational_posts").update(record).eq("id",editId); if(error) throw error; }
-    showAcademyAdminMessage(publish ? "مطلب با موفقیت ذخیره و منتشر شد." : "مطلب با موفقیت به‌عنوان پیش‌نویس ذخیره شد.");
-    resetPostForm(); await loadAdminPosts(); await loadAcademyPosts();
-  } catch(error) {
-    console.error("Save post error:",error); showAcademyAdminMessage("ذخیره مطلب انجام نشد: "+error.message,true);
-  } finally { setButtonLoading(saveButton,false); }
-}
-async function togglePublish(post) {
-  if (!currentAdmin) return;
-  const next=!post.is_published;
-  const {error}=await supabaseClient.from("educational_posts").update({is_published:next,published_at:next ? new Date().toISOString() : null,updated_at:new Date().toISOString()}).eq("id",post.id);
-  if (error) { showAcademyAdminMessage("تغییر وضعیت انجام نشد: "+error.message,true); return; }
-  showAcademyAdminMessage(next ? "مطلب منتشر شد." : "مطلب به پیش‌نویس منتقل شد.");
-  await loadAdminPosts(); await loadAcademyPosts();
-}
-async function deletePost(post) {
-  if (!currentAdmin || !window.confirm("آیا از حذف این مطلب مطمئن هستی؟")) return;
-  const {error}=await supabaseClient.from("educational_posts").delete().eq("id",post.id);
-  if (error) { showAcademyAdminMessage("حذف مطلب انجام نشد: "+error.message,true); return; }
-  if (post.image_path) {
-    const {error:storageError}=await supabaseClient.storage.from(BUCKET_NAME).remove([post.image_path]);
-    if (storageError) console.warn("Image could not be deleted:",storageError);
+async function updateAdminInterface(user) {
+  if (!user) {
+    currentAdmin=null; adminDashboard.classList.add("hidden"); loginBox.classList.remove("hidden"); return;
   }
-  showAcademyAdminMessage("مطلب حذف شد."); await loadAdminPosts(); await loadAcademyPosts();
+  const isAdmin=await verifyAdmin(user);
+  if (!isAdmin) {
+    currentAdmin=null; adminDashboard.classList.add("hidden"); loginBox.classList.remove("hidden");
+    showMessage("این حساب دسترسی مدیریت APEX ARENA را ندارد.",true);
+    await supabaseClient.auth.signOut(); return;
+  }
+  currentAdmin=user; loginBox.classList.add("hidden"); recoveryBox.classList.add("hidden"); newPasswordBox.classList.add("hidden");
+  adminDashboard.classList.remove("hidden"); showMessage("ورود مدیر با موفقیت انجام شد.");
 }
-
-// پیش‌نمایش تصویر
-document.getElementById("post-image").addEventListener("change",event=>{
-  const file=event.target.files[0]; const preview=document.getElementById("image-preview");
-  if (!file) return;
-  if (!file.type.startsWith("image/")) { showAcademyAdminMessage("فایل انتخاب‌شده تصویر نیست.",true); event.target.value=""; return; }
-  preview.src=URL.createObjectURL(file); preview.classList.remove("hidden");
-});
 
 // دکمه‌های ورود و بازیابی
 document.getElementById("show-recovery").onclick=()=>{
@@ -603,9 +494,6 @@ document.getElementById("logout-button").onclick=async()=>{
   if (error) { showMessage("خروج انجام نشد: "+error.message,true); return; }
   currentAdmin=null; adminDashboard.classList.add("hidden"); loginBox.classList.remove("hidden"); showMessage("از حساب مدیریت خارج شدی.");
 };
-document.getElementById("save-post-button").onclick=()=>savePost(false);
-document.getElementById("publish-post-button").onclick=()=>savePost(true);
-document.getElementById("cancel-edit-button").onclick=()=>{ resetPostForm(); showAcademyAdminMessage("ویرایش لغو شد."); };
 
 async function checkExistingSession() {
   const {data,error}=await supabaseClient.auth.getSession();
