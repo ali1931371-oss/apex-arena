@@ -57,7 +57,7 @@ function dateText(value){return value?new Date(value).toLocaleString("fa-IR"):"�
 function renderPublic(rows){
  const box=$("publicMembers");box.replaceChildren();
  if(!rows||!rows.length){box.append(node("p","هنوز بازیکن تأییدشده‌ای در این تورنمنت ثبت نشده است.","muted"));return}
- rows.forEach((p,index)=>{const card=node("article",undefined,"member");card.append(node("strong",(index+1)+". "+(p.username||"بازیکن")));card.append(node("span",p.player_code||"کد ثبت نشده","chip"));box.append(card)});
+ rows.forEach((p,index)=>{const card=node("article",undefined,"member");card.append(node("strong",p.username||"نام کاربری ثبت نشده"));card.append(node("span",p.player_code||"کد ثبت نشده","chip"));box.append(card)});
 }
 function renderManagerCard(m,mode){
  const card=node("article",undefined,"member");
