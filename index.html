@@ -188,7 +188,7 @@ async function loadHomepageAds(){
     let current=0,timer=null;const slideNodes=[],dotNodes=[];
     data.forEach((ad,index)=>{
       const slide=makeElement("div","home-ad-slide"),link=makeElement("a"),image=makeElement("img"),copy=makeElement("div","home-ad-copy");
-      const target=typeof ad.target_url==="string"&&(/^(https:\\/\\/|\\/|[a-zA-Z0-9_-]+\\.html([?#].*)?$)/.test(ad.target_url))?ad.target_url:"tournaments.html";
+const rawTarget=typeof ad.target_url==="string"?ad.target_url:"";const safePage=/^[a-zA-Z0-9_-]+[.]html([?#].*)?$/.test(rawTarget);const target=(rawTarget.startsWith("https://")||rawTarget.startsWith("/")||safePage)?rawTarget:"tournaments.html";
       link.href=target;image.src=supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(ad.image_path).data.publicUrl;image.alt=ad.title||"بنر تبلیغاتی APEX ARENA";image.loading=index===0?"eager":"lazy";
       copy.append(makeElement("h3","",ad.title||"رقابت جدید در APEX ARENA"));if(ad.subtitle)copy.appendChild(makeElement("p","",ad.subtitle));
       link.append(image,copy);slide.appendChild(link);slides.appendChild(slide);slideNodes.push(slide);
