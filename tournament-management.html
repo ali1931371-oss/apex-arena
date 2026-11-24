@@ -33,6 +33,41 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{p
 .small{font-size:12px;color:#aaa}
 .preview-pill{display:inline-block;padding:3px 9px;border-radius:20px;background:#302818;color:#f2d88d;margin:3px}
 .tournament-management-list{margin-top:14px;border-top:1px solid #51401f;padding-top:12px}.tournament-management-item{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:#202020;border:1px solid #51401f;border-radius:9px;padding:10px 12px;margin:8px 0}.tournament-management-item strong{overflow-wrap:anywhere}.delete-preview-button{background:#542626;color:#ffe4e4;border:1px solid #a64a4a;padding:6px 11px;font-size:13px;margin:0}.delete-preview-button:disabled{opacity:.45}
+
+/* APEX ARENA — competitive yellow edition */
+:root{color-scheme:dark;--arena-gold:#ffd229;--arena-yellow:#ffdf57;--arena-ink:#080d18;--arena-panel:#111a2b;--arena-line:rgba(255,210,41,.28);--arena-muted:#aeb9ca}
+body{background:radial-gradient(ellipse at 50% -15%,rgba(255,190,0,.16),transparent 42%),radial-gradient(ellipse at 100% 45%,rgba(27,57,94,.42),transparent 38%),linear-gradient(145deg,#070b13 0%,#0c1423 55%,#080d18 100%);color:#f5f7fb}
+main{max-width:1240px;padding-top:26px}
+header,.panel{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(21,32,51,.97),rgba(10,17,30,.98));border:1px solid var(--arena-line);border-radius:18px;box-shadow:0 16px 42px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035)}
+header{min-height:126px;padding:24px 26px;border-color:rgba(255,210,41,.48)}
+header:before,.panel:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,#fff0a0,var(--arena-gold),#9c7100);opacity:.9}
+header:after{content:"ARENA  /  TOURNAMENT CONTROL";position:absolute;left:24px;bottom:9px;direction:ltr;font:700 9px/1 Arial,sans-serif;letter-spacing:3px;color:rgba(255,220,90,.34)}
+h1,h2,h3{color:var(--arena-yellow);text-shadow:0 0 22px rgba(255,210,41,.13)}
+h1{font-size:clamp(21px,3vw,29px);letter-spacing:.2px}
+h2{display:flex;align-items:center;gap:10px}
+h2:before{content:"";display:inline-block;width:7px;height:22px;border-radius:5px;background:var(--arena-gold);box-shadow:0 0 14px rgba(255,210,41,.45)}
+p{color:#c3ccda}.muted,.small{color:var(--arena-muted)}
+label{color:var(--arena-yellow);font-weight:700}
+input,select,textarea{background:#080f1c;border:1px solid rgba(255,210,41,.3);color:#f8fafc;border-radius:10px;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--arena-gold);box-shadow:0 0 0 3px rgba(255,210,41,.12)}
+button,.link{background:linear-gradient(135deg,#ffe987 0%,#ffd229 48%,#d69b00 100%);color:#171304;border:1px solid #ffe987;border-radius:10px;box-shadow:0 6px 18px rgba(214,155,0,.16);transition:transform .18s,filter .18s,box-shadow .18s}
+button:hover,.link:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 9px 22px rgba(214,155,0,.23)}
+button:disabled{transform:none;box-shadow:none}
+.secondary{background:linear-gradient(135deg,#26344a,#172337);color:#f0d66b;border:1px solid rgba(255,210,41,.36);box-shadow:none}
+.card,.demo-field,.stage-item,.tournament-management-item{background:linear-gradient(145deg,#172338,#101a2b);border:1px solid rgba(255,210,41,.2);border-radius:13px}
+.stage-item.active{border-color:var(--arena-gold);box-shadow:0 0 0 1px rgba(255,210,41,.55),0 0 24px rgba(255,210,41,.1)}
+.demo-banner,.notice{background:linear-gradient(100deg,rgba(255,210,41,.13),rgba(255,210,41,.035));border:1px solid rgba(255,210,41,.3);border-right:4px solid var(--arena-gold);color:#f4df9b}
+.tabs button.active{background:linear-gradient(135deg,#fff0a6,#ffd229);color:#181303;outline:2px solid rgba(255,239,166,.4)}
+.chip,.preview-pill{background:rgba(255,210,41,.1);border:1px solid rgba(255,210,41,.34);color:#ffe58a}
+table{border-radius:10px;overflow:hidden}th{background:rgba(255,210,41,.09);color:#ffe27a}th,td{border-bottom:1px solid rgba(255,210,41,.15)}
+.tournament-management-list{border-top-color:var(--arena-line)}
+.delete-preview-button{background:linear-gradient(135deg,#702d35,#431b25);color:#ffe4e4;border:1px solid #a64a4a;box-shadow:none}
+.error{color:#ff9a9a}.success{color:#9be7b1}
+#interactiveDemo{border-color:rgba(255,210,41,.42)}
+#interactiveDemo>.row{padding-bottom:12px;border-bottom:1px solid rgba(255,210,41,.16)}
+#demoSaveTournament{min-height:48px;padding-inline:22px}
+@media(max-width:600px){main{padding:12px 10px 38px}header{padding:18px 15px}header:after{display:none}.panel{padding:15px}}
+
 </style>
 </head>
 <body><main>
