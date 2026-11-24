@@ -80,17 +80,13 @@ function renderResults(rows){
  rows.forEach(r=>{
   const card=el("article",undefined,"result"),head=el("div",undefined,"result-head");
   head.append(el("h3",(r.display_name||"بازیکن")+" — "+r.stage_name+" | بازی "+r.game_number));
-  head.append(el("span",r.final_total+" امتیاز نهایی","chip"));card.append(head);
+  card.append(head);
   card.append(el("p",(r.player_code?"کد بازیکن: "+r.player_code+" | ":"")+r.side+" | نقش: "+r.role_name+" | تعداد داوران تأییدکننده: "+r.judge_count,"muted"));
   const totals=el("div",undefined,"grid");
   [["فنی",r.technical_total],["تشویقی",r.bonus_total],["جریمه",r.penalty_total],["نهایی",r.final_total]].forEach(([label,value])=>{
    const m=el("div",undefined,"metric");m.append(el("span",label),el("strong",Number(value||0).toFixed(2)));totals.append(m);
   });
   card.append(totals);
-  const title=el("h4","جزئیات معیارها");card.append(title);
-  (r.criteria||[]).forEach(c=>{
-   const row=el("div",undefined,"criteria");row.append(el("span",c.criterion_name),el("strong",Number(c.average_points||0).toFixed(2)));card.append(row);
-  });
   box.append(card);
  });
 }
