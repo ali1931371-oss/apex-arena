@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b2a"><title>بررسی خصوصی نمرات | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,rgba(94,139,177,.18),transparent 45%),linear-gradient(145deg,#0b1421,#172536 55%,#0b1420);color:#edf3f8;font:15px/1.9 Tahoma,Arial,sans-serif}
+main{max-width:1050px;margin:auto;padding:22px 14px 60px}header,.panel,.game,.judge{background:linear-gradient(145deg,rgba(38,55,73,.96),rgba(17,29,43,.98));border:1px solid rgba(187,210,230,.2);border-radius:17px;padding:18px;margin:14px 0;box-shadow:0 14px 36px #0004}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}h1,h2,h3{color:#d8e9f8;margin:0 0 10px}h1{font-size:22px}h2{font-size:19px}h3{font-size:16px}
+p,.muted{color:#b9c9d7}.muted{font-size:13px}
+label{display:block;margin:10px 0 4px;color:#dce9f4}input,textarea{width:100%;font:inherit;color:#f3f7fa;background:#0c1724;border:1px solid #607c96;border-radius:10px;padding:11px;outline:none}textarea{min-height:82px;resize:vertical}button,.link{font:inherit;color:#122235;background:linear-gradient(135deg,#e3edf5,#aabed0);border:1px solid #dce8f2;border-radius:10px;padding:10px 16px;cursor:pointer;text-decoration:none;display:inline-block;font-weight:bold}button:disabled{opacity:.5;cursor:not-allowed}.danger{background:#8d4149;color:white;border-color:#b96870}.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.metric{background:#0d1a28;border:1px solid #49647d;border-radius:10px;padding:10px;display:flex;justify-content:space-between;gap:10px}.metric strong{color:#e5f1fb}
+.judge{margin:12px 0;padding:14px;background:rgba(8,19,31,.55)}.criterion{padding:12px 0;border-bottom:1px solid #ffffff18}.criterion:last-child{border:0}.criterion-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.points{color:#dbeaf7;font-weight:bold;white-space:nowrap}.appeal{margin-top:10px;padding:10px;border-radius:10px;background:#102236;border:1px solid #59748e}.reply{color:#cce8d8}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ffaaa8}.success{color:#bce5ce}
+@media(max-width:560px){main{padding:12px 10px 40px}header{display:block;text-align:center}header .link{margin-top:8px}.panel,.game{padding:14px}}
+</style></head>
+<body><main>
+<header><div><h1>APEX ARENA | بررسی خصوصی نمرات</h1><div class="muted">جزئیات ارزیابی هر داور و ثبت اعتراض بازیکن</div></div><a class="link" href="judge-results.html">بازگشت به نتایج عمومی</a></header>
+<section id="loginPanel" class="panel"><h2>ورود بازیکن</h2><p class="muted">با همان نام کاربری و رمز حساب APEX ARENA وارد شوید. این صفحه فقط پرونده متصل به حساب شما را نمایش می‌دهد.</p>
+<label for="username">نام کاربری</label><input id="username" autocomplete="username" autocapitalize="none">
+<label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
+<button id="loginButton">ورود و مشاهده نمرات</button><p id="loginStatus" class="status"></p></section>
+<section id="privatePanel" class="hidden"><section class="panel"><h2 id="playerName">پرونده بازیکن</h2><p id="playerMeta" class="muted"></p><p id="pageStatus" class="status"></p></section><div id="games"></div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const URL="https://vzythswxlvubytzmvhep.supabase.co",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(URL,KEY),$=id=>document.getElementById(id);
+function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+function status(id,msg,error=false){$(id).textContent=msg;$(id).className="status "+(error?"error":msg?"success":"")}
+async function login(){
+ const b=$("loginButton");b.disabled=true;status("loginStatus","در حال ورود...");
+ try{
+  const username=$("username").value.trim().toLowerCase(),password=$("password").value;
+  if(!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(username))throw new Error("نام کاربری معتبر وارد کنید.");
+  const {data,error}=await db.auth.signInWithPassword({email:username+"@users.apexarena.invalid",password});
+  if(error)throw error;
+  $("loginPanel").classList.add("hidden");$("privatePanel").classList.remove("hidden");
+  await loadReviews();
+ }catch(e){status("loginStatus",e.message,true);await db.auth.signOut()}
+ finally{b.disabled=false}
+}
+function renderAppeal(item){
+ const wrap=node("div",undefined,"appeal");
+ if(item.appeal){
+  wrap.append(node("b","اعتراض ثبت‌شده: "),node("p",item.appeal.message));
+  if(item.appeal.reply)wrap.append(node("p","پاسخ داور: "+item.appeal.reply,"reply"));
+  else wrap.append(node("p","وضعیت: در انتظار پاسخ داور","muted"));
+  return wrap;
+ }
+ const form=node("div"),label=node("label","ثبت اعتراض درباره این معیار");const input=node("textarea");input.placeholder="توضیح دهید چرا به این نمره اعتراض دارید (حداقل ۵ نویسه).";
+ const button=node("button","ارسال اعتراض");button.type="button";
+ button.addEventListener("click",async()=>{button.disabled=true;try{await rpc("create_player_score_appeal",{p_score_item_id:item.score_item_id,p_message:input.value});await loadReviews()}catch(e){status("pageStatus","ثبت اعتراض ناموفق بود: "+e.message,true);button.disabled=false}});
+ form.append(label,input,button);wrap.append(form);return wrap;
+}
+function render(data){
+ const games=$("games");games.replaceChildren();
+ if(!data?.player){status("pageStatus","برای این حساب پرونده بازیکنی پیدا نشد. با همان حسابی وارد شوید که ثبت‌نام بازیکن با آن انجام شده است.",true);return}
+ $("playerName").textContent=data.player.name||"پرونده بازیکن";$("playerMeta").textContent="کد بازیکن: "+(data.player.code||"—");
+ if(!data.games?.length){status("pageStatus","هنوز ارزیابی تأییدشده‌ای برای نمایش در پرونده شما وجود ندارد.");return}
+ status("pageStatus",data.games.length+" ارزیابی داور برای پرونده شما دریافت شد.");
+ data.games.forEach(game=>{
+  const card=node("article",undefined,"game");
+  card.append(node("h2",game.tournament_name+" | "+game.stage_name+" — بازی "+game.game_number));
+  card.append(node("p","سمت: "+game.side+" | نقش: "+game.role_name,"muted"));
+  const judge=node("section",undefined,"judge");judge.append(node("h3","ارزیابی داور: "+game.judge_name));
+  (game.items||[]).forEach(item=>{
+   const row=node("div",undefined,"criterion"),head=node("div",undefined,"criterion-head");
+   head.append(node("b",item.criterion_name),node("span",Number(item.points).toFixed(2),"points"));
+   row.append(head);
+   if(item.notes)row.append(node("p","توضیح داور: "+item.notes,"muted"));
+   row.append(renderAppeal(item));judge.append(row);
+  });
+  card.append(judge);games.append(card);
+ });
+}
+async function loadReviews(){status("pageStatus","در حال دریافت پرونده اختصاصی شما...");try{render(await rpc("get_my_player_score_reviews"))}catch(e){status("pageStatus","دریافت پرونده ناموفق بود: "+e.message,true)}}
+$("loginButton").addEventListener("click",login);$("password").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+db.auth.getSession().then(async({data})=>{if(data.session?.user){$("loginPanel").classList.add("hidden");$("privatePanel").classList.remove("hidden");await loadReviews()}});
+</script></body></html>
