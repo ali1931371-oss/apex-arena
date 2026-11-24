@@ -53,9 +53,64 @@ main:after{content:"♠  ♣  ♦  ♠";position:absolute;z-index:-1;top:110px;l
 .page-intro{background:radial-gradient(ellipse at 50% 20%,rgba(193,22,42,.32),transparent 58%),linear-gradient(180deg,rgba(46,9,16,.68),rgba(12,10,13,.35))}
 @media(max-width:600px){header{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;gap:8px}.brand-lockup{gap:7px}.apex-mark{width:31px;height:31px}.brand-lockup h1{font-size:17px;letter-spacing:2px}.page-link{font-size:10px;padding:6px 8px}.section{margin-top:24px}main:before{height:260px;top:0}}
 
+
+/* Cinematic mafia tournament room: illustrated scene behind the live registration form */
+body{background:radial-gradient(ellipse at 50% 5%,rgba(113,13,29,.42),transparent 46%),linear-gradient(180deg,#080609,#10090d 48%,#050507)}
+body:before{opacity:.09}
+.mafia-stage{height:430px;position:relative;z-index:0;margin:0 auto -88px;overflow:hidden;background:linear-gradient(180deg,rgba(4,3,5,.1),rgba(5,4,6,.2) 70%,#09070a)}
+.mafia-stage:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,4,6,.42),transparent 22%,transparent 78%,rgba(5,4,6,.42)),linear-gradient(180deg,transparent 55%,#09070a 100%);pointer-events:none}
+.mafia-stage svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 20px rgba(206,25,49,.22))}
+main{isolation:isolate;position:relative}
+main:before,main:after{display:none}
+.section{position:relative;z-index:2;margin-top:0;background:linear-gradient(145deg,rgba(18,12,16,.94),rgba(7,6,9,.96));border:1px solid rgba(255,53,76,.72);box-shadow:0 0 0 1px rgba(255,30,55,.12),0 20px 65px rgba(0,0,0,.72),0 0 42px rgba(176,15,39,.2);backdrop-filter:blur(9px)}
+.section:before{height:3px;box-shadow:0 0 20px rgba(255,40,65,.85)}
+.page-intro{padding:38px 18px 34px;background:linear-gradient(180deg,rgba(12,7,11,.58),rgba(12,8,12,.18));border-bottom:0}
+.page-intro h2{display:inline-block;padding:10px 35px;border:1px solid rgba(255,64,83,.7);border-radius:12px;background:linear-gradient(90deg,rgba(82,8,20,.78),rgba(17,8,13,.88),rgba(82,8,20,.78));box-shadow:0 0 24px rgba(255,34,59,.24);text-shadow:0 0 14px rgba(255,35,60,.65)}
+.page-intro p{color:#f2dfe2;text-shadow:0 2px 8px #000}
+@media(max-width:600px){.mafia-stage{height:300px;margin-bottom:-55px}.page-intro{padding:28px 12px 24px}.page-intro h2{padding:8px 20px}.section{margin-left:10px;margin-right:10px}}
 </style></head><body>
 <header><div class="brand-lockup"><svg class="apex-mark" viewBox="0 0 64 64" role="img" aria-label="لوگوی APEX ARENA"><path d="M32 4 59 56H5L32 4Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M32 20 47 50H17L32 20Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M23 39h18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><h1>APEX ARENA</h1></div><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
 <section class="page-intro"><h2>ورود به رقابت</h2><p>فرم ثبت‌نام تورنمنت را تکمیل کن تا درخواست شرکت در مسابقه برای مدیریت ارسال شود.</p></section>
+<div class="mafia-stage" aria-hidden="true">
+<svg viewBox="0 0 1400 620" preserveAspectRatio="xMidYMid slice">
+<defs>
+ <radialGradient id="roomGlow"><stop stop-color="#74202a" stop-opacity=".65"/><stop offset="1" stop-color="#09080b" stop-opacity="0"/></radialGradient>
+ <linearGradient id="felt" x2="0" y2="1"><stop stop-color="#4b1821"/><stop offset=".45" stop-color="#100d11"/><stop offset="1" stop-color="#050507"/></linearGradient>
+ <linearGradient id="wood"><stop stop-color="#160b0e"/><stop offset=".45" stop-color="#8c2731"/><stop offset=".7" stop-color="#210c12"/><stop offset="1" stop-color="#050507"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="12"/></filter>
+</defs>
+<rect width="1400" height="620" fill="#08070a"/>
+<ellipse cx="700" cy="210" rx="650" ry="300" fill="url(#roomGlow)"/>
+<path d="M0 0H1400V360L1120 290 950 330 700 270 420 330 180 290 0 360Z" fill="#120b10"/>
+<path d="M70 0V330M1330 0V330" stroke="#6c1b29" stroke-width="8" opacity=".7"/>
+<path d="M90 20V300M1310 20V300" stroke="#d02b40" stroke-width="2" opacity=".45"/>
+<g opacity=".8" fill="#250d14" stroke="#8b2635" stroke-width="5"><path d="M90 80H270V300H90Z"/><path d="M1130 80H1310V300H1130Z"/></g>
+<g fill="#ffb36a" opacity=".75"><circle cx="55" cy="175" r="12"/><circle cx="1345" cy="175" r="12"/><circle cx="330" cy="125" r="8"/><circle cx="1070" cy="125" r="8"/></g>
+<g fill="#ff3448" opacity=".35" filter="url(#glow)"><ellipse cx="700" cy="440" rx="600" ry="80"/></g>
+<!-- shadowy competitors around the table -->
+<g fill="#050407" opacity=".94"><path d="M160 300q10-100 70-100t70 100l28 140H125Z"/><path d="M1080 300q10-100 70-100t70 100l28 140h-203Z"/><path d="M480 270q10-85 65-85t65 85l22 110H455Z"/><path d="M790 270q10-85 65-85t65 85l22 110H765Z"/></g>
+<g fill="none" stroke="#6e2630" stroke-width="5" opacity=".65"><path d="M130 430q20-120 100-120t100 120"/><path d="M1070 430q20-120 100-120t100 120"/></g>
+<!-- central leather chair -->
+<path d="M570 155q0-42 42-42h176q42 0 42 42v165H570Z" fill="#100c10" stroke="#8d4a39" stroke-width="9"/>
+<path d="M595 170q0-22 24-22h162q24 0 24 22v125H595Z" fill="#211116" stroke="#54212b" stroke-width="5"/>
+<path d="M700 178l18 24-18 24-18-24Z" fill="#a62a38" opacity=".55"/>
+<!-- grand oval mafia table -->
+<ellipse cx="700" cy="430" rx="660" ry="155" fill="#030304" stroke="#9a2637" stroke-width="18"/>
+<ellipse cx="700" cy="420" rx="630" ry="135" fill="url(#wood)" stroke="#e23b4d" stroke-width="5"/>
+<ellipse cx="700" cy="408" rx="585" ry="105" fill="url(#felt)" stroke="#5d1c28" stroke-width="8"/>
+<ellipse cx="700" cy="408" rx="555" ry="88" fill="none" stroke="#c18a63" stroke-width="3" opacity=".65"/>
+<g fill="#e8d8ca" stroke="#9d2737" stroke-width="3">
+ <rect x="405" y="365" width="78" height="112" rx="7" transform="rotate(-17 405 365)"/>
+ <rect x="500" y="390" width="78" height="112" rx="7" transform="rotate(9 500 390)"/>
+ <rect x="810" y="380" width="78" height="112" rx="7" transform="rotate(-9 810 380)"/>
+ <rect x="910" y="355" width="78" height="112" rx="7" transform="rotate(17 910 355)"/>
+</g>
+<g fill="#a91e32" font-family="serif" font-size="38" font-weight="bold"><text x="420" y="425">A</text><text x="515" y="450">K</text><text x="825" y="440">Q</text><text x="925" y="415">A</text></g>
+<g fill="#d7a34f" stroke="#4d260d" stroke-width="4"><ellipse cx="330" cy="390" rx="30" ry="12"/><ellipse cx="330" cy="378" rx="30" ry="12"/><ellipse cx="330" cy="366" rx="30" ry="12"/><ellipse cx="1070" cy="390" rx="30" ry="12"/><ellipse cx="1070" cy="378" rx="30" ry="12"/><ellipse cx="1070" cy="366" rx="30" ry="12"/></g>
+<path d="M575 345q125-65 250 0l-28 25H603Z" fill="#080609" stroke="#a62b3a" stroke-width="5"/>
+<path d="M590 345q110-60 220 0" fill="none" stroke="#e3b47b" stroke-width="4"/>
+<path d="M0 535H1400" stroke="#c3263d" stroke-width="3" opacity=".35"/>
+</svg></div>
 <main><section class="section" id="player-registration">
 <h2>ورود بازیکنان و ثبت درخواست شرکت</h2>
 <p>هر بازیکن فقط یک حساب و یک پروفایل دارد. با همان حساب می‌توانی در چند تورنمنت مختلف شرکت کنی؛ برای هر تورنمنت فقط یک درخواست ثبت‌نام مجاز است.</p>
