@@ -4,28 +4,26 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101010">
 <title>اعضای تورنمنت | APEX ARENA</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
-main{max-width:1050px;margin:auto;padding:18px 14px 55px}
-header,.panel{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:22px}h2{font-size:18px}
-p{color:#cfc6b2}.muted{color:#aaa;font-size:13px}
-button,.link{display:inline-block;padding:9px 13px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:4px 0}
-button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#343434;color:#f5f0df;border:1px solid #80652e}
-.danger{background:#642b2b;color:#ffe5e5;border:1px solid #a64a4a}.hidden{display:none!important}
-input{width:100%;padding:11px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font:inherit}
-label{display:block;color:#e4c46e;margin:9px 0 4px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
-.member{background:#202020;border:1px solid #51401f;border-radius:10px;padding:13px;margin:9px 0}
-.member-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.chip{display:inline-block;border:1px solid #80652e;border-radius:30px;padding:2px 9px;font-size:12px;margin:3px}
-.details{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:5px 12px;margin:8px 0}
-.details p{margin:3px 0;font-size:13px;overflow-wrap:anywhere}
-.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
-.notice{border-right:3px solid #d8b45a;padding:9px 12px;background:#211b10;border-radius:8px;color:#d8cba9;font-size:13px}
-@media(max-width:600px){header{display:block;text-align:center}}
-</style>
+<style>:root{color-scheme:dark;--bg:#050a14;--panel:#0c1728;--silver:#cbd5e1;--muted:#aab7c8;--line:rgba(194,208,226,.23)}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -12%,#263a56 0%,#111e32 34%,#050a14 78%);color:#f1f5fa;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+main{max-width:1080px;margin:auto;padding:18px 14px 55px}
+header,.panel{background:linear-gradient(145deg,rgba(20,34,53,.97),rgba(7,14,25,.98));border:1px solid var(--line);border-radius:17px;padding:19px;margin:15px 0;box-shadow:0 14px 35px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.045)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top:2px solid #c5d0de}
+h1,h2,h3{color:#e5ebf3;margin-top:0}h1{font-size:22px}h2{font-size:18px;border-right:3px solid #b8c5d5;padding-right:11px}p{color:#c2ccda}.muted{color:#a8b5c6;font-size:13px}
+button,.link{display:inline-block;padding:9px 13px;border:1px solid rgba(218,227,239,.45);border-radius:9px;background:linear-gradient(135deg,#64758a,#34465e);color:#f4f7fb;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:4px 0}
+button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:rgba(13,24,39,.9);color:#e1e8f0;border:1px solid rgba(194,208,226,.32)}.danger{background:#642b35;color:#ffe5e8;border:1px solid #a64a5b}.hidden{display:none!important}
+input{width:100%;padding:11px;border:1px solid #8c9caf;border-radius:8px;background:#0b1422;color:white;font:inherit}
+label{display:block;color:#d4deea;margin:9px 0 4px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.member{position:relative;overflow:hidden;background:linear-gradient(145deg,#1b2a40,#0b1422 72%);border:1px solid rgba(190,205,224,.28);border-radius:14px;padding:15px;margin:11px 0;box-shadow:0 9px 24px rgba(0,0,0,.24)}
+.member:before{content:"";position:absolute;right:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e0e7f0,#788ba3,transparent)}
+.member-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.chip{display:inline-block;border:1px solid rgba(201,214,231,.36);border-radius:30px;padding:3px 10px;font-size:12px;margin:3px;color:#e1e8f0;background:rgba(183,199,219,.08)}
+.details{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:5px 12px;margin:8px 0}.details p{margin:3px 0;font-size:13px;overflow-wrap:anywhere}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#d8e3f0}
+.notice{border-right:3px solid #b8c5d5;padding:10px 13px;background:rgba(158,177,201,.09);border-radius:8px;color:#d0d9e5;font-size:13px}
+#publicMembers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+#publicMembers .member{margin:0;min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+#publicMembers .member strong{font-size:15px;color:#f2f5fa;overflow-wrap:anywhere}#publicMembers .member .chip{flex-shrink:0}
+@media(max-width:600px){header{display:block;text-align:center}#publicMembers{grid-template-columns:1fr}}</style>
 </head>
 <body><main>
 <header><div><h1>APEX ARENA | فهرست اعضای تورنمنت</h1><div id="tournamentName" class="muted">در حال دریافت اطلاعات تورنمنت...</div></div><a class="link secondary" href="index.html">بازگشت به سایت</a></header>
@@ -59,7 +57,7 @@ function dateText(value){return value?new Date(value).toLocaleString("fa-IR"):"�
 function renderPublic(rows){
  const box=$("publicMembers");box.replaceChildren();
  if(!rows||!rows.length){box.append(node("p","هنوز بازیکن تأییدشده‌ای در این تورنمنت ثبت نشده است.","muted"));return}
- rows.forEach((p,index)=>{const card=node("article",undefined,"member");card.append(node("strong",(index+1)+". "+(p.display_name||"بدون نام")));card.append(node("span",p.player_code||"کد ثبت نشده","chip"));box.append(card)});
+ rows.forEach((p,index)=>{const card=node("article",undefined,"member");card.append(node("strong",(index+1)+". "+(p.username||"بازیکن")));card.append(node("span",p.player_code||"کد ثبت نشده","chip"));box.append(card)});
 }
 function renderManagerCard(m,mode){
  const card=node("article",undefined,"member");
@@ -106,7 +104,11 @@ async function loadPublic(){
   const {data,error}=await rpc("get_tournament_public_members",{p_tournament_id:tournamentId});
   if(error)throw error;
   renderPublic(data||[]);
-  $("tournamentName").textContent="فهرست عمومی اعضا";
+  try{
+   const {data:tournaments,error:tournamentError}=await rpc("get_open_tournaments",{});
+   const found=!tournamentError&&Array.isArray(tournaments)?tournaments.find(t=>String(t.tournament_id)===String(tournamentId)):null;
+   $("tournamentName").textContent=found?(found.tournament_name||"فهرست اعضای تورنمنت"):"فهرست عمومی اعضای تورنمنت";
+  }catch(_){$("tournamentName").textContent="فهرست عمومی اعضای تورنمنت";}
   setStatus("pageStatus",(data||[]).length+" بازیکن تأییدشده در فهرست عمومی نمایش داده شد.");
  }catch(e){setStatus("pageStatus","دریافت فهرست عمومی انجام نشد: "+e.message,true);$("publicMembers").replaceChildren(node("p","برای نمایش فهرست، Migration مربوط به اعضای تورنمنت باید در Supabase اجرا شده باشد.","muted"))}
 }
