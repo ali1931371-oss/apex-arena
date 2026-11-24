@@ -16,6 +16,29 @@ button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;colo
 .row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:180px}
 .chip{display:inline-block;border:1px solid #80652e;border-radius:30px;padding:3px 10px;font-size:12px;margin:3px}.assigned{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 @media(max-width:600px){header{display:block;text-align:center}.actions button{width:100%}}
+
+/* عدالت | تم سرمه‌ای و نقره‌ای پنل مدیریت داوران */
+:root{color-scheme:dark;--justice-silver:#d4dce5;--justice-muted:#aebdcd;--justice-navy:#101c2d;--justice-line:rgba(190,207,224,.25)}
+body{background:radial-gradient(ellipse at 50% -10%,rgba(154,181,208,.19),transparent 48%),linear-gradient(145deg,#0b1422 0%,#14243a 52%,#0a1321 100%);color:#edf2f7}
+body:before{content:"⚖";position:fixed;z-index:0;pointer-events:none;inset:50% auto auto 50%;transform:translate(-50%,-50%);font-family:Arial,sans-serif;font-size:min(70vw,620px);line-height:1;color:rgba(191,208,226,.045);text-shadow:0 0 70px rgba(166,193,220,.08)}
+main{position:relative;z-index:1}
+header,.panel{background:linear-gradient(145deg,rgba(31,48,69,.96),rgba(15,27,43,.98));border:1px solid var(--justice-line);box-shadow:0 16px 38px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.045)}
+h1,h2,h3{color:var(--justice-silver)}
+p{color:#c6d1dd}
+label{color:#c8d5e2}
+input,select{border:1px solid rgba(177,198,219,.38);background:#0d1929;color:#f2f6fa}
+input:focus,select:focus{outline:2px solid rgba(184,204,224,.2);border-color:#c7d5e3}
+button,.link{background:linear-gradient(145deg,#eef2f6,#b9c5d1 58%,#8f9eae);color:#142235;border:1px solid rgba(255,255,255,.48);box-shadow:0 5px 14px rgba(0,0,0,.22);transition:filter .15s ease,transform .15s ease}
+button:hover,.link:hover{filter:brightness(1.08);transform:translateY(-1px);color:#0d1a2b}
+.secondary{background:linear-gradient(145deg,#dbe4ed,#9eafc0);color:#142235;border:1px solid rgba(220,232,243,.45)}
+.danger{background:linear-gradient(145deg,#8c3b48,#642632);color:#fff;border:1px solid rgba(255,190,198,.25)}
+button:disabled{opacity:.48;filter:grayscale(.5)}
+.muted{color:#aebdcd}
+.status{color:#d3deea}
+.error{color:#ffaaa9}.success{color:#b8e6cf}
+.card{border:1px solid rgba(184,204,224,.2);background:linear-gradient(145deg,rgba(37,55,76,.88),rgba(19,33,51,.94))}
+.chip{border-color:rgba(190,207,224,.38);background:rgba(185,205,225,.09);color:#dbe5ee}
+
 </style>
 </head>
 <body>
