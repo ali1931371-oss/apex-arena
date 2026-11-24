@@ -61,6 +61,7 @@ button:hover,.link:hover{filter:brightness(1.08);transform:translateY(-1px)}butt
 <div class="actions"><button id="saveDraftButton" class="secondary">ذخیره پیش‌نویس</button><button id="submitScoreButton">ارسال نهایی امتیاز</button></div>
 <p id="formStatus" class="status" role="status"></p>
 </section>
+<section id="appealsPanel" class="panel" style="margin-top:18px"><h2>اعتراض‌های بازیکنان به نمرات شما</h2><p class="muted">پاسخ شما فقط به بازیکن نمایش داده می‌شود و امکان تغییر نمره ثبت‌شده از این بخش وجود ندارد.</p><div id="judgeAppealsList"><p class="muted">در حال دریافت اعتراض‌ها...</p></div><p id="appealsStatus" class="status" role="status"></p></section>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -132,6 +133,7 @@ async function signIn(){
   if(error)throw error;
   user=data.user;$("loginPanel").classList.add("hidden");$("judgePanel").classList.remove("hidden");$("logoutButton").classList.remove("hidden");
   await loadTournaments();
+  await loadJudgeAppeals();
  }catch(e){setStatus("loginStatus",e.message,true);await db.auth.signOut()}
  finally{b.disabled=false}
 }
@@ -240,6 +242,27 @@ async function saveScore(finalize){
   setStatus("formStatus","ثبت امتیاز انجام نشد: "+e.message,true);
   saveButton.disabled=formLocked;submitButton.disabled=formLocked;
  }
+}
+async function loadJudgeAppeals(){
+ const box=$("judgeAppealsList");box.replaceChildren();
+ try{
+  const rows=await rpc("get_my_judge_score_appeals");
+  if(!rows?.length){box.append(node("p","در حال حاضر اعتراضی برای ارزیابی‌های شما ثبت نشده است.","muted"));return}
+  rows.forEach(item=>{
+   const card=node("article",undefined,"panel");
+   card.append(node("h3",(item.player_name||"بازیکن")+" — "+item.tournament_name));
+   card.append(node("p",item.stage_name+" | بازی "+item.game_number+" | معیار: "+item.criterion_name+" | نمره ثبت‌شده: "+item.points,"muted"));
+   card.append(node("p","متن اعتراض: "+item.message));
+   if(item.reply){card.append(node("p","پاسخ شما: "+item.reply,"muted"))}
+   else{
+    const area=node("textarea");area.rows=3;area.placeholder="پاسخ محترمانه و مستدل به اعتراض بازیکن...";
+    const button=node("button","ارسال پاسخ");button.type="button";
+    button.addEventListener("click",async()=>{button.disabled=true;try{await rpc("reply_to_player_score_appeal",{p_appeal_id:item.appeal_id,p_reply:area.value});await loadJudgeAppeals();$("appealsStatus").textContent="پاسخ ثبت شد."}catch(e){$("appealsStatus").textContent="ثبت پاسخ ناموفق بود: "+e.message;button.disabled=false}});
+    card.append(area,button);
+   }
+   box.append(card);
+  });
+ }catch(e){$("appealsStatus").textContent="دریافت اعتراض‌ها ناموفق بود: "+e.message}
 }
 $("loginButton").addEventListener("click",signIn);
 $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
