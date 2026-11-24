@@ -32,8 +32,8 @@ button.secondary{background:#13263a;border-color:#35516c}button.danger{backgroun
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
-const URL="https://vzythswxlvubytzmvhep.supabase.co",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69",BUCKET="apex-education";
-const db=window.supabase.createClient(URL,KEY);let admin=null,oldImagePath=null,selectedFile=null;
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69",BUCKET="apex-education";
+const db=window.supabase.createClient(SUPABASE_URL,KEY);let admin=null,oldImagePath=null,selectedFile=null;
 const el=id=>document.getElementById(id);
 function msg(id,text,error=false){el(id).textContent=text;el(id).className="message "+(error?"error":"success");}
 function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
