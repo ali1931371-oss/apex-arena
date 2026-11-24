@@ -4,16 +4,19 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
 <title>پنل داوری | APEX ARENA</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:2}
+*{box-sizing:border-box}:root{color-scheme:dark;--silver:#e4ebf1;--silver2:#bdcbd7;--blue:#b9ddf3;--muted:#b7c7d5}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#425d75 0,#1b3045 42%,#0b1725 100%);color:var(--silver);font-family:Tahoma,Arial,sans-serif;line-height:2;position:relative;isolation:isolate}
+body:before{content:"⚖";position:fixed;z-index:-1;inset:0;display:grid;place-items:center;font-family:serif;font-size:min(76vw,620px);line-height:1;color:rgba(205,224,239,.055);pointer-events:none;text-shadow:0 0 55px rgba(180,218,245,.08)}
 main{max-width:900px;margin:auto;padding:22px 14px 60px}
-header,.panel,.judge-card{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:23px}p{color:#cfc6b2}
-a{color:#e4c46e}.muted{color:#aaa;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere}
-.error{color:#ff9999}.success{color:#8be0a2}.judge-card{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:#202020}
-.judge-info{min-width:0;flex:1}.judge-name{font-size:18px;font-weight:bold;color:#f5f0df}.tournament-name{color:#b9ad92;font-size:14px}
-.enter{display:inline-block;text-decoration:none;text-align:center;background:#d8b45a;color:#17120a;padding:10px 20px;border-radius:8px;font-weight:bold;min-width:105px}
-.back{display:inline-block;padding:8px 12px;border:1px solid #80652e;border-radius:8px;text-decoration:none}
+header,.panel,.judge-card{background:linear-gradient(145deg,rgba(224,233,241,.13),rgba(30,49,68,.94));border:1px solid rgba(205,222,236,.55);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 14px 34px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.08)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top:3px solid #d5e4ef}
+h1,h2,h3{color:#d9edfb;margin-top:0}h1{font-size:23px}h1:before{content:"⚖";display:inline-grid;place-items:center;width:42px;height:42px;margin-left:10px;border:1px solid #c5d9e8;border-radius:12px;background:linear-gradient(145deg,#e4edf4,#819bb0);color:#263e54;vertical-align:middle}
+p{color:#d0dce6}a{color:#d8edfc}.muted{color:var(--muted);font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere}
+.error{color:#ffaaa9}.success{color:#a5e5c8}
+.judge-card{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(120deg,rgba(207,222,234,.22),rgba(28,47,66,.96));border-left:4px solid #c9dce9}
+.judge-info{min-width:0;flex:1}.judge-name{font-size:18px;font-weight:bold;color:#f0f5f9}.tournament-name{color:#c5d8e7;font-size:14px}
+.enter{display:inline-block;text-decoration:none;text-align:center;background:linear-gradient(135deg,#f0f4f7,#aabfce);color:#1a2d40;padding:10px 20px;border:1px solid #f3f7fa;border-radius:9px;font-weight:bold;min-width:105px;box-shadow:0 5px 15px #0004}
+.back{display:inline-block;padding:8px 12px;border:1px solid #b7cbdc;border-radius:9px;text-decoration:none;color:#e5f1f8}
 .hidden{display:none!important}@media(max-width:520px){header{display:block;text-align:center}.judge-card{align-items:stretch}.enter{width:100%}}
 </style></head>
 <body><main>
