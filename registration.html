@@ -39,8 +39,22 @@ button:disabled{opacity:.48;cursor:not-allowed;box-shadow:none}
 .page-link:hover{background:rgba(190,25,48,.25);border-color:#ff5365}
 footer{padding:25px;color:#a9979c;font-size:13px;border-top:1px solid rgba(227,38,54,.18)}
 @media(max-width:600px){header{display:block}.page-link{margin-top:12px}.page-intro{padding:42px 15px 35px}.section{margin:18px 10px;padding:19px 16px}.registration-grid{grid-template-columns:1fr}.registration-grid .full-row{grid-column:auto}.admin-box{margin:20px auto}}
+
+/* Neon APEX identity + mafia table atmosphere */
+header{padding:12px 18px}
+.brand-lockup{display:flex;align-items:center;gap:12px;direction:ltr}
+.brand-lockup h1{font-size:clamp(19px,3vw,27px);font-weight:900;letter-spacing:3px;color:#fff;text-shadow:0 0 5px #ff3448,0 0 12px #ff263e,0 0 25px rgba(255,25,54,.85),0 0 42px rgba(255,25,54,.45)}
+.apex-mark{width:39px;height:39px;flex:0 0 auto;color:#ff354b;filter:drop-shadow(0 0 5px #ff263e) drop-shadow(0 0 11px rgba(255,30,55,.8))}
+.page-link{padding:7px 11px;font-size:12px;border-radius:7px;white-space:nowrap;opacity:.9}
+main{isolation:isolate}
+main:before{content:"";position:absolute;z-index:-1;top:5px;left:50%;transform:translateX(-50%);width:min(94vw,900px);height:340px;border-radius:50%;border:9px solid rgba(116,17,30,.68);background:radial-gradient(ellipse at 50% 48%,rgba(10,8,11,.98) 0 38%,rgba(68,12,23,.96) 39% 45%,rgba(17,12,16,.98) 46% 58%,rgba(120,19,35,.92) 59% 62%,rgba(7,7,10,.95) 63%);box-shadow:0 0 0 5px rgba(255,42,62,.12),0 0 45px rgba(196,20,43,.28),inset 0 0 35px rgba(255,35,55,.16)}
+main:after{content:"♠  ♣  ♦  ♠";position:absolute;z-index:-1;top:110px;left:50%;transform:translateX(-50%) rotate(-5deg);width:min(70vw,580px);color:rgba(255,90,105,.27);font-size:clamp(24px,5vw,42px);letter-spacing:clamp(12px,4vw,42px);text-shadow:0 0 12px rgba(255,30,55,.35);pointer-events:none}
+.section{background:linear-gradient(145deg,rgba(25,16,21,.94),rgba(10,9,12,.96));backdrop-filter:blur(5px);margin-top:38px}
+.page-intro{background:radial-gradient(ellipse at 50% 20%,rgba(193,22,42,.32),transparent 58%),linear-gradient(180deg,rgba(46,9,16,.68),rgba(12,10,13,.35))}
+@media(max-width:600px){header{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;gap:8px}.brand-lockup{gap:7px}.apex-mark{width:31px;height:31px}.brand-lockup h1{font-size:17px;letter-spacing:2px}.page-link{font-size:10px;padding:6px 8px}.section{margin-top:24px}main:before{height:260px;top:0}}
+
 </style></head><body>
-<header><h1>APEX ARENA</h1><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
+<header><div class="brand-lockup"><svg class="apex-mark" viewBox="0 0 64 64" role="img" aria-label="لوگوی APEX ARENA"><path d="M32 4 59 56H5L32 4Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M32 20 47 50H17L32 20Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M23 39h18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><h1>APEX ARENA</h1></div><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
 <section class="page-intro"><h2>ورود به رقابت</h2><p>فرم ثبت‌نام تورنمنت را تکمیل کن تا درخواست شرکت در مسابقه برای مدیریت ارسال شود.</p></section>
 <main><section class="section" id="player-registration">
 <h2>ورود بازیکنان و ثبت درخواست شرکت</h2>
