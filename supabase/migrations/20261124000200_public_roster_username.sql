@@ -1,0 +1,48 @@
+-- Public tournament roster: expose registered usernames, never players' legal names.
+BEGIN;
+
+DROP FUNCTION IF EXISTS public.get_tournament_public_members(uuid);
+
+CREATE FUNCTION public.get_tournament_public_members(p_tournament_id uuid)
+RETURNS TABLE (username text, player_code text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT
+    COALESCE(
+      NULLIF(btrim(rr.username), ''),
+      NULLIF(btrim(pr.username), ''),
+      'بازیکن'
+    ) AS username,
+    pl.player_code
+  FROM public.tournament_memberships tm
+  JOIN public.tournaments t ON t.id = tm.tournament_id
+  JOIN public.players pl ON pl.id = tm.player_id
+  LEFT JOIN public.profiles pr ON pr.id = tm.user_id
+  LEFT JOIN LATERAL (
+    SELECT r.username
+    FROM public.tournament_registration_requests r
+    WHERE r.tournament_id = tm.tournament_id
+      AND r.user_id = tm.user_id
+    ORDER BY r.reviewed_at DESC NULLS LAST, r.created_at DESC
+    LIMIT 1
+  ) rr ON true
+  WHERE tm.tournament_id = p_tournament_id
+    AND tm.status = 'active'
+    AND t.status IN ('registration','active','completed')
+    AND NOT EXISTS (
+      SELECT 1 FROM public.tournament_judges tj
+      WHERE tj.tournament_id = tm.tournament_id
+        AND tj.judge_id = tm.user_id
+        AND tj.is_active = true
+        AND tj.is_player_restored = false
+    )
+  ORDER BY username, pl.player_code;
+$$;
+
+REVOKE ALL ON FUNCTION public.get_tournament_public_members(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_tournament_public_members(uuid) TO anon, authenticated;
+
+COMMIT;
