@@ -40,37 +40,46 @@ button:disabled{opacity:.48;cursor:not-allowed;box-shadow:none}
 footer{padding:25px;color:#a9979c;font-size:13px;border-top:1px solid rgba(227,38,54,.18)}
 @media(max-width:600px){header{display:block}.page-link{margin-top:12px}.page-intro{padding:42px 15px 35px}.section{margin:18px 10px;padding:19px 16px}.registration-grid{grid-template-columns:1fr}.registration-grid .full-row{grid-column:auto}.admin-box{margin:20px auto}}
 
-/* Neon APEX identity + mafia table atmosphere */
-header{padding:12px 18px}
-.brand-lockup{display:flex;align-items:center;gap:12px;direction:ltr}
-.brand-lockup h1{font-size:clamp(19px,3vw,27px);font-weight:900;letter-spacing:3px;color:#fff;text-shadow:0 0 5px #ff3448,0 0 12px #ff263e,0 0 25px rgba(255,25,54,.85),0 0 42px rgba(255,25,54,.45)}
-.apex-mark{width:39px;height:39px;flex:0 0 auto;color:#ff354b;filter:drop-shadow(0 0 5px #ff263e) drop-shadow(0 0 11px rgba(255,30,55,.8))}
-.page-link{padding:7px 11px;font-size:12px;border-radius:7px;white-space:nowrap;opacity:.9}
-main{isolation:isolate}
-main:before{content:"";position:absolute;z-index:-1;top:5px;left:50%;transform:translateX(-50%);width:min(94vw,900px);height:340px;border-radius:50%;border:9px solid rgba(116,17,30,.68);background:radial-gradient(ellipse at 50% 48%,rgba(10,8,11,.98) 0 38%,rgba(68,12,23,.96) 39% 45%,rgba(17,12,16,.98) 46% 58%,rgba(120,19,35,.92) 59% 62%,rgba(7,7,10,.95) 63%);box-shadow:0 0 0 5px rgba(255,42,62,.12),0 0 45px rgba(196,20,43,.28),inset 0 0 35px rgba(255,35,55,.16)}
-main:after{content:"♠  ♣  ♦  ♠";position:absolute;z-index:-1;top:110px;left:50%;transform:translateX(-50%) rotate(-5deg);width:min(70vw,580px);color:rgba(255,90,105,.27);font-size:clamp(24px,5vw,42px);letter-spacing:clamp(12px,4vw,42px);text-shadow:0 0 12px rgba(255,30,55,.35);pointer-events:none}
-.section{background:linear-gradient(145deg,rgba(25,16,21,.94),rgba(10,9,12,.96));backdrop-filter:blur(5px);margin-top:38px}
-.page-intro{background:radial-gradient(ellipse at 50% 20%,rgba(193,22,42,.32),transparent 58%),linear-gradient(180deg,rgba(46,9,16,.68),rgba(12,10,13,.35))}
-@media(max-width:600px){header{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;gap:8px}.brand-lockup{gap:7px}.apex-mark{width:31px;height:31px}.brand-lockup h1{font-size:17px;letter-spacing:2px}.page-link{font-size:10px;padding:6px 8px}.section{margin-top:24px}main:before{height:260px;top:0}}
 
-
-/* Cinematic mafia tournament room: illustrated scene behind the live registration form */
-body{background:radial-gradient(ellipse at 50% 5%,rgba(113,13,29,.42),transparent 46%),linear-gradient(180deg,#080609,#10090d 48%,#050507)}
-body:before{opacity:.09}
-.mafia-stage{height:430px;position:relative;z-index:0;margin:0 auto -88px;overflow:hidden;background:linear-gradient(180deg,rgba(4,3,5,.1),rgba(5,4,6,.2) 70%,#09070a)}
-.mafia-stage:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,4,6,.42),transparent 22%,transparent 78%,rgba(5,4,6,.42)),linear-gradient(180deg,transparent 55%,#09070a 100%);pointer-events:none}
-.mafia-stage svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 20px rgba(206,25,49,.22))}
-main{isolation:isolate;position:relative}
-main:before,main:after{display:none}
-.section{position:relative;z-index:2;margin-top:0;background:linear-gradient(145deg,rgba(18,12,16,.94),rgba(7,6,9,.96));border:1px solid rgba(255,53,76,.72);box-shadow:0 0 0 1px rgba(255,30,55,.12),0 20px 65px rgba(0,0,0,.72),0 0 42px rgba(176,15,39,.2);backdrop-filter:blur(9px)}
-.section:before{height:3px;box-shadow:0 0 20px rgba(255,40,65,.85)}
-.page-intro{padding:38px 18px 34px;background:linear-gradient(180deg,rgba(12,7,11,.58),rgba(12,8,12,.18));border-bottom:0}
-.page-intro h2{display:inline-block;padding:10px 35px;border:1px solid rgba(255,64,83,.7);border-radius:12px;background:linear-gradient(90deg,rgba(82,8,20,.78),rgba(17,8,13,.88),rgba(82,8,20,.78));box-shadow:0 0 24px rgba(255,34,59,.24);text-shadow:0 0 14px rgba(255,35,60,.65)}
-.page-intro p{color:#f2dfe2;text-shadow:0 2px 8px #000}
-@media(max-width:600px){.mafia-stage{height:300px;margin-bottom:-55px}.page-intro{padding:28px 12px 24px}.page-intro h2{padding:8px 20px}.section{margin-left:10px;margin-right:10px}}
+/* Exact supplied APEX competition artwork + real interactive registration controls */
+body{background:#080608;color:#fff4f4}
+body:before{display:none}
+header,.page-intro{display:none!important}
+.registration-hero{position:relative;width:100%;max-width:1100px;margin:0 auto;line-height:0;overflow:hidden;background:#090609}
+.registration-hero img{display:block;width:100%;height:auto;object-fit:contain}
+.hero-home-link{position:absolute;left:2.2%;top:4.5%;width:24%;height:9%;border-radius:30px;z-index:2}
+main{isolation:isolate;position:relative;padding:0 14px 36px;background:radial-gradient(ellipse at 50% 0%,rgba(120,8,26,.22),transparent 55%),#080608}
+main:before,main:after{display:none!important}
+.section{max-width:780px;margin:0 auto;padding:25px clamp(16px,4vw,38px) 30px;border:1px solid #f02a42;border-radius:0 0 26px 26px;background:linear-gradient(145deg,rgba(20,8,12,.98),rgba(5,4,7,.98));box-shadow:0 0 8px rgba(255,30,55,.8),0 0 30px rgba(255,20,45,.25),inset 0 0 35px rgba(110,8,22,.18);backdrop-filter:blur(8px)}
+.section:before{height:2px;right:5%;left:5%;background:linear-gradient(90deg,transparent,#ff304b,transparent);box-shadow:0 0 18px #ff203e}
+.section>h2{color:#ff334d;font-size:clamp(20px,3vw,27px);text-shadow:0 0 12px rgba(255,25,50,.35);margin:0 0 12px}
+.section>p{color:#d9c9cd;line-height:2;font-size:14px}
+.trust-note{border-right:3px solid #ff304b;background:rgba(96,8,22,.2);color:#e7d9dc}
+.admin-box{max-width:650px;margin:20px auto 0}
+.registration-grid{gap:0 16px}
+label{color:#ff4057;font-size:14px;margin-top:17px}
+input,select{background:rgba(4,3,5,.9);border:1px solid #e92742;border-radius:13px;min-height:54px;padding:14px 16px;box-shadow:inset 0 0 12px rgba(140,10,30,.12)}
+input:focus,select:focus{border-color:#ff6072;box-shadow:0 0 0 2px rgba(255,40,65,.18),0 0 16px rgba(255,30,55,.28)}
+input::placeholder{color:#b8a6ab}
+.field-hint{color:#bdaeb2}
+.consent-row{color:#eee1e4}
+.consent-row input{min-height:auto;width:20px;height:20px;accent-color:#fa2945}
+button{min-height:62px;border:1px solid #ff6979;border-radius:14px;background:linear-gradient(100deg,#a6001d,#fa1837 48%,#9e001c);box-shadow:0 0 12px rgba(255,25,55,.8),inset 0 0 14px rgba(255,255,255,.15);font-size:18px}
+button:hover:not(:disabled){filter:brightness(1.12);box-shadow:0 0 20px rgba(255,25,55,.9)}
+.page-link{border-color:#ed2942}
+footer{background:#080608;color:#8f777d}
+@media(max-width:600px){
+ .registration-hero{width:100%}
+ .hero-home-link{left:2%;top:4%;width:25%;height:10%}
+ main{padding:0 10px 24px}
+ .section{padding:21px 15px 25px;border-radius:0 0 20px 20px}
+ .registration-grid{grid-template-columns:1fr}
+ .registration-grid .full-row{grid-column:auto}
+ input,select{min-height:50px;font-size:14px}
+}
 </style></head><body>
 <header><div class="brand-lockup"><svg class="apex-mark" viewBox="0 0 64 64" role="img" aria-label="لوگوی APEX ARENA"><path d="M32 4 59 56H5L32 4Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M32 20 47 50H17L32 20Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M23 39h18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><h1>APEX ARENA</h1></div><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
-<section class="page-intro"><h2>ورود به رقابت</h2><p>فرم ثبت‌نام تورنمنت را تکمیل کن تا درخواست شرکت در مسابقه برای مدیریت ارسال شود.</p></section>
+<section class="page-intro"><h2>ورود به رقابت</h2><p>فرم ثبت‌نام تورنمنت را تکمیل کن تا درخواست شرکت در مسابقه برای مدیریت ارسال شود.</p></section><section class="registration-hero" aria-label="فضای رقابت APEX ARENA"><img src="assets/apex-mafia-hero.webp" alt="سالن تاریک و قرمز رقابت مافیا با میز بازی، کارت‌ها و صندلی چرمی"><a class="hero-home-link" href="index.html" aria-label="بازگشت به صفحه اصلی"></a></section>
 <div class="mafia-stage" aria-hidden="true">
 <svg viewBox="0 0 1400 620" preserveAspectRatio="xMidYMid slice">
 <defs>
