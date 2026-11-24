@@ -30,7 +30,7 @@ label{display:block;color:#e7c987;margin:10px 0 5px}select{width:100%;padding:13
 .podium{direction:ltr;display:grid;grid-template-columns:1fr 1.12fr 1fr;align-items:end;gap:12px;max-width:760px;margin:0 auto;position:relative}
 .podium-place{direction:rtl;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
 .podium-icon{height:86px;display:flex;align-items:center;justify-content:center;font-size:53px;filter:drop-shadow(0 5px 12px rgba(0,0,0,.38))}
-.podium-place.first .podium-icon{height:112px;font-size:76px;filter:drop-shadow(0 0 20px rgba(229,190,104,.35))}
+.podium-place.first .podium-icon{height:112px;font-size:76px;filter:drop-shadow(0 0 20px rgba(229,190,104,.35))}\n.medal-silver{filter:grayscale(1) brightness(1.45) drop-shadow(0 5px 12px rgba(0,0,0,.38))}
 .podium-name{color:#f7f1e5;font-weight:bold;font-size:14px;margin:2px 0 9px}
 .podium-block{width:100%;border-radius:12px 12px 3px 3px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:bold;color:#17202a;border:1px solid rgba(255,255,255,.28);box-shadow:inset 0 1px rgba(255,255,255,.42),0 9px 20px rgba(0,0,0,.25)}
 .first .podium-block{height:100px;background:linear-gradient(135deg,#fff0b9,#d7a844 60%,#a8752c)}
@@ -46,9 +46,9 @@ label{display:block;color:#e7c987;margin:10px 0 5px}select{width:100%;padding:13
 <h2 class="champ-title">جایگاه نخبگان</h2>
 <p class="champ-subtitle">هر امتیاز، یک قدم تا افتخار؛ هر رقابت، فرصتی برای ماندگاری</p>
 <div class="podium">
-<div class="podium-place second"><div class="podium-icon" aria-hidden="true">🥇</div><div class="podium-name">نایب‌قهرمان</div><div class="podium-block" aria-hidden="true"></div></div>
-<div class="podium-place first"><div class="podium-icon" aria-hidden="true">🏆</div><div class="podium-name">قهرمان</div><div class="podium-block" aria-hidden="true"></div></div>
-<div class="podium-place third"><div class="podium-icon" aria-hidden="true">🥈</div><div class="podium-name">رتبه سوم</div><div class="podium-block" aria-hidden="true"></div></div>
+<div class="podium-place second"><div class="podium-icon medal-silver" aria-hidden="true">🏅</div><div class="podium-block" aria-hidden="true"></div></div>
+<div class="podium-place first"><div class="podium-icon" aria-hidden="true">🏆</div><div class="podium-block" aria-hidden="true"></div></div>
+<div class="podium-place third"><div class="podium-icon medal-silver" aria-hidden="true">🏅</div><div class="podium-block" aria-hidden="true"></div></div>
 </div></section>
 <header><div><h1>APEX ARENA | نتایج رسمی بازیکنان</h1><div class="muted">نتایج بازیکنان پس از تأیید ارزیابی‌های داوران توسط مدیریت، برای عموم منتشر می‌شوند.</div></div><a href="index.html">بازگشت به سایت</a></header>
 <section class="panel"><h2>انتخاب تورنمنت</h2><label for="tournamentSelect">انتخاب تورنمنت برای مشاهده نتایج بازیکنان</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p id="pageStatus" class="status" role="status">در حال دریافت فهرست نتایج...</p></section>
