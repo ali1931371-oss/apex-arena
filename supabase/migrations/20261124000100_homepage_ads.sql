@@ -4,6 +4,7 @@ create table if not exists public.homepage_ads (
   title text not null,
   subtitle text not null default '',
   image_path text not null,
+  tournament_id uuid references public.tournaments(id) on delete set null,
   target_url text not null default 'tournaments.html',
   sort_order integer not null default 0,
   is_active boolean not null default true,
@@ -33,5 +34,8 @@ with check (
 
 create index if not exists homepage_ads_active_order_idx
 on public.homepage_ads (is_active, sort_order, created_at desc);
+
+create index if not exists homepage_ads_tournament_idx
+on public.homepage_ads (tournament_id);
 
 notify pgrst, 'reload schema';
