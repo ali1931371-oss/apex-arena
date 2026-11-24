@@ -1,9 +1,7 @@
--- Public tournament roster: expose registered usernames, never players' legal names.
+-- Public tournament roster: show only the username supplied during registration and player code.
 BEGIN;
 
-DROP FUNCTION IF EXISTS public.get_tournament_public_members(uuid);
-
-CREATE FUNCTION public.get_tournament_public_members(p_tournament_id uuid)
+CREATE OR REPLACE FUNCTION public.get_tournament_public_members(p_tournament_id uuid)
 RETURNS TABLE (username text, player_code text)
 LANGUAGE sql
 STABLE
@@ -12,7 +10,7 @@ SET search_path = ''
 AS $$
   SELECT
     COALESCE(
-      NULLIF(btrim(rr.username), ''),
+      NULLIF(btrim(r.username), ''),
       NULLIF(btrim(pr.username), ''),
       'بازیکن'
     ) AS username,
@@ -22,13 +20,13 @@ AS $$
   JOIN public.players pl ON pl.id = tm.player_id
   LEFT JOIN public.profiles pr ON pr.id = tm.user_id
   LEFT JOIN LATERAL (
-    SELECT r.username
-    FROM public.tournament_registration_requests r
-    WHERE r.tournament_id = tm.tournament_id
-      AND r.user_id = tm.user_id
-    ORDER BY r.reviewed_at DESC NULLS LAST, r.created_at DESC
+    SELECT rr.username
+    FROM public.tournament_registration_requests rr
+    WHERE rr.tournament_id = tm.tournament_id
+      AND rr.user_id = tm.user_id
+    ORDER BY rr.reviewed_at DESC NULLS LAST, rr.created_at DESC
     LIMIT 1
-  ) rr ON true
+  ) r ON true
   WHERE tm.tournament_id = p_tournament_id
     AND tm.status = 'active'
     AND t.status IN ('registration','active','completed')
