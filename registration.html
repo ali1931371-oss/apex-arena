@@ -1,7 +1,44 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010"><meta name="description" content="فرم ثبت‌نام در تورنمنت‌های APEX ARENA"><title>ورود به رقابت | APEX ARENA</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;text-align:center}header{padding:16px 18px;border-bottom:1px solid #80652e;background:#161616;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}h1{color:#d8b45a;letter-spacing:2px;font-size:25px;margin:0}h2{font-size:23px;color:#e4c46e}p{color:#d0c8b5;line-height:2}.page-intro{padding:35px 15px;background:radial-gradient(ellipse at 50% 0%,#493714 0%,#211a0d 35%,#101010 76%)}.section{max-width:900px;margin:25px auto;padding:25px;border:1px solid #59451e;border-radius:14px;background:#191919}.admin-box{max-width:600px;margin:20px auto;text-align:right}.registration-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}.registration-grid .full-row{grid-column:1/-1}.field-hint{color:#a99b79;font-size:12px;margin:2px 0 8px}.consent-row{display:flex;align-items:flex-start;gap:10px;color:#d0c8b5;font-size:13px;line-height:1.9;margin:18px 0}.consent-row input{width:auto;margin:5px 0 0;accent-color:#d8b45a}.trust-note{border-right:3px solid #d8b45a;padding:10px 14px;background:#211b10;border-radius:8px;text-align:right;color:#d8cba9;font-size:13px;line-height:2}input,select{display:block;width:100%;margin:12px 0;padding:13px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font-family:inherit;font-size:15px}label{display:block;margin-top:15px;color:#e4c46e}button{width:100%;padding:13px;margin-top:10px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font-family:inherit;font-size:15px;font-weight:bold;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.message{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;margin-top:15px}.error{color:#ff8c8c!important}.success{color:#8be0a2!important}.hidden{display:none!important}.page-link{display:inline-block;padding:10px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none}footer{padding:25px;color:#a99b79;font-size:13px}@media(max-width:600px){header{display:block}.page-link{margin-top:12px}.section{margin:15px 10px;padding:17px}.registration-grid{grid-template-columns:1fr}.registration-grid .full-row{grid-column:auto}}
+*{box-sizing:border-box}
+:root{color-scheme:dark;--red:#e32636;--red-hot:#ff3448;--red-deep:#75121d;--ink:#09090c;--panel:#141216;--line:#51232a;--muted:#c7bfc1;--white:#fff4f4}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(119,16,29,.28),transparent 42%),linear-gradient(145deg,#09090c 0%,#151014 52%,#09090c 100%);color:var(--white);font-family:Tahoma,Arial,sans-serif;text-align:center;position:relative}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(135deg,transparent 0 42px,rgba(255,255,255,.035) 43px,transparent 44px 86px);z-index:0}
+header,.page-intro,main,footer{position:relative;z-index:1}
+header{padding:17px 22px;border-bottom:1px solid rgba(227,38,54,.48);background:rgba(10,9,12,.92);box-shadow:0 8px 30px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+h1{color:#fff;letter-spacing:3px;font-size:25px;margin:0;text-shadow:0 0 18px rgba(255,45,65,.38)}
+h2{font-size:23px;color:#fff;margin-top:0}
+p{color:#d2c8ca;line-height:2}
+.page-intro{padding:54px 18px 46px;background:radial-gradient(ellipse at 50% 20%,rgba(193,22,42,.42),transparent 58%),linear-gradient(180deg,rgba(46,9,16,.86),rgba(12,10,13,.55));border-bottom:1px solid rgba(227,38,54,.24);overflow:hidden}
+.page-intro:before{content:"";display:block;width:72px;height:3px;margin:0 auto 18px;background:linear-gradient(90deg,transparent,var(--red-hot),transparent);box-shadow:0 0 18px rgba(255,52,72,.75)}
+.page-intro h2{font-size:clamp(27px,5vw,42px);letter-spacing:1px;text-shadow:0 4px 22px rgba(255,35,58,.35);margin-bottom:10px}
+.page-intro p{max-width:700px;margin:0 auto;color:#e4d7da}
+.section{max-width:930px;margin:30px auto;padding:30px;border:1px solid #57242c;border-radius:18px;background:linear-gradient(145deg,rgba(28,20,24,.98),rgba(15,13,17,.98));box-shadow:0 18px 55px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.035);position:relative;overflow:hidden}
+.section:before{content:"";position:absolute;top:0;right:8%;left:8%;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);box-shadow:0 0 15px rgba(227,38,54,.6)}
+.section>h2{color:#ff5968}
+.admin-box{max-width:660px;margin:24px auto;text-align:right}
+.registration-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+.registration-grid .full-row{grid-column:1/-1}
+.field-hint{color:#b7a8ac;font-size:12px;margin:2px 0 8px;line-height:1.9}
+.consent-row{display:flex;align-items:flex-start;gap:10px;color:#e0d6d8;font-size:13px;line-height:1.9;margin:18px 0}
+.consent-row input{width:auto;margin:5px 0 0;accent-color:var(--red-hot)}
+.trust-note{border-right:3px solid var(--red);padding:12px 15px;background:linear-gradient(90deg,rgba(75,15,25,.22),rgba(112,18,31,.22));border-radius:9px;text-align:right;color:#e2cdd1;font-size:13px;line-height:2}
+input,select{display:block;width:100%;margin:12px 0;padding:14px 15px;border:1px solid #633039;border-radius:9px;background:linear-gradient(135deg,#21171c,#120f13);color:#fff5f5;font-family:inherit;font-size:15px;transition:border-color .2s,box-shadow .2s,background .2s}
+input::placeholder{color:#9f8d92}
+input:focus,select:focus{outline:none;border-color:#ff5365;background:linear-gradient(135deg,#2a171e,#171015);box-shadow:0 0 0 3px rgba(227,38,54,.17),0 0 18px rgba(227,38,54,.12)}
+select option{background:#171116;color:#fff}
+label{display:block;margin-top:16px;color:#ff7783;font-weight:bold;font-size:14px}
+button{width:100%;padding:15px;margin-top:12px;border:1px solid #ff6876;border-radius:9px;background:linear-gradient(120deg,#9e1425,#ed263b 55%,#a70f24);color:#fff;font-family:inherit;font-size:16px;font-weight:bold;letter-spacing:.2px;cursor:pointer;box-shadow:0 8px 24px rgba(190,20,43,.28),inset 0 1px rgba(255,255,255,.16);transition:transform .2s,filter .2s,box-shadow .2s}
+button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 12px 28px rgba(190,20,43,.4)}
+button:disabled{opacity:.48;cursor:not-allowed;box-shadow:none}
+.message{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;margin-top:15px}
+.error{color:#ff929c!important}.success{color:#91e0aa!important}.hidden{display:none!important}
+.page-link{display:inline-block;padding:10px 16px;border:1px solid #8f3441;border-radius:8px;color:#ffdce0;text-decoration:none;background:rgba(105,17,30,.18);transition:background .2s,border-color .2s}
+.page-link:hover{background:rgba(190,25,48,.25);border-color:#ff5365}
+footer{padding:25px;color:#a9979c;font-size:13px;border-top:1px solid rgba(227,38,54,.18)}
+@media(max-width:600px){header{display:block}.page-link{margin-top:12px}.page-intro{padding:42px 15px 35px}.section{margin:18px 10px;padding:19px 16px}.registration-grid{grid-template-columns:1fr}.registration-grid .full-row{grid-column:auto}.admin-box{margin:20px auto}}
 </style></head><body>
 <header><h1>APEX ARENA</h1><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
 <section class="page-intro"><h2>ورود به رقابت</h2><p>فرم ثبت‌نام تورنمنت را تکمیل کن تا درخواست شرکت در مسابقه برای مدیریت ارسال شود.</p></section>
