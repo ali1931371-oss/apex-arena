@@ -75,12 +75,13 @@
 </header>
 <main>
   <section class="hero" id="home"><h2>به میدان رقابت خوش آمدید</h2><p class="tagline">در میدان اقتدار و برتری فقط نخبگان ماندگارند</p><p>جایی برای نمایش استعداد، مهارت و تفکر حرفه‌ای</p><div class="hero-actions"><a href="tournaments.html">مشاهده مسابقات</a><a class="outline" href="academy.html">آکادمی آموزش</a><a class="outline" href="registration.html">ورود به رقابت</a><a href="judge-directory.html">ورود به پنل داوری</a><a class="outline" href="judge-results.html">نتایج بازیکنان</a></div></section>
+  <section class="section"><h2>تورنمنت‌های APEX ARENA</h2><p>بستری برای برگزاری رقابت‌های متنوع مافیا صوتی، با قوانین، سناریوها و سیستم داوری قابل تنظیم.</p></section>
   <section class="home-ads" id="home-ads" aria-label="تبلیغات و بنرهای تورنمنت">
     <div class="home-ads-shell"><div class="home-ads-heading">APEX ARENA • PROMOTIONS</div><div id="home-ad-slides"></div>
       <div class="home-ad-controls"><button type="button" id="home-ad-prev" aria-label="بنر قبلی">‹</button><div class="home-ad-dots" id="home-ad-dots"></div><button type="button" id="home-ad-next" aria-label="بنر بعدی">›</button></div>
     </div>
   </section>
-  <section class="section"><h2>تورنمنت‌های APEX ARENA</h2><p>بستری برای برگزاری رقابت‌های متنوع مافیا صوتی، با قوانین، سناریوها و سیستم داوری قابل تنظیم.</p></section>
+
 
 
 
@@ -181,7 +182,7 @@ async function loadHomepageAds(){
   const section=document.getElementById("home-ads"),slides=document.getElementById("home-ad-slides"),dots=document.getElementById("home-ad-dots");
   if(!section||!slides||!dots)return;
   try{
-    const {data,error}=await supabaseClient.from("homepage_ads").select("id,title,subtitle,image_path,target_url,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("created_at",{ascending:false});
+    const {data,error}=await supabaseClient.from("homepage_ads").select("id,title,subtitle,image_path,target_url,tournament_id,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("created_at",{ascending:false});
     if(error)throw error;
     if(!data||!data.length)return;
     section.style.display="block";slides.replaceChildren();dots.replaceChildren();
