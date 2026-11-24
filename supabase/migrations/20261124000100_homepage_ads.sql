@@ -13,6 +13,10 @@ create table if not exists public.homepage_ads (
   updated_at timestamptz not null default now()
 );
 
+-- Also supports projects where the original homepage_ads table was created earlier.
+alter table public.homepage_ads
+  add column if not exists tournament_id uuid references public.tournaments(id) on delete set null;
+
 alter table public.homepage_ads enable row level security;
 grant select on public.homepage_ads to anon, authenticated;
 grant insert, update, delete on public.homepage_ads to authenticated;
