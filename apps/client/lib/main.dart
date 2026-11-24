@@ -65,16 +65,6 @@ class _ApexArenaAppState extends State<ApexArenaApp> {
         foregroundColor: isDark ? Colors.white : const Color(0xFF17191F),
         centerTitle: false,
       ),
-      cardTheme: CardTheme(
-        elevation: 0,
-        color: isDark ? const Color(0xFF191C22) : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(
-            color: isDark ? const Color(0xFF2B3039) : const Color(0xFFE5E7EB),
-          ),
-        ),
-      ),
     );
   }
 }
