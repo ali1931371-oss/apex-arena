@@ -24,10 +24,10 @@ label{display:block;margin:10px 0 4px;color:#dce9f4}input,textarea{width:100%;fo
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('loginStatus').textContent='کتابخانه ورود بارگذاری نشد؛ اتصال اینترنت را بررسی و صفحه را دوباره بارگذاری کنید.';document.getElementById('loginStatus').className='status error';"></script>
 <script>
 "use strict";
-const URL="https://vzythswxlvubytzmvhep.supabase.co",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const $=id=>document.getElementById(id);
 let db=null;
-try{if(window.supabase?.createClient){db=window.supabase.createClient(URL,KEY)}else{status("loginStatus","کتابخانه ورود بارگذاری نشده است. اتصال اینترنت را بررسی و صفحه را دوباره بارگذاری کنید.",true)}}catch(initError){status("loginStatus","راه‌اندازی ورود ناموفق بود: "+(initError?.message||"خطای ناشناخته"),true)}
+try{if(window.supabase?.createClient){db=window.supabase.createClient(SUPABASE_URL,KEY)}else{status("loginStatus","کتابخانه ورود بارگذاری نشده است. اتصال اینترنت را بررسی و صفحه را دوباره بارگذاری کنید.",true)}}catch(initError){status("loginStatus","راه‌اندازی ورود ناموفق بود: "+(initError?.message||"خطای ناشناخته"),true)}
 function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
 async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
 function status(id,msg,error=false){$(id).textContent=msg;$(id).className="status "+(error?"error":msg?"success":"")}
