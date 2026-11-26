@@ -256,9 +256,7 @@ async function loadJudgeAppeals(){
    card.append(node("p",item.stage_name+" | بازی "+item.game_number+" | معیار: "+item.criterion_name+" | نمره ثبت‌شده: "+item.points,"muted"));
    card.append(node("p","متن اعتراض: "+item.message));
    if(item.reply)card.append(node("p","پاسخ قبلی شما: "+item.reply,"muted"));
-   if(item.status==="answered"){
-    card.append(node("p","این اعتراض پاسخ داده شده است. برای تغییر دوباره، بازیکن باید اعتراض جدیدی ثبت کند.","muted"));
-   }else{
+   {
     const scoreLabel=node("label","نمره اصلاح‌شده برای معیار «"+item.criterion_name+"»");
     const scoreInput=node("input");scoreInput.type="number";scoreInput.step="any";scoreInput.value=String(item.points??"");scoreInput.inputMode="decimal";
     const replyLabel=node("label","توضیح اصلاح برای بازیکن");
