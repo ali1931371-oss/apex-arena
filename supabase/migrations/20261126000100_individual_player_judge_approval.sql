@@ -19,6 +19,19 @@ ALTER TABLE public.judge_game_submissions
       OR (status IN ('submitted','pending_review','approved','rejected') AND submitted_at IS NOT NULL)
     );
 
+CREATE TABLE IF NOT EXISTS public.judge_game_player_approvals (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ tournament_id uuid NOT NULL REFERENCES public.tournaments(id) ON DELETE CASCADE,
+ stage_name text NOT NULL,
+ stage_key text GENERATED ALWAYS AS (lower(btrim(stage_name))) STORED,
+ game_number integer NOT NULL CHECK (game_number BETWEEN 1 AND 999),
+ player_id uuid NOT NULL REFERENCES public.players(id) ON DELETE RESTRICT,
+ approved_by uuid NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
+ approved_at timestamptz NOT NULL DEFAULT now(),
+ UNIQUE(tournament_id,stage_key,game_number,player_id)
+);
+ALTER TABLE public.judge_game_player_approvals ENABLE ROW LEVEL SECURITY;
+
 -- This known test submission was approved by the legacy workflow without a
 -- per-player approval record. Return only this test row to manager review.
 UPDATE public.judge_game_submissions
@@ -34,18 +47,6 @@ WHERE id = '51c8d3c4-466f-49d9-a096-d0c810583eee'
       AND pa.player_id = judge_game_submissions.player_id
   );
 
-CREATE TABLE IF NOT EXISTS public.judge_game_player_approvals (
- id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
- tournament_id uuid NOT NULL REFERENCES public.tournaments(id) ON DELETE CASCADE,
- stage_name text NOT NULL,
- stage_key text GENERATED ALWAYS AS (lower(btrim(stage_name))) STORED,
- game_number integer NOT NULL CHECK (game_number BETWEEN 1 AND 999),
- player_id uuid NOT NULL REFERENCES public.players(id) ON DELETE RESTRICT,
- approved_by uuid NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
- approved_at timestamptz NOT NULL DEFAULT now(),
- UNIQUE(tournament_id,stage_key,game_number,player_id)
-);
-ALTER TABLE public.judge_game_player_approvals ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.judge_game_player_approvals FROM PUBLIC,anon,authenticated;
 CREATE OR REPLACE FUNCTION public.approve_judge_player_result(
   p_tournament_id uuid, p_stage_name text, p_game_number integer, p_player_id uuid
@@ -431,6 +432,13 @@ BEGIN
       AND s.game_number = g.game_number
       AND s.player_id = g.player_id
       AND s.status = 'approved'
+      AND EXISTS (
+        SELECT 1 FROM public.judge_game_player_approvals pa
+        WHERE pa.tournament_id = s.tournament_id
+          AND pa.stage_key = s.stage_key
+          AND pa.game_number = s.game_number
+          AND pa.player_id = s.player_id
+      )
     ORDER BY s.submitted_at DESC, s.created_at DESC
     LIMIT 1
   ) meta
@@ -469,6 +477,13 @@ BEGIN
         AND s.game_number = g.game_number
         AND s.player_id = g.player_id
         AND s.status = 'approved'
+        AND EXISTS (
+          SELECT 1 FROM public.judge_game_player_approvals pa
+          WHERE pa.tournament_id = s.tournament_id
+            AND pa.stage_key = s.stage_key
+            AND pa.game_number = s.game_number
+            AND pa.player_id = s.player_id
+        )
       GROUP BY tc.id, tc.criterion_name, tc.criterion_group, tc.display_order
     ) c
   ) scores;
