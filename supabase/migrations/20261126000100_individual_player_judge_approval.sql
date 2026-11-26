@@ -206,9 +206,11 @@ BEGIN
     WHERE s.tournament_id = p_tournament_id
       AND s.stage_key = lower(btrim(p_stage_name))
       AND s.game_number = p_game_number
+      AND s.player_id = p_player_id
       AND s.replacement_for_judge_id = auth.uid()
+      AND s.status IN ('pending_review','approved')
   ) THEN
-    RAISE EXCEPTION 'مدیر برای این بازی جایگزین شما شده است؛ دیگر امکان ثبت امتیاز ندارید.';
+    RAISE EXCEPTION 'مدیر برای ارزیابی همین بازیکن جایگزین شما شده است؛ برای این بازیکن دیگر امکان ثبت امتیاز ندارید.';
   END IF;
 
   SELECT s.id, s.status INTO v_submission_id, v_existing_status
@@ -437,5 +439,8 @@ REVOKE ALL ON FUNCTION public.get_public_judge_game_results(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_public_judge_game_results(uuid) TO anon,authenticated;
 REVOKE ALL ON FUNCTION public.save_judge_game_score(uuid,text,integer,uuid,text,text,jsonb,boolean,uuid) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.save_judge_game_score(uuid,text,integer,uuid,text,text,jsonb,boolean,uuid) TO authenticated;
+-- Disable the legacy whole-game approval RPC so it cannot bypass per-player review.
+REVOKE ALL ON FUNCTION public.approve_judge_game_results(uuid,text,integer) FROM PUBLIC,anon,authenticated;
+
 NOTIFY pgrst,'reload schema';
 COMMIT;
