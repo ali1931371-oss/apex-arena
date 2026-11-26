@@ -120,6 +120,11 @@ DECLARE
 BEGIN
   IF auth.uid() IS NULL THEN RAISE EXCEPTION 'ابتدا وارد حساب کاربری شوید.'; END IF;
 
+  -- Serialize score writes with manager approval/reopen for this tournament.
+  -- This prevents a concurrent submission from slipping in after publication.
+  PERFORM 1 FROM public.tournaments WHERE id = p_tournament_id FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'تورنمنت پیدا نشد.'; END IF;
+
   IF p_replacement_for_judge_id IS NULL THEN
     IF NOT EXISTS (
       SELECT 1 FROM public.tournament_judges tj
