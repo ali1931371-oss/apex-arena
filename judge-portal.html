@@ -61,7 +61,7 @@ button:hover,.link:hover{filter:brightness(1.08);transform:translateY(-1px)}butt
 <div class="actions"><button id="saveDraftButton" class="secondary">ذخیره پیش‌نویس</button><button id="submitScoreButton">ارسال نهایی امتیاز</button></div>
 <p id="formStatus" class="status" role="status"></p>
 </section>
-<section id="appealsPanel" class="panel" style="margin-top:18px"><h2>اعتراض‌های بازیکنان به نمرات شما</h2><p class="muted">پاسخ شما فقط به بازیکن نمایش داده می‌شود و امکان تغییر نمره ثبت‌شده از این بخش وجود ندارد.</p><div id="judgeAppealsList"><p class="muted">در حال دریافت اعتراض‌ها...</p></div><p id="appealsStatus" class="status" role="status"></p></section>
+<section id="appealsPanel" class="panel" style="margin-top:18px"><h2>اعتراض‌های بازیکنان به نمرات شما</h2><p class="muted">در صورت پذیرش اعتراض، می‌توانی نمره همان معیار را اصلاح کنی. نتیجه پس از اصلاح فقط با تأیید دوباره مدیر منتشر می‌شود.</p><div id="judgeAppealsList"><p class="muted">در حال دریافت اعتراض‌ها...</p></div><p id="appealsStatus" class="status" role="status"></p></section>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -255,12 +255,29 @@ async function loadJudgeAppeals(){
    card.append(node("h3",(item.player_name||"بازیکن")+" — "+item.tournament_name));
    card.append(node("p",item.stage_name+" | بازی "+item.game_number+" | معیار: "+item.criterion_name+" | نمره ثبت‌شده: "+item.points,"muted"));
    card.append(node("p","متن اعتراض: "+item.message));
-   if(item.reply){card.append(node("p","پاسخ شما: "+item.reply,"muted"))}
-   else{
-    const area=node("textarea");area.rows=3;area.placeholder="پاسخ محترمانه و مستدل به اعتراض بازیکن...";
-    const button=node("button","ارسال پاسخ");button.type="button";
-    button.addEventListener("click",async()=>{button.disabled=true;try{await rpc("reply_to_player_score_appeal",{p_appeal_id:item.appeal_id,p_reply:area.value});await loadJudgeAppeals();$("appealsStatus").textContent="پاسخ ثبت شد."}catch(e){$("appealsStatus").textContent="ثبت پاسخ ناموفق بود: "+e.message;button.disabled=false}});
-    card.append(area,button);
+   if(item.reply)card.append(node("p","پاسخ قبلی شما: "+item.reply,"muted"));
+   if(item.status==="answered"){
+    card.append(node("p","این اعتراض پاسخ داده شده است. برای تغییر دوباره، بازیکن باید اعتراض جدیدی ثبت کند.","muted"));
+   }else{
+    const scoreLabel=node("label","نمره اصلاح‌شده برای معیار «"+item.criterion_name+"»");
+    const scoreInput=node("input");scoreInput.type="number";scoreInput.step="any";scoreInput.value=String(item.points??"");scoreInput.inputMode="decimal";
+    const replyLabel=node("label","توضیح اصلاح برای بازیکن");
+    const area=node("textarea");area.rows=3;area.placeholder="دلیل اصلاح یا عدم تغییر نمره را توضیح بده...";
+    const button=node("button","ثبت اصلاح نمره و ارسال برای تأیید مدیر");button.type="button";
+    button.addEventListener("click",async()=>{
+     const next=Number(scoreInput.value);
+     if(scoreInput.value.trim()===""||!Number.isFinite(next)){setStatus("appealsStatus","نمره جدید معتبر نیست.",true);return}
+     if(!area.value.trim()){setStatus("appealsStatus","توضیح اصلاح را وارد کن.",true);area.focus();return}
+     if(!confirm("نمره این معیار اصلاح و نتیجه همین بازیکن برای تأیید دوباره به مدیر ارسال شود؟"))return;
+     button.disabled=true;scoreInput.disabled=true;area.disabled=true;
+     try{
+      await rpc("correct_player_score_appeal",{p_appeal_id:item.appeal_id,p_new_points:next,p_judge_reply:area.value});
+      setStatus("appealsStatus","نمره اصلاح شد؛ نتیجه این بازیکن در انتظار تأیید دوباره مدیر است.");
+      await loadJudgeAppeals();
+      if($("tournamentSelect").value===item.tournament_id){await refreshTournamentData()}
+     }catch(e){setStatus("appealsStatus","اصلاح نمره انجام نشد: "+e.message,true);button.disabled=false;scoreInput.disabled=false;area.disabled=false}
+    });
+    card.append(scoreLabel,scoreInput,replyLabel,area,button);
    }
    box.append(card);
   });
