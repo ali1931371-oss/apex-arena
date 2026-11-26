@@ -474,7 +474,7 @@ RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
-AS $
+AS $$
 DECLARE
   v_snapshot jsonb;
   v_audit_id uuid;
@@ -568,7 +568,7 @@ BEGIN
     'message', 'فقط نتیجه همین بازیکن برای اصلاح باز شد؛ نتایج سایر بازیکنان بدون تغییر باقی ماندند.'
   );
 END;
-$;
+$$;
 
 REVOKE ALL ON FUNCTION public.reopen_judge_game_for_correction(uuid,text,integer,text)
   FROM PUBLIC, anon, authenticated;
