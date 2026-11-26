@@ -338,22 +338,21 @@ async function loadReviewSubmissions(){
   if(!rows?.length){box.append(node("p","برای این تورنمنت هنوز ارزیابی ارسال‌شده‌ای وجود ندارد.","muted"));setStatus("reviewStatus","موردی برای نمایش وجود ندارد.");return}
   const groups=new Map();
   rows.forEach(r=>{
-   const key=String(r.stage_name||"").trim().toLocaleLowerCase("fa")+"|"+Number(r.game_number);
-   if(!groups.has(key))groups.set(key,{stage_name:r.stage_name,game_number:r.game_number,rows:[]});
+   const key=[String(r.stage_name||"").trim().toLocaleLowerCase("fa"),Number(r.game_number),r.player_id].join("|");
+   if(!groups.has(key))groups.set(key,{stage_name:r.stage_name,game_number:r.game_number,player_id:r.player_id,player_name:r.player_name,rows:[]});
    groups.get(key).rows.push(r);
   });
-  let pendingTotal=0;
+  let pendingTotal=0,approvedPlayers=0;
   [...groups.values()].forEach(g=>{
    const card=node("article",undefined,"card");
-   card.append(node("h3",g.stage_name+" | بازی "+g.game_number));
-   const approved=g.rows.every(r=>r.status==="approved");
+   card.append(node("h3",g.stage_name+" | بازی "+g.game_number+" | "+(g.player_name||"بازیکن")));
+   const approved=g.rows.some(r=>r.group_approved)||g.rows.every(r=>r.status==="approved");
    const pending=g.rows.filter(r=>r.status==="pending_review").length;
    const rejected=g.rows.filter(r=>r.status==="rejected").length;
-   pendingTotal+=pending;
-   card.append(node("p","ارزیابی‌ها: "+g.rows.length+" | در انتظار بررسی: "+pending+" | برگشت‌خورده: "+rejected,"muted"));
+   pendingTotal+=pending;if(approved)approvedPlayers++;
+   card.append(node("p","ارزیابی‌های این بازیکن: "+g.rows.length+" | در انتظار تأیید: "+pending+" | برگشت‌خورده: "+rejected,"muted"));
    g.rows.forEach(r=>{
     const item=node("div",undefined,"card");
-    item.append(node("strong",r.player_name||"بازیکن"));
     const evaluator=r.replacement_for_judge_id
       ?"جایگزین داور "+(r.replacement_for_judge_name||"غایب")+" توسط مدیر "+r.judge_name
       :"داور: "+(r.judge_name||"نامشخص");
@@ -376,33 +375,22 @@ async function loadReviewSubmissions(){
     card.append(item);
    });
    if(!approved&&pending>0){
-    const approve=node("button","تأیید نهایی کل بازی و انتشار میانگین");
-    approve.onclick=async()=>{
-     if(!confirm("تمام ارزیابی‌های این بازی تأیید شوند؟ سایت میانگین را محاسبه و نتیجه را به‌صورت خودکار منتشر می‌کند. پس از انتشار امتیازدهی قفل خواهد شد."))return;
-     approve.disabled=true;
+    const approveButton=node("button","تأیید ارزیابی‌های این بازیکن و انتشار میانگین");
+    approveButton.onclick=async()=>{
+     if(!confirm("ارزیابی‌های همین بازیکن تأیید شوند؟ سیستم میانگین نمرات داوران همین بازیکن را محاسبه و منتشر می‌کند؛ سایر بازیکنان تحت تأثیر قرار نمی‌گیرند."))return;
+     approveButton.disabled=true;
      try{
-      await rpc("approve_judge_game_results",{p_tournament_id:tid,p_stage_name:g.stage_name,p_game_number:Number(g.game_number)});
+      await rpc("approve_judge_player_result",{p_tournament_id:tid,p_stage_name:g.stage_name,p_game_number:Number(g.game_number),p_player_id:g.player_id});
       await loadReviewSubmissions();
-     }catch(e){setStatus("reviewStatus","تأیید گروهی انجام نشد: "+e.message,true);approve.disabled=false}
+     }catch(e){setStatus("reviewStatus","تأیید نتیجه این بازیکن انجام نشد: "+e.message,true);approveButton.disabled=false}
     };
-    card.append(approve);
+    card.append(approveButton);
    }else if(approved){
-    card.append(node("p","این بازی تأیید و منتشر شده است؛ امتیازدهی آن قفل است.","success"));
-    if(g.rows.some(r=>r.group_approved)){
-     const reopen=node("button","بازگشایی رسمی بازی برای اصلاح");reopen.className="secondary";
-     reopen.onclick=async()=>{
-      const reason=prompt("دلیل رسمی بازگشایی و اصلاح این بازی را بنویس:");
-      if(!reason||reason.trim().length<5){setStatus("reviewStatus","دلیل اصلاح باید حداقل ۵ نویسه باشد.",true);return}
-      reopen.disabled=true;
-      try{await rpc("reopen_judge_game_for_correction",{p_tournament_id:tid,p_stage_name:g.stage_name,p_game_number:Number(g.game_number),p_reason:reason.trim()});await loadReviewSubmissions()}
-      catch(e){setStatus("reviewStatus","بازگشایی برای اصلاح انجام نشد: "+e.message,true);reopen.disabled=false}
-     };
-     card.append(reopen);
-    }
+    card.append(node("p","نتیجه این بازیکن تأیید و منتشر شده است؛ ارزیابی‌های او قفل هستند.","success"));
    }
    box.append(card);
   });
-  setStatus("reviewStatus",groups.size+" بازی دریافت شد؛ "+pendingTotal+" ارزیابی در انتظار بررسی است. تأیید نهایی فقط برای کل بازی انجام می‌شود.");
+  setStatus("reviewStatus",groups.size+" پرونده بازیکن در این بازی‌ها دریافت شد؛ "+approvedPlayers+" بازیکن منتشرشده و "+pendingTotal+" ارزیابی در انتظار بررسی است. تأیید هر بازیکن مستقل است.");
  }catch(e){setStatus("reviewStatus","دریافت ارزیابی‌ها انجام نشد: "+e.message,true)}
 }
 
