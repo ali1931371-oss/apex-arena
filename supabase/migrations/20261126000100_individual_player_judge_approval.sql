@@ -19,6 +19,21 @@ ALTER TABLE public.judge_game_submissions
       OR (status IN ('submitted','pending_review','approved','rejected') AND submitted_at IS NOT NULL)
     );
 
+-- This known test submission was approved by the legacy workflow without a
+-- per-player approval record. Return only this test row to manager review.
+UPDATE public.judge_game_submissions
+SET status = 'pending_review', reviewed_at = NULL, reviewed_by = NULL,
+    review_note = NULL, updated_at = now()
+WHERE id = '51c8d3c4-466f-49d9-a096-d0c810583eee'
+  AND status = 'approved'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.judge_game_player_approvals pa
+    WHERE pa.tournament_id = judge_game_submissions.tournament_id
+      AND pa.stage_key = judge_game_submissions.stage_key
+      AND pa.game_number = judge_game_submissions.game_number
+      AND pa.player_id = judge_game_submissions.player_id
+  );
+
 CREATE TABLE IF NOT EXISTS public.judge_game_player_approvals (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  tournament_id uuid NOT NULL REFERENCES public.tournaments(id) ON DELETE CASCADE,
@@ -397,6 +412,13 @@ BEGIN
     JOIN public.players pl ON pl.id = s.player_id
     WHERE s.tournament_id = p_tournament_id
       AND s.status = 'approved'
+      AND EXISTS (
+        SELECT 1 FROM public.judge_game_player_approvals pa
+        WHERE pa.tournament_id = s.tournament_id
+          AND pa.stage_key = s.stage_key
+          AND pa.game_number = s.game_number
+          AND pa.player_id = s.player_id
+      )
     GROUP BY
       s.tournament_id, s.stage_key, s.game_number,
       s.player_id, pl.display_name, pl.player_code
