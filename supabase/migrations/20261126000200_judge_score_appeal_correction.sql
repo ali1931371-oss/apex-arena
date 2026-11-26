@@ -22,8 +22,8 @@ BEGIN
   IF auth.uid() IS NULL THEN
     RAISE EXCEPTION 'ابتدا وارد حساب داوری شوید.';
   END IF;
-  IF p_judge_reply IS NULL OR length(btrim(p_judge_reply)) NOT BETWEEN 1 AND 2000 THEN
-    RAISE EXCEPTION 'توضیح اصلاح باید بین ۱ تا ۲۰۰۰ نویسه باشد.';
+  IF p_judge_reply IS NULL OR length(btrim(p_judge_reply)) NOT BETWEEN 5 AND 900 THEN
+    RAISE EXCEPTION 'توضیح اصلاح باید بین ۵ تا ۹۰۰ نویسه باشد.';
   END IF;
 
   SELECT * INTO v_appeal
@@ -109,12 +109,11 @@ BEGIN
     AND s.status = 'approved';
 
   INSERT INTO public.judge_game_correction_audit (
-    tournament_id, stage_name, game_number, player_id,
+    tournament_id, stage_name, game_number,
     reopened_by, reason, previous_scores
   ) VALUES (
     v_submission.tournament_id, v_submission.stage_name,
-    v_submission.game_number, v_submission.player_id,
-    auth.uid(),
+    v_submission.game_number, auth.uid(),
     'اصلاح نمره در پاسخ به اعتراض بازیکن: ' || btrim(p_judge_reply),
     v_snapshot
   ) RETURNING id INTO v_audit_id;
