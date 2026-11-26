@@ -57,11 +57,13 @@ BEGIN
     RAISE EXCEPTION 'نتیجه این بازیکن در وضعیت انتشار نیست یا قبلاً برای اصلاح باز شده است.';
   END IF;
 
-  SELECT * INTO v_criterion
-  FROM public.tournament_criteria
-  WHERE id = v_appeal.score_item_id
-    AND tournament_id = v_submission.tournament_id
-    AND is_active = true;
+  SELECT tc.* INTO v_criterion
+  FROM public.judge_game_score_items si
+  JOIN public.tournament_criteria tc ON tc.id = si.criterion_id
+  WHERE si.id = v_appeal.score_item_id
+    AND si.submission_id = v_submission.id
+    AND tc.tournament_id = v_submission.tournament_id
+    AND tc.is_active = true;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'معیار امتیاز مورد اعتراض فعال یا معتبر نیست.';
   END IF;
