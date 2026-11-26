@@ -34,8 +34,8 @@ button:hover,.link:hover{filter:brightness(1.08);transform:translateY(-1px)}butt
 <body>
 <main>
 <header><div><h1>APEX ARENA | پنل داوری</h1><div class="muted">ثبت ارزیابی بازیکنان در تورنمنت‌های منصوب‌شده</div></div><div class="actions"><a class="link secondary" href="index.html">بازگشت به سایت</a><button id="logoutButton" class="danger hidden">خروج</button></div></header>
-<section id="loginPanel" class="panel"><h2>ورود داور</h2><p>با حسابی وارد شو که مدیریت، آن را به‌عنوان داور در تورنمنت موردنظر منصوب کرده است.</p>
-<label for="email">ایمیل</label><input id="email" type="email" autocomplete="username"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
+<section id="loginPanel" class="panel"><h2>ورود داور</h2><p>با نام کاربری و رمز عبوری وارد شو که هنگام ساخت حساب APEX ARENA تعیین کرده‌ای. ورود با ایمیل یا شماره تماس لازم نیست.</p>
+<label for="username">نام کاربری</label><input id="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="نام کاربری انگلیسی"><label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
 <button id="loginButton">ورود</button><p id="loginStatus" class="status" role="status"></p></section>
 <section id="judgePanel" class="hidden">
 <section class="panel"><h2>تورنمنت‌های من</h2><p id="judgeIdentity" class="muted">حساب داور</p><label for="tournamentSelect">انتخاب تورنمنت منصوب‌شده</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p class="muted">داور به تمام بازی‌های تورنمنت انتخاب‌شده دسترسی دارد؛ بازی‌ها در این سایت ساخته نمی‌شوند.</p><p id="pageStatus" class="status" role="status"></p></section>
@@ -129,7 +129,9 @@ function renderCriteria(){
 async function signIn(){
  const b=$("loginButton");b.disabled=true;setStatus("loginStatus","در حال ورود...");
  try{
-  const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+  const username=$("username").value.trim().toLowerCase();
+  if(!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(username))throw new Error("نام کاربری باید ۳ تا ۳۰ نویسه انگلیسی، عدد، نقطه، خط تیره یا زیرخط باشد.");
+  const {data,error}=await db.auth.signInWithPassword({email:username+"@users.apexarena.invalid",password:$("password").value});
   if(error)throw error;
   user=data.user;$("loginPanel").classList.add("hidden");$("judgePanel").classList.remove("hidden");$("logoutButton").classList.remove("hidden");
   await loadTournaments();
@@ -265,6 +267,7 @@ async function loadJudgeAppeals(){
  }catch(e){$("appealsStatus").textContent="دریافت اعتراض‌ها ناموفق بود: "+e.message}
 }
 $("loginButton").addEventListener("click",signIn);
+$("username").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});
 $("tournamentSelect").addEventListener("change",()=>loadTournament($("tournamentSelect").value));
 $("loadFormButton").addEventListener("click",loadSelectedForm);
