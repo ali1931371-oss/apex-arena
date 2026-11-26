@@ -1,6 +1,24 @@
 -- APEX ARENA: independent player approval and automatic judge-score averaging.
 -- Keeps legacy game approvals and correction audit history intact.
 BEGIN;
+
+
+-- Align the legacy status constraints with the current review workflow.
+-- Keep the historical 'submitted' value accepted for existing rows/data.
+ALTER TABLE public.judge_game_submissions
+  DROP CONSTRAINT IF EXISTS judge_game_submissions_status_check;
+ALTER TABLE public.judge_game_submissions
+  DROP CONSTRAINT IF EXISTS judge_game_submissions_status_time_check;
+ALTER TABLE public.judge_game_submissions
+  ADD CONSTRAINT judge_game_submissions_status_check
+    CHECK (status IN ('draft','submitted','pending_review','approved','rejected'));
+ALTER TABLE public.judge_game_submissions
+  ADD CONSTRAINT judge_game_submissions_status_time_check
+    CHECK (
+      (status = 'draft' AND submitted_at IS NULL)
+      OR (status IN ('submitted','pending_review','approved','rejected') AND submitted_at IS NOT NULL)
+    );
+
 CREATE TABLE IF NOT EXISTS public.judge_game_player_approvals (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  tournament_id uuid NOT NULL REFERENCES public.tournaments(id) ON DELETE CASCADE,
@@ -439,6 +457,127 @@ REVOKE ALL ON FUNCTION public.get_public_judge_game_results(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_public_judge_game_results(uuid) TO anon,authenticated;
 REVOKE ALL ON FUNCTION public.save_judge_game_score(uuid,text,integer,uuid,text,text,jsonb,boolean,uuid) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.save_judge_game_score(uuid,text,integer,uuid,text,text,jsonb,boolean,uuid) TO authenticated;
+
+-- Per-player correction audit and reopen path. The legacy game-level reopen RPC
+-- is disabled so it cannot reopen unrelated players.
+ALTER TABLE public.judge_game_correction_audit
+  ADD COLUMN IF NOT EXISTS player_id uuid REFERENCES public.players(id) ON DELETE RESTRICT;
+
+CREATE OR REPLACE FUNCTION public.reopen_judge_player_result_for_correction(
+  p_tournament_id uuid,
+  p_stage_name text,
+  p_game_number integer,
+  p_player_id uuid,
+  p_reason text
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $
+DECLARE
+  v_snapshot jsonb;
+  v_audit_id uuid;
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_apex_manager() THEN
+    RAISE EXCEPTION 'فقط مدیر یا مسئول مسابقه می‌تواند نتیجه بازیکن را برای اصلاح باز کند.';
+  END IF;
+  IF p_stage_name IS NULL OR length(btrim(p_stage_name)) NOT BETWEEN 1 AND 100
+     OR p_game_number IS NULL OR p_game_number NOT BETWEEN 1 AND 999
+     OR p_player_id IS NULL THEN
+    RAISE EXCEPTION 'مرحله، شماره بازی یا بازیکن معتبر نیست.';
+  END IF;
+  IF p_reason IS NULL OR length(btrim(p_reason)) NOT BETWEEN 5 AND 1000 THEN
+    RAISE EXCEPTION 'دلیل اصلاح باید بین ۵ تا ۱۰۰۰ نویسه باشد.';
+  END IF;
+
+  PERFORM 1 FROM public.tournaments
+  WHERE id = p_tournament_id
+  FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'تورنمنت پیدا نشد.'; END IF;
+
+  PERFORM 1 FROM public.judge_game_player_approvals a
+  WHERE a.tournament_id = p_tournament_id
+    AND a.stage_key = lower(btrim(p_stage_name))
+    AND a.game_number = p_game_number
+    AND a.player_id = p_player_id
+  FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'نتیجه این بازیکن منتشر نشده یا قبلاً برای اصلاح باز شده است.';
+  END IF;
+
+  SELECT COALESCE(jsonb_agg(jsonb_build_object(
+    'submission_id', s.id,
+    'judge_id', s.judge_id,
+    'replacement_for_judge_id', s.replacement_for_judge_id,
+    'status', s.status,
+    'side', s.side,
+    'role_name', s.role_name,
+    'items', COALESCE((
+      SELECT jsonb_agg(jsonb_build_object(
+        'criterion_id', si.criterion_id,
+        'raw_points', si.raw_points,
+        'notes', si.notes
+      ) ORDER BY si.criterion_id)
+      FROM public.judge_game_score_items si
+      WHERE si.submission_id = s.id
+    ), '[]'::jsonb)
+  ) ORDER BY s.judge_id), '[]'::jsonb)
+  INTO v_snapshot
+  FROM public.judge_game_submissions s
+  WHERE s.tournament_id = p_tournament_id
+    AND s.stage_key = lower(btrim(p_stage_name))
+    AND s.game_number = p_game_number
+    AND s.player_id = p_player_id
+    AND s.status = 'approved';
+
+  IF jsonb_array_length(v_snapshot) = 0 THEN
+    RAISE EXCEPTION 'ارزیابی تأییدشده‌ای برای این بازیکن پیدا نشد.';
+  END IF;
+
+  INSERT INTO public.judge_game_correction_audit (
+    tournament_id, stage_name, game_number, player_id,
+    reopened_by, reason, previous_scores
+  ) VALUES (
+    p_tournament_id, btrim(p_stage_name), p_game_number, p_player_id,
+    auth.uid(), btrim(p_reason), v_snapshot
+  ) RETURNING id INTO v_audit_id;
+
+  DELETE FROM public.judge_game_player_approvals
+  WHERE tournament_id = p_tournament_id
+    AND stage_key = lower(btrim(p_stage_name))
+    AND game_number = p_game_number
+    AND player_id = p_player_id;
+
+  UPDATE public.judge_game_submissions
+  SET status = 'rejected',
+      reviewed_at = now(),
+      reviewed_by = auth.uid(),
+      review_note = 'بازگشایی نتیجه همین بازیکن برای اصلاح: ' || btrim(p_reason),
+      updated_at = now()
+  WHERE tournament_id = p_tournament_id
+    AND stage_key = lower(btrim(p_stage_name))
+    AND game_number = p_game_number
+    AND player_id = p_player_id
+    AND status = 'approved';
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'player_id', p_player_id,
+    'correction_audit_id', v_audit_id,
+    'message', 'فقط نتیجه همین بازیکن برای اصلاح باز شد؛ نتایج سایر بازیکنان بدون تغییر باقی ماندند.'
+  );
+END;
+$;
+
+REVOKE ALL ON FUNCTION public.reopen_judge_game_for_correction(uuid,text,integer,text)
+  FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.reopen_judge_player_result_for_correction(uuid,text,integer,uuid,text)
+  FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.reopen_judge_player_result_for_correction(uuid,text,integer,uuid,text)
+  TO authenticated;
+
+
 -- Disable the legacy whole-game approval RPC so it cannot bypass per-player review.
 REVOKE ALL ON FUNCTION public.approve_judge_game_results(uuid,text,integer) FROM PUBLIC,anon,authenticated;
 
