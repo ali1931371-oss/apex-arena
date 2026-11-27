@@ -29,8 +29,8 @@ footer{padding:25px;color:#8797aa;font-size:12px;border-top:1px solid rgba(190,2
 @media(max-width:600px){header{justify-content:center}.page-wrap{padding:0 13px 30px}.page-intro{padding:40px 16px}.stats{gap:6px}.stat{padding:10px 4px}.stat strong{font-size:16px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 /* Tournament page wallpaper: visual-only layer; keep all tournament data and controls unchanged */
 body{position:relative;isolation:isolate;background:#050a15}
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(4,9,18,.56),rgba(4,9,18,.68)),url("assets/tournaments-bg.webp") center center/cover no-repeat;transform:translateZ(0)}
-header{background:rgba(4,9,18,.76)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(4,9,18,.14),rgba(4,9,18,.30)),url("assets/tournaments-bg.webp") top center/100% auto no-repeat;background-color:#050a15;transform:translateZ(0)}
+header{background:rgba(4,9,18,.24);backdrop-filter:blur(2px)}
 .page-intro{background:linear-gradient(135deg,rgba(19,34,55,.76),rgba(5,11,21,.68)),repeating-linear-gradient(135deg,transparent 0 22px,rgba(192,207,226,.035) 22px 24px)}
 .tournament-card{background:linear-gradient(150deg,rgba(25,39,60,.82),rgba(8,15,27,.80) 68%);backdrop-filter:blur(5px)}
 .card-top{background:linear-gradient(100deg,rgba(58,75,99,.42),rgba(12,22,37,.18))}
