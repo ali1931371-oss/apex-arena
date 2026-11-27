@@ -39,6 +39,38 @@ label{display:block;color:#e7c987;margin:10px 0 5px}select{width:100%;padding:13
 .podium-place.first .podium-name{color:#f6d98f}.podium-place.second .podium-name{color:#d5dfe8}.podium-place.third .podium-name{color:#dfb18d}
 .review-link{display:inline-block;margin-top:14px;padding:9px 15px;border:1px solid rgba(226,195,130,.45);border-radius:10px;background:linear-gradient(135deg,rgba(226,195,130,.16),rgba(30,43,57,.9));color:#f1d79e;font-weight:bold;text-decoration:none}.review-link:hover{background:rgba(226,195,130,.24);color:#fff}\n.hidden{display:none!important}
 @media(max-width:560px){main{padding:12px 10px 40px}header{display:block;text-align:center}header a{display:inline-block;margin-top:8px}.panel,.result,header{padding:15px}.championship{padding:23px 10px 16px}.podium{gap:6px}.podium-icon{font-size:40px;height:68px}.podium-place.first .podium-icon{font-size:60px;height:88px}.podium-name{font-size:11px}.podium-block{font-size:24px}}
+
+/* APEX ARENA championship refresh: turquoise + gold, with the supplied victory artwork */
+:root{color-scheme:dark;--champagne:#f4dfad;--gold:#e4bd62;--silver:#d8e5e5;--bronze:#c99b70;--line:rgba(111,226,210,.25)}
+body{background:radial-gradient(ellipse at 50% 0%,rgba(35,190,174,.22),transparent 48%),linear-gradient(150deg,#062f32 0%,#0b4545 48%,#082c31 100%);color:#f2fbf7}
+body:before{opacity:.12;background-image:radial-gradient(1px 1px at 20% 25%,#f8e5b5 50%,transparent 60%),radial-gradient(1px 1px at 75% 35%,#9af0df 50%,transparent 60%),radial-gradient(1px 1px at 45% 80%,#e4bd62 50%,transparent 60%)}
+header,.panel,.result{background:linear-gradient(145deg,rgba(9,73,72,.94),rgba(5,42,48,.96));border-color:rgba(115,226,211,.25);box-shadow:0 16px 40px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.06)}
+h1,h2,h3,h4{color:#f2d58e}
+p{color:#d7eee8}
+a{color:#f0d28a;border-color:rgba(240,210,138,.4)}
+label{color:#9ce6d8}
+select{border-color:rgba(113,220,205,.4);background:#07383b;color:#f4fbf8}
+select:focus{border-color:#e4bd62;box-shadow:0 0 0 3px rgba(228,189,98,.16)}
+.muted{color:#a9d1cb}
+.status{background:rgba(8,63,64,.72)}
+.success{color:#a8f0d8}
+.metric{background:linear-gradient(145deg,rgba(228,189,98,.13),rgba(7,55,58,.84));border-color:rgba(228,189,98,.27)}
+.metric strong,.criteria strong{color:#f1d38c}
+.result{background:linear-gradient(135deg,rgba(7,65,66,.95),rgba(5,42,49,.97));border-color:rgba(228,189,98,.24)}
+.championship{min-height:430px;background-image:linear-gradient(180deg,rgba(4,55,57,.48),rgba(4,55,57,.78)),url("assets/player-champions-bg.jpg"),radial-gradient(ellipse at 50% 0%,rgba(228,189,98,.25),transparent 58%),linear-gradient(145deg,#0b6260,#07363d);background-position:center top,center 18%,center,center;background-size:cover,520px auto,cover,cover;background-repeat:no-repeat;border-color:rgba(228,189,98,.48);box-shadow:0 20px 55px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.12)}
+.championship:before{border-color:rgba(244,218,160,.24)}
+.champ-kicker{color:#f0d28a;text-shadow:0 2px 12px #002b2b}
+.champ-title{color:#fff0c7;text-shadow:0 3px 22px rgba(228,189,98,.35)}
+.champ-subtitle{color:#d5f0e9;text-shadow:0 2px 10px rgba(0,25,27,.9)}
+.chip{border-color:rgba(228,189,98,.55);background:rgba(228,189,98,.14);color:#f6dfaa}
+.criteria{border-color:rgba(160,224,213,.13);color:#e2f3ef}
+.podium-name{color:#f5f4e9}
+.podium-place.first .podium-name{color:#ffe19a}.podium-place.second .podium-name{color:#d9eeec}.podium-place.third .podium-name{color:#e8c39c}
+.review-link{border-color:rgba(228,189,98,.55);background:linear-gradient(135deg,rgba(228,189,98,.2),rgba(5,61,62,.92));color:#f5d991}
+.review-link:hover{background:rgba(228,189,98,.3)}
+.first .podium-block{background:linear-gradient(135deg,#fff1bd,#dfb34f 60%,#a9792d)}
+@media(max-width:560px){.championship{background-size:cover,100% auto,cover,cover;background-position:center top,center top,center,center}}
+
 </style></head>
 <body><main>
 <section class="championship" aria-label="سکوی قهرمانی">
