@@ -74,11 +74,12 @@ select:focus{border-color:#e4bd62;box-shadow:0 0 0 3px rgba(228,189,98,.16)}
 
 
 /* Supplied trophy poster is the actual masthead background; turquoise tint retained */
-.results-hero{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;min-height:560px;padding:42px 30px;border:1px solid rgba(228,189,98,.62);border-radius:22px;overflow:hidden;background-color:#075052;background-image:linear-gradient(90deg,rgba(4,67,67,.30),rgba(4,67,67,.12) 52%,rgba(4,67,67,.30)),url("assets/player-champions-bg.jpg");background-position:center,center 44%;background-size:cover;background-repeat:no-repeat;box-shadow:0 20px 55px rgba(0,0,0,.36),inset 0 1px rgba(255,255,255,.16)}
-.results-hero h1{color:#fff0c7;text-shadow:0 3px 18px rgba(0,0,0,.8);font-size:clamp(23px,4vw,36px)}
-.results-hero .muted{color:#f0fbf7;text-shadow:0 2px 8px rgba(0,0,0,.95);max-width:650px}
-.results-hero a{background:rgba(5,57,57,.88);border:1px solid rgba(240,210,138,.75);color:#ffe4a6;padding:10px 16px;border-radius:12px;text-decoration:none;backdrop-filter:blur(5px)}
-@media(max-width:600px){.results-hero{min-height:390px;padding:24px 16px;background-position:center,center 40%;align-items:flex-end}.results-hero>div{width:100%}}
+.results-hero{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:flex-start;gap:24px;flex-wrap:wrap;min-height:560px;padding:42px 34px;border:1px solid rgba(190,145,43,.72);border-radius:22px;overflow:hidden;background-color:#e8eee3;background-image:linear-gradient(90deg,rgba(235,241,229,.99) 0%,rgba(235,241,229,.96) 34%,rgba(235,241,229,.68) 51%,rgba(235,241,229,.04) 72%),url("assets/player-champions-bg.jpg");background-position:center,right center;background-size:cover,auto 100%;background-repeat:no-repeat;box-shadow:0 20px 55px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.35)}
+.results-hero>div{position:relative;z-index:1;width:min(54%,620px);padding:22px 24px;border-radius:16px;background:rgba(235,241,229,.76)}
+.results-hero h1{color:#12383a;text-shadow:none;font-size:clamp(23px,4vw,36px);line-height:1.55}
+.results-hero .muted{color:#263f3b;text-shadow:none;max-width:650px;line-height:1.9}
+.results-hero a{position:relative;z-index:1;align-self:flex-end;background:rgba(9,65,65,.94);border:1px solid #bd943f;color:#fff1c9;padding:10px 16px;border-radius:12px;text-decoration:none}
+@media(max-width:600px){.results-hero{min-height:690px;padding:22px 14px 330px;align-items:flex-start;background-image:linear-gradient(180deg,rgba(235,241,229,.99) 0%,rgba(235,241,229,.95) 36%,rgba(235,241,229,.12) 60%),url("assets/player-champions-bg.jpg");background-position:center,right bottom;background-size:cover,auto 330px}.results-hero>div{width:100%;padding:14px 12px}.results-hero a{align-self:flex-start}}
 
 </style></head>
 <body><main>
