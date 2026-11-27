@@ -57,7 +57,8 @@ select:focus{border-color:#e4bd62;box-shadow:0 0 0 3px rgba(228,189,98,.16)}
 .metric{background:linear-gradient(145deg,rgba(228,189,98,.13),rgba(7,55,58,.84));border-color:rgba(228,189,98,.27)}
 .metric strong,.criteria strong{color:#f1d38c}
 .result{background:linear-gradient(135deg,rgba(7,65,66,.95),rgba(5,42,49,.97));border-color:rgba(228,189,98,.24)}
-.championship{min-height:430px;background-image:linear-gradient(180deg,rgba(4,55,57,.48),rgba(4,55,57,.78)),url("assets/player-champions-bg.jpg"),radial-gradient(ellipse at 50% 0%,rgba(228,189,98,.25),transparent 58%),linear-gradient(145deg,#0b6260,#07363d);background-position:center top,center 18%,center,center;background-size:cover,520px auto,cover,cover;background-repeat:no-repeat;border-color:rgba(228,189,98,.48);box-shadow:0 20px 55px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.12)}
+.championship{margin:8px 0 24px;padding:10px;border:1px solid rgba(228,189,98,.48);border-radius:22px;overflow:hidden;background:linear-gradient(145deg,#0b6260,#07363d);box-shadow:0 20px 55px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.12)}
+.champion-poster{display:block;width:100%;height:auto;max-height:560px;object-fit:contain;object-position:center;border-radius:14px;margin:0 auto}
 .championship:before{border-color:rgba(244,218,160,.24)}
 .champ-kicker{color:#f0d28a;text-shadow:0 2px 12px #002b2b}
 .champ-title{color:#fff0c7;text-shadow:0 3px 22px rgba(228,189,98,.35)}
@@ -73,15 +74,9 @@ select:focus{border-color:#e4bd62;box-shadow:0 0 0 3px rgba(228,189,98,.16)}
 
 </style></head>
 <body><main>
-<section class="championship" aria-label="سکوی قهرمانی">
-<div class="champ-kicker">APEX ARENA • HALL OF CHAMPIONS</div>
-<h2 class="champ-title">جایگاه نخبگان</h2>
-<p class="champ-subtitle">هر امتیاز، یک قدم تا افتخار؛ هر رقابت، فرصتی برای ماندگاری</p>
-<div class="podium">
-<div class="podium-place second"><div class="podium-icon medal-silver" aria-hidden="true">🏅</div><div class="podium-block" aria-hidden="true"></div></div>
-<div class="podium-place first"><div class="podium-icon" aria-hidden="true">🏆</div><div class="podium-block" aria-hidden="true"></div></div>
-<div class="podium-place third"><div class="podium-icon medal-silver" aria-hidden="true">🏅</div><div class="podium-block" aria-hidden="true"></div></div>
-</div></section>
+<section class="championship" aria-label="تصویر قهرمانی APEX ARENA">
+<img class="champion-poster" src="assets/player-champions-bg.png" alt="یادگاری ویژه برای نفرات برتر؛ پایان رقابت، رفاقت است">
+</section>
 <header><div><h1>APEX ARENA | نتایج رسمی بازیکنان</h1><div class="muted">نتایج بازیکنان پس از تأیید ارزیابی‌های داوران توسط مدیریت، برای عموم منتشر می‌شوند.</div></div><a href="index.html">بازگشت به سایت</a></header>
 <section class="panel"><h2>انتخاب تورنمنت</h2><label for="tournamentSelect">انتخاب تورنمنت برای مشاهده نتایج بازیکنان</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p id="pageStatus" class="status" role="status">در حال دریافت فهرست نتایج...</p></section>
 <section id="results" class="hidden"><div id="resultList"></div></section>
