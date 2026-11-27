@@ -74,16 +74,17 @@ select:focus{border-color:#e4bd62;box-shadow:0 0 0 3px rgba(228,189,98,.16)}
 
 
 /* Supplied trophy poster is the actual masthead background; turquoise tint retained */
-.results-hero{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:flex-start;gap:24px;flex-wrap:wrap;min-height:560px;padding:42px 34px;border:1px solid rgba(190,145,43,.72);border-radius:22px;overflow:hidden;background-color:#e8eee3;background-image:linear-gradient(90deg,rgba(235,241,229,.99) 0%,rgba(235,241,229,.96) 34%,rgba(235,241,229,.68) 51%,rgba(235,241,229,.04) 72%),url("assets/player-champions-bg.jpg");background-position:center,right center;background-size:cover,contain;background-repeat:no-repeat;box-shadow:0 20px 55px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.35)}
-.results-hero>div{position:relative;z-index:1;width:min(54%,620px);padding:22px 24px;border-radius:16px;background:rgba(235,241,229,.76)}
-.results-hero h1{color:#12383a;text-shadow:none;font-size:clamp(23px,4vw,36px);line-height:1.55}
-.results-hero .muted{color:#263f3b;text-shadow:none;max-width:650px;line-height:1.9}
-.results-hero a{position:relative;z-index:1;align-self:flex-end;background:rgba(9,65,65,.94);border:1px solid #bd943f;color:#fff1c9;padding:10px 16px;border-radius:12px;text-decoration:none}
-@media(max-width:600px){.results-hero{min-height:690px;padding:22px 14px 330px;align-items:flex-start;background-image:linear-gradient(180deg,rgba(235,241,229,.99) 0%,rgba(235,241,229,.95) 36%,rgba(235,241,229,.12) 60%),url("assets/player-champions-bg.jpg");background-position:center,right bottom;background-size:cover,contain;background-color:#e8eee3}.results-hero>div{width:100%;padding:14px 12px}.results-hero a{align-self:flex-start}}
+.results-hero{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;gap:0;padding:0 0 26px;border:1px solid rgba(190,145,43,.72);border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#f4f0e4 0%,#e4eee8 100%);box-shadow:0 20px 55px rgba(0,0,0,.18)}
+.results-hero .results-poster{display:block;width:min(100%,620px);height:auto;max-height:none;object-fit:contain;object-position:center;background:#f4f0e4}
+.results-hero .results-heading{width:100%;box-sizing:border-box;padding:24px 28px 8px;text-align:center;background:linear-gradient(180deg,rgba(231,241,233,.96),rgba(231,241,233,1))}
+.results-hero h1{margin:0 0 10px;color:#12383a;text-shadow:none;font-size:clamp(23px,4vw,36px);line-height:1.55}
+.results-hero .muted{color:#263f3b;text-shadow:none;max-width:760px;line-height:1.9;margin:0 auto}
+.results-hero a{align-self:center;margin:12px 0 0;background:rgba(9,65,65,.96);border:1px solid #bd943f;color:#fff1c9;padding:10px 18px;border-radius:12px;text-decoration:none}
+@media(max-width:600px){.results-hero{padding-bottom:18px;border-radius:14px}.results-hero .results-heading{padding:18px 14px 6px}.results-hero .results-poster{width:100%;height:auto}.results-hero a{margin-top:10px}}
 
 </style></head>
 <body><main>
-<header class="results-hero"><div><h1>APEX ARENA | نتایج رسمی بازیکنان</h1><div class="muted">نتایج بازیکنان پس از تأیید ارزیابی‌های داوران توسط مدیریت، برای عموم منتشر می‌شوند.</div></div><a href="index.html">بازگشت به سایت</a></header>
+<header class="results-hero"><img class="results-poster" src="assets/player-champions-bg.jpg" alt="یادگاری ویژه برای نفرات برتر؛ جام و مدال‌های قهرمانی"><div class="results-heading"><h1>APEX ARENA | نتایج رسمی بازیکنان</h1><div class="muted">نتایج بازیکنان پس از تأیید ارزیابی‌های داوران توسط مدیریت، برای عموم منتشر می‌شوند.</div><a href="index.html">بازگشت به سایت</a></div></header>
 <section class="panel"><h2>انتخاب تورنمنت</h2><label for="tournamentSelect">انتخاب تورنمنت برای مشاهده نتایج بازیکنان</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p id="pageStatus" class="status" role="status">در حال دریافت فهرست نتایج...</p></section>
 <section id="results" class="hidden"><div id="resultList"></div></section>
 </main>
