@@ -64,10 +64,10 @@ button:hover,.link:hover{filter:brightness(1.08);transform:translateY(-1px)}butt
 <section id="appealsPanel" class="panel" style="margin-top:18px"><h2>اعتراض‌های بازیکنان به نمرات شما</h2><p class="muted">در صورت پذیرش اعتراض، می‌توانی نمره همان معیار را اصلاح کنی. نتیجه پس از اصلاح فقط با تأیید دوباره مدیر منتشر می‌شود.</p><div id="judgeAppealsList"><p class="muted">در حال دریافت اعتراض‌ها...</p></div><p id="appealsStatus" class="status" role="status"></p></section>
 </section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/_vendor/supabase-js.js"></script>
 <script>
 "use strict";
-const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_URL="${window.location.origin}/_supabase";
 const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);

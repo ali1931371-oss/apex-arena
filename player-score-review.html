@@ -21,10 +21,10 @@ label{display:block;margin:10px 0 4px;color:#dce9f4}input,textarea{width:100%;fo
 <button id="loginButton">ورود و مشاهده نمرات</button><p id="loginStatus" class="status"></p></section>
 <section id="privatePanel" class="hidden"><section class="panel"><h2 id="playerName">پرونده بازیکن</h2><p id="playerMeta" class="muted"></p><p id="pageStatus" class="status"></p></section><div id="games"></div></section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('loginStatus').textContent='کتابخانه ورود بارگذاری نشد؛ اتصال اینترنت را بررسی و صفحه را دوباره بارگذاری کنید.';document.getElementById('loginStatus').className='status error';"></script>
+<script src="/_vendor/supabase-js.js" onerror="document.getElementById('loginStatus').textContent='کتابخانه ورود بارگذاری نشد؛ اتصال اینترنت را بررسی و صفحه را دوباره بارگذاری کنید.';document.getElementById('loginStatus').className='status error';"></script>
 <script>
 "use strict";
-const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const SUPABASE_URL="${window.location.origin}/_supabase",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const $=id=>document.getElementById(id);
 let db=null;
 try{if(window.supabase?.createClient){db=window.supabase.createClient(SUPABASE_URL,KEY)}else{status("loginStatus","کتابخانه ورود بارگذاری نشده است. اتصال اینترنت را بررسی و صفحه را دوباره بارگذاری کنید.",true)}}catch(initError){status("loginStatus","راه‌اندازی ورود ناموفق بود: "+(initError?.message||"خطای ناشناخته"),true)}

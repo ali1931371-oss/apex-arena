@@ -44,7 +44,7 @@ header{background:rgba(4,9,18,.24);backdrop-filter:blur(2px)}
 <footer>© APEX ARENA — All Rights Reserved</footer>
 <script>
 "use strict";
-const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_URL="${window.location.origin}/_supabase";
 const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 function makeElement(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined&&text!==null)el.textContent=text;return el;}
 async function loadTournaments(){

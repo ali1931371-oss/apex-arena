@@ -220,10 +220,10 @@
 </main>
 <footer>© APEX ARENA — All Rights Reserved</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/_vendor/supabase-js.js"></script>
 <script>
 "use strict";
-const SUPABASE_URL = "https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_URL = "${window.location.origin}/_supabase";
 const SUPABASE_KEY = "sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const BUCKET_NAME = "apex-education";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

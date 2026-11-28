@@ -74,9 +74,9 @@ footer{padding:24px;color:#8ba079;font-size:12px;border-top:1px solid #9be90024;
  <div class="section-heading"><h3>کتابخانه آموزش‌ها</h3><span>یادگیری را از همین‌جا شروع کن</span></div>
  <p id="academy-status" class="status">در حال دریافت مطالب آکادمی...</p><div id="academy-list" class="academy-grid"></div>
 </main><footer>© APEX ARENA — All Rights Reserved</footer>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+<script src="/_vendor/supabase-js.js"></script><script>
 "use strict";
-const SUPABASE_URL="https://vzythswxlvubytzmvhep.supabase.co",SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69",BUCKET_NAME="apex-education";
+const SUPABASE_URL="${window.location.origin}/_supabase",SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69",BUCKET_NAME="apex-education";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 function makeElement(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined&&text!==null)el.textContent=text;return el;}
 function getYouTubeEmbedUrl(input){if(!input)return null;try{const url=new URL(input.trim()),host=url.hostname.replace(/^www\./,"");let id="";if(host==="youtu.be")id=url.pathname.split("/").filter(Boolean)[0]||"";else if(["youtube.com","m.youtube.com","youtube-nocookie.com"].includes(host)){if(url.pathname==="/watch")id=url.searchParams.get("v")||"";else if(url.pathname.startsWith("/embed/")||url.pathname.startsWith("/shorts/"))id=url.pathname.split("/")[2]||"";}else return null;return /^[a-zA-Z0-9_-]{11}$/.test(id)?"https://www.youtube-nocookie.com/embed/"+id:null;}catch(e){return null;}}

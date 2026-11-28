@@ -1,8 +1,14 @@
 {
   "name": "apex-arena",
+  "main": "worker.js",
   "compatibility_date": "2026-11-17",
   "assets": {
-    "directory": "./"
+    "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/_supabase/*",
+      "/_vendor/*"
+    ]
   },
   "previews": {}
 }
