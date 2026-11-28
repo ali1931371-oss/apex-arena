@@ -67,7 +67,7 @@ button:hover,.link:hover{filter:brightness(1.08);transform:translateY(-1px)}butt
 <script src="/_vendor/supabase-js.js"></script>
 <script>
 "use strict";
-const SUPABASE_URL="${window.location.origin}/_supabase";
+const SUPABASE_URL=window.location.origin + "/_supabase";
 const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);

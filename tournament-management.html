@@ -147,7 +147,7 @@ th{background:rgba(217,139,145,.075);color:#eab8bd}th,td{border-bottom-color:rgb
 <script src="/_vendor/supabase-js.js"></script>
 <script>
 "use strict";
-const SUPABASE_URL="${window.location.origin}/_supabase";
+const SUPABASE_URL=window.location.origin + "/_supabase";
 const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);

@@ -103,7 +103,7 @@ footer{background:#080608;color:#8f777d}
 </form></section></main><footer>© APEX ARENA — All Rights Reserved</footer>
 <script src="/_vendor/supabase-js.js"></script><script>
 "use strict";
-const SUPABASE_URL="${window.location.origin}/_supabase";
+const SUPABASE_URL=window.location.origin + "/_supabase";
 const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 function updateRegistrationTournamentOptions(tournaments){
  const select=document.getElementById("reg-tournament"),button=document.getElementById("registration-button"),items=Array.isArray(tournaments)?tournaments:[];

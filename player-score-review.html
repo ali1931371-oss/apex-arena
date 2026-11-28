@@ -24,7 +24,7 @@ label{display:block;margin:10px 0 4px;color:#dce9f4}input,textarea{width:100%;fo
 <script src="/_vendor/supabase-js.js" onerror="document.getElementById('loginStatus').textContent='کتابخانه ورود بارگذاری نشد؛ اتصال اینترنت را بررسی و صفحه را دوباره بارگذاری کنید.';document.getElementById('loginStatus').className='status error';"></script>
 <script>
 "use strict";
-const SUPABASE_URL="${window.location.origin}/_supabase",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const SUPABASE_URL=window.location.origin + "/_supabase",KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const $=id=>document.getElementById(id);
 let db=null;
 try{if(window.supabase?.createClient){db=window.supabase.createClient(SUPABASE_URL,KEY)}else{status("loginStatus","کتابخانه ورود بارگذاری نشده است. اتصال اینترنت را بررسی و صفحه را دوباره بارگذاری کنید.",true)}}catch(initError){status("loginStatus","راه‌اندازی ورود ناموفق بود: "+(initError?.message||"خطای ناشناخته"),true)}
