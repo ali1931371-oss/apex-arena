@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
+<title>نتایج بازیکنان | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}
+:root{color-scheme:dark;--champagne:#f2d28a;--gold:#d9ad55;--silver:#c7d0d9;--bronze:#bd8961;--line:rgba(226,195,130,.22)}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(191,151,79,.16),transparent 42%),radial-gradient(ellipse at 10% 60%,rgba(80,105,130,.12),transparent 40%),linear-gradient(150deg,#101722 0%,#18202a 48%,#0b111a 100%);color:#f5f0e6;font-family:Tahoma,Arial,sans-serif;line-height:1.9;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:radial-gradient(1px 1px at 20% 25%,#f4dba7 50%,transparent 60%),radial-gradient(1px 1px at 75% 35%,#fff 50%,transparent 60%),radial-gradient(1px 1px at 45% 80%,#d9ad55 50%,transparent 60%);background-size:170px 170px,230px 230px,290px 290px}
+main{position:relative;z-index:1;max-width:1120px;margin:auto;padding:22px 14px 64px}
+header,.panel,.result{background:linear-gradient(145deg,rgba(35,45,57,.96),rgba(18,26,36,.97));border:1px solid var(--line);border-radius:18px;padding:20px;margin:15px 0;box-shadow:0 16px 40px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.04)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-color:rgba(226,195,130,.32)}
+h1,h2,h3,h4{color:#f3dcae;margin-top:0}h1{font-size:clamp(20px,4vw,27px);margin-bottom:5px}h2{font-size:20px}h3{font-size:17px;margin-bottom:4px}h4{font-size:15px;margin:15px 0 6px}
+p{color:#d4dbe2}a{color:#f1d79e;text-decoration:none;border-bottom:1px solid rgba(241,215,158,.35)}a:hover{color:#fff}
+label{display:block;color:#e7c987;margin:10px 0 5px}select{width:100%;padding:13px;border:1px solid rgba(226,195,130,.4);border-radius:11px;background:#111a25;color:#f8f4eb;font:inherit;outline:none}select:focus{border-color:#e8c77f;box-shadow:0 0 0 3px rgba(226,195,130,.12)}
+.muted{color:#aeb9c5;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.035)}.error{color:#ffaaa0}.success{color:#e9d19a}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.metric{background:linear-gradient(145deg,rgba(221,190,130,.09),rgba(13,21,31,.8));border:1px solid rgba(226,195,130,.2);border-radius:13px;padding:12px;text-align:center}
+.metric strong{display:block;color:#f2d99f;font-size:23px}
+.result{position:relative;overflow:hidden;border-color:rgba(226,195,130,.2);background:linear-gradient(135deg,rgba(36,47,60,.97),rgba(17,25,35,.98))}
+.result-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{display:inline-block;border:1px solid rgba(226,195,130,.45);background:rgba(226,195,130,.09);color:#f4dca9;border-radius:30px;padding:4px 12px;font-size:13px;font-weight:bold}
+.criteria{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);color:#e1e5e9}.criteria:last-child{border:0}.criteria strong{color:#f2d99f}
+.championship{position:relative;margin:8px 0 24px;padding:28px 20px 22px;border:1px solid rgba(226,195,130,.3);border-radius:22px;overflow:hidden;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(218,179,105,.2),transparent 56%),linear-gradient(145deg,rgba(38,49,61,.96),rgba(14,21,31,.98));box-shadow:0 20px 55px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.08)}
+.championship:before{content:"";position:absolute;inset:10px;border:1px solid rgba(226,195,130,.12);border-radius:15px;pointer-events:none}
+.champ-kicker{color:#d6bd8b;font-size:11px;letter-spacing:3px;font-weight:bold}
+.champ-title{font-size:clamp(22px,4vw,32px);color:#f5e2b9;margin:3px 0 0;text-shadow:0 3px 22px rgba(222,183,107,.22)}
+.champ-subtitle{color:#b9c3ce;font-size:13px;margin:0 0 20px}
+.podium{direction:ltr;display:grid;grid-template-columns:1fr 1.12fr 1fr;align-items:end;gap:12px;max-width:760px;margin:0 auto;position:relative}
+.podium-place{direction:rtl;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.podium-icon{height:86px;display:flex;align-items:center;justify-content:center;font-size:53px;filter:drop-shadow(0 5px 12px rgba(0,0,0,.38))}
+.podium-place.first .podium-icon{height:112px;font-size:76px;filter:drop-shadow(0 0 20px rgba(229,190,104,.35))}\n.medal-silver{filter:grayscale(1) brightness(1.45) drop-shadow(0 5px 12px rgba(0,0,0,.38))}
+.podium-name{color:#f7f1e5;font-weight:bold;font-size:14px;margin:2px 0 9px}
+.podium-block{width:100%;border-radius:12px 12px 3px 3px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:bold;color:#17202a;border:1px solid rgba(255,255,255,.28);box-shadow:inset 0 1px rgba(255,255,255,.42),0 9px 20px rgba(0,0,0,.25)}
+.first .podium-block{height:100px;background:linear-gradient(135deg,#fff0b9,#d7a844 60%,#a8752c)}
+.second .podium-block{height:72px;background:linear-gradient(135deg,#edf2f6,#aab7c4 65%,#788795)}
+.third .podium-block{height:54px;background:linear-gradient(135deg,#edf2f6,#aab7c4 65%,#788795)}
+.podium-place.first .podium-name{color:#f6d98f}.podium-place.second .podium-name{color:#d5dfe8}.podium-place.third .podium-name{color:#dfb18d}
+.review-link{display:inline-block;margin-top:14px;padding:9px 15px;border:1px solid rgba(226,195,130,.45);border-radius:10px;background:linear-gradient(135deg,rgba(226,195,130,.16),rgba(30,43,57,.9));color:#f1d79e;font-weight:bold;text-decoration:none}.review-link:hover{background:rgba(226,195,130,.24);color:#fff}\n.hidden{display:none!important}
+@media(max-width:560px){main{padding:12px 10px 40px}header{display:block;text-align:center}header a{display:inline-block;margin-top:8px}.panel,.result,header{padding:15px}.championship{padding:23px 10px 16px}.podium{gap:6px}.podium-icon{font-size:40px;height:68px}.podium-place.first .podium-icon{font-size:60px;height:88px}.podium-name{font-size:11px}.podium-block{font-size:24px}}
+
+/* APEX ARENA championship refresh: turquoise + gold, with the supplied victory artwork */
+:root{color-scheme:dark;--champagne:#f4dfad;--gold:#e4bd62;--silver:#d8e5e5;--bronze:#c99b70;--line:rgba(111,226,210,.25)}
+body{background:radial-gradient(ellipse at 50% 0%,rgba(35,190,174,.22),transparent 48%),linear-gradient(150deg,#062f32 0%,#0b4545 48%,#082c31 100%);color:#f2fbf7}
+body:before{opacity:.12;background-image:radial-gradient(1px 1px at 20% 25%,#f8e5b5 50%,transparent 60%),radial-gradient(1px 1px at 75% 35%,#9af0df 50%,transparent 60%),radial-gradient(1px 1px at 45% 80%,#e4bd62 50%,transparent 60%)}
+header,.panel,.result{background:linear-gradient(145deg,rgba(9,73,72,.94),rgba(5,42,48,.96));border-color:rgba(115,226,211,.25);box-shadow:0 16px 40px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.06)}
+h1,h2,h3,h4{color:#f2d58e}
+p{color:#d7eee8}
+a{color:#f0d28a;border-color:rgba(240,210,138,.4)}
+label{color:#9ce6d8}
+select{border-color:rgba(113,220,205,.4);background:#07383b;color:#f4fbf8}
+select:focus{border-color:#e4bd62;box-shadow:0 0 0 3px rgba(228,189,98,.16)}
+.muted{color:#a9d1cb}
+.status{background:rgba(8,63,64,.72)}
+.success{color:#a8f0d8}
+.metric{background:linear-gradient(145deg,rgba(228,189,98,.13),rgba(7,55,58,.84));border-color:rgba(228,189,98,.27)}
+.metric strong,.criteria strong{color:#f1d38c}
+.result{background:linear-gradient(135deg,rgba(7,65,66,.95),rgba(5,42,49,.97));border-color:rgba(228,189,98,.24)}
+.championship{margin:8px 0 24px;padding:10px;border:1px solid rgba(228,189,98,.48);border-radius:22px;overflow:hidden;background:linear-gradient(145deg,#0b6260,#07363d);box-shadow:0 20px 55px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.12)}
+.champion-poster{display:block;width:100%;height:auto;max-height:560px;object-fit:contain;object-position:center;border-radius:14px;margin:0 auto}
+.championship:before{border-color:rgba(244,218,160,.24)}
+.champ-kicker{color:#f0d28a;text-shadow:0 2px 12px #002b2b}
+.champ-title{color:#fff0c7;text-shadow:0 3px 22px rgba(228,189,98,.35)}
+.champ-subtitle{color:#d5f0e9;text-shadow:0 2px 10px rgba(0,25,27,.9)}
+.chip{border-color:rgba(228,189,98,.55);background:rgba(228,189,98,.14);color:#f6dfaa}
+.criteria{border-color:rgba(160,224,213,.13);color:#e2f3ef}
+.podium-name{color:#f5f4e9}
+.podium-place.first .podium-name{color:#ffe19a}.podium-place.second .podium-name{color:#d9eeec}.podium-place.third .podium-name{color:#e8c39c}
+.review-link{border-color:rgba(228,189,98,.55);background:linear-gradient(135deg,rgba(228,189,98,.2),rgba(5,61,62,.92));color:#f5d991}
+.review-link:hover{background:rgba(228,189,98,.3)}
+.first .podium-block{background:linear-gradient(135deg,#fff1bd,#dfb34f 60%,#a9792d)}
+@media(max-width:560px){.championship{background-size:cover,100% auto,cover,cover;background-position:center top,center top,center,center}}
+
+
+/* Supplied trophy poster is the actual masthead background; turquoise tint retained */
+.results-hero{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;gap:0;padding:0 0 26px;border:1px solid rgba(190,145,43,.72);border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#f4f0e4 0%,#e4eee8 100%);box-shadow:0 20px 55px rgba(0,0,0,.18)}
+.results-hero .results-poster{display:block;width:min(100%,620px);height:auto;max-height:none;object-fit:contain;object-position:center;background:#f4f0e4}
+.results-hero .results-heading{width:100%;box-sizing:border-box;padding:24px 28px 8px;text-align:center;background:linear-gradient(180deg,rgba(231,241,233,.96),rgba(231,241,233,1))}
+.results-hero h1{margin:0 0 10px;color:#12383a;text-shadow:none;font-size:clamp(23px,4vw,36px);line-height:1.55}
+.results-hero .muted{color:#263f3b;text-shadow:none;max-width:760px;line-height:1.9;margin:0 auto}
+.results-hero a{align-self:center;margin:12px 0 0;background:rgba(9,65,65,.96);border:1px solid #bd943f;color:#fff1c9;padding:10px 18px;border-radius:12px;text-decoration:none}
+@media(max-width:600px){.results-hero{padding-bottom:18px;border-radius:14px}.results-hero .results-heading{padding:18px 14px 6px}.results-hero .results-poster{width:100%;height:auto}.results-hero a{margin-top:10px}}
+
+
+/* Final page-wide turquoise and gold championship palette.
+   Keep the results hero image, frame, dimensions and typography untouched. */
+body{background:radial-gradient(ellipse at 50% -8%,rgba(63,220,197,.28),transparent 48%),radial-gradient(ellipse at 8% 58%,rgba(21,145,139,.18),transparent 42%),linear-gradient(150deg,#052f33 0%,#075052 48%,#06383d 100%);color:#effbf7}
+body:before{opacity:.16;background-image:radial-gradient(1px 1px at 20% 25%,#f8e5b5 50%,transparent 60%),radial-gradient(1px 1px at 75% 35%,#9af0df 50%,transparent 60%),radial-gradient(1px 1px at 45% 80%,#e4bd62 50%,transparent 60%)}
+.panel,.result{background:linear-gradient(145deg,rgba(9,91,87,.97),rgba(5,54,60,.98));border:1px solid rgba(228,189,98,.42);box-shadow:0 16px 40px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.07)}
+h1,h2,h3,h4{color:#f5d990}
+p{color:#d9f0e9}
+a{color:#f5d990;border-color:rgba(245,217,144,.48)}
+a:hover{color:#fff4d2}
+label{color:#a8eee0}
+select{border-color:rgba(228,189,98,.55);background:linear-gradient(135deg,#06494a,#07383d);color:#f4fbf8}
+select:focus{border-color:#f0cf78;box-shadow:0 0 0 3px rgba(228,189,98,.2)}
+.muted{color:#b9dcd4}
+.status{background:rgba(2,43,47,.62);border:1px solid rgba(228,189,98,.2);color:#e5f5ef}
+.error{color:#ffc0ad}
+.success{color:#b8f0d8}
+.metric{background:linear-gradient(145deg,rgba(228,189,98,.2),rgba(5,66,68,.9));border:1px solid rgba(228,189,98,.42)}
+.metric strong,.criteria strong{color:#ffdf91}
+.result{background:linear-gradient(135deg,rgba(8,82,80,.98),rgba(4,48,55,.99));border-color:rgba(228,189,98,.48)}
+.result-head{border-bottom:1px solid rgba(228,189,98,.18)}
+.chip{border-color:rgba(240,207,120,.7);background:rgba(228,189,98,.18);color:#ffe8ad}
+.criteria{border-color:rgba(159,231,216,.2);color:#e5f5ef}
+.review-link{border-color:rgba(240,207,120,.68);background:linear-gradient(135deg,rgba(228,189,98,.24),rgba(4,70,70,.96));color:#ffe3a0}
+.review-link:hover{background:rgba(228,189,98,.36);color:#fff5d8}
+
+</style></head>
+<body><main>
+<header class="results-hero"><img class="results-poster" src="assets/player-champions-bg.jpg" alt="یادگاری ویژه برای نفرات برتر؛ جام و مدال‌های قهرمانی"><div class="results-heading"><h1>APEX ARENA | نتایج رسمی بازیکنان</h1><div class="muted">نتایج بازیکنان پس از تأیید ارزیابی‌های داوران توسط مدیریت، برای عموم منتشر می‌شوند.</div><a href="index.html">بازگشت به سایت</a></div></header>
+<section class="panel"><h2>انتخاب تورنمنت</h2><label for="tournamentSelect">انتخاب تورنمنت برای مشاهده نتایج بازیکنان</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select><p id="pageStatus" class="status" role="status">در حال دریافت فهرست نتایج...</p></section>
+<section id="results" class="hidden"><div id="resultList"></div></section>
+</main>
+<script src="/_vendor/supabase-js.js"></script>
+<script>
+"use strict";
+const SUPABASE_URL=window.location.origin + "/_supabase";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+function el(tag,text,cls){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function status(message,error=false){$("pageStatus").textContent=message;$("pageStatus").className="status "+(error?"error":message?"success":"")}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+async function loadTournaments(){
+ try{
+  const rows=await rpc("get_public_judge_result_tournaments");
+  const select=$("tournamentSelect");select.replaceChildren();
+  const placeholder=el("option",rows?.length?"یک تورنمنت را انتخاب کنید":"هنوز نتیجه تأییدشده‌ای منتشر نشده است");placeholder.value="";select.append(placeholder);
+  (rows||[]).forEach(t=>{const o=el("option",t.tournament_name);o.value=t.tournament_id;select.append(o)});
+  if(rows?.length){select.value=rows[0].tournament_id;await loadResults()}
+  else status("پس از تأیید نخستین ارزیابی توسط مدیر، نتایج اینجا نمایش داده می‌شوند.");
+ }catch(e){status("دریافت فهرست تورنمنت‌ها ناموفق بود: "+e.message,true)}
+}
+function renderResults(rows){
+ const box=$("resultList");box.replaceChildren();
+ if(!rows?.length){box.append(el("p","برای این تورنمنت هنوز نتیجه تأییدشده‌ای منتشر نشده است.","muted"));return}
+ rows.forEach(r=>{
+  const card=el("article",undefined,"result"),head=el("div",undefined,"result-head");
+  head.append(el("h3",(r.display_name||"بازیکن")+" — "+r.stage_name+" | بازی "+r.game_number));
+  card.append(head);
+  card.append(el("p",(r.player_code?"کد بازیکن: "+r.player_code+" | ":"")+r.side+" | نقش: "+r.role_name+" | تعداد داوران تأییدکننده: "+r.judge_count,"muted"));
+  const totals=el("div",undefined,"grid");
+  [["فنی",r.technical_total],["تشویقی",r.bonus_total],["جریمه",r.penalty_total],["نهایی",r.final_total]].forEach(([label,value])=>{
+   const m=el("div",undefined,"metric");m.append(el("span",label),el("strong",Number(value||0).toFixed(2)));totals.append(m);
+  });
+  card.append(totals);
+  const reviewLink=el("a","مشاهده جزئیات نمرات و ثبت اعتراض","review-link");reviewLink.href="player-score-review.html";card.append(reviewLink);
+  box.append(card);
+ });
+}
+async function loadResults(){
+ const tid=$("tournamentSelect").value;if(!tid){$("results").classList.add("hidden");return}
+ status("در حال دریافت نتایج تأییدشده...");
+ try{const rows=await rpc("get_public_judge_game_results",{p_tournament_id:tid});renderResults(rows||[]);$("results").classList.remove("hidden");status((rows||[]).length+" نتیجه تأییدشده دریافت شد.")}
+ catch(e){$("results").classList.add("hidden");status("دریافت نتایج ناموفق بود: "+e.message,true)}
+}
+$("tournamentSelect").addEventListener("change",loadResults);
+loadTournaments();
+</script></body></html>

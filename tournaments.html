@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071426">
+<meta name="description" content="فهرست عمومی مسابقات و تورنمنت‌های APEX ARENA"><title>مشاهده مسابقات | APEX ARENA</title>
+<style>
+:root{color-scheme:dark;--bg:#050a15;--silver:#cbd5e1;--muted:#aab6c7;--line:rgba(194,208,226,.25);--text:#f2f5fa}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -18%,#263b59 0%,#101d32 35%,var(--bg) 78%);color:var(--text);font-family:Tahoma,Arial,sans-serif;text-align:center;min-height:100vh}
+header{padding:16px 20px;border-bottom:1px solid var(--line);background:rgba(4,9,18,.96);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.brand{font-size:23px;font-weight:900;letter-spacing:2px;color:#e3eaf3;text-shadow:0 0 18px rgba(190,207,228,.35)}
+h2{font-size:clamp(22px,4vw,30px);color:#edf2f8;margin:0 0 12px}p{color:var(--muted);line-height:2}
+.page-intro{position:relative;overflow:hidden;padding:52px 16px 44px;background:linear-gradient(135deg,rgba(19,34,55,.96),rgba(5,11,21,.9)),repeating-linear-gradient(135deg,transparent 0 22px,rgba(192,207,226,.035) 22px 24px);border-bottom:1px solid var(--line)}
+.page-intro:before,.page-intro:after{content:"";position:absolute;width:230px;height:230px;border:1px solid rgba(190,205,224,.13);transform:rotate(45deg);pointer-events:none}.page-intro:before{top:-150px;right:7%}.page-intro:after{bottom:-175px;left:8%}
+.eyebrow{display:inline-block;padding:7px 15px;border:1px solid rgba(199,210,223,.35);border-radius:99px;color:#d2dce8;font-size:11px;letter-spacing:2px;margin-bottom:16px;background:rgba(26,40,60,.72)}.page-intro p{max-width:650px;margin:0 auto}
+.page-wrap{max-width:1180px;margin:30px auto;padding:0 20px 48px}#connection-status{margin:0 auto 22px;padding:11px 16px;max-width:520px;border:1px solid var(--line);border-radius:12px;background:rgba(10,19,33,.86);font-size:13px}
+.status{color:#d1dce9}.error{color:#ff9292!important}.empty{padding:38px 16px;border:1px dashed rgba(190,205,224,.35);border-radius:18px;background:rgba(13,23,39,.78)}
+#tournament-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:22px;text-align:right}
+.tournament-card{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;min-height:100%;padding:0;border:1px solid rgba(190,205,224,.34);border-radius:20px;background:linear-gradient(150deg,rgba(25,39,60,.99),rgba(8,15,27,.99) 68%);box-shadow:0 16px 38px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.08);transition:transform .25s,border-color .25s,box-shadow .25s}
+.tournament-card:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(125deg,transparent 12%,rgba(210,222,238,.09),transparent 65%)}.tournament-card:after{content:"";position:absolute;top:-68px;left:-58px;width:170px;height:170px;border:1px solid rgba(200,214,232,.16);transform:rotate(45deg);z-index:-1}
+.tournament-card:hover{transform:translateY(-5px);border-color:rgba(218,228,240,.78);box-shadow:0 22px 48px rgba(0,0,0,.48),0 0 22px rgba(174,194,218,.12)}
+.card-top{padding:20px 21px 16px;border-bottom:1px solid rgba(190,205,224,.2);background:linear-gradient(100deg,rgba(58,75,99,.48),rgba(12,22,37,.22));position:relative}.card-top:after{content:"";position:absolute;right:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#f1f4f8,#8293a9,transparent)}
+.card-kicker{font-size:10px;color:#c4d0df;letter-spacing:2px;margin-bottom:8px;font-weight:bold}.tournament-card h3{margin:0;color:#f3f6fa;font-size:20px;line-height:1.8;text-shadow:0 2px 12px #000}
+.card-content{padding:18px 21px 21px;display:flex;flex-direction:column;gap:13px;flex:1}.description{margin:0;color:#c0cad7;font-size:13px;line-height:2.1;overflow-wrap:anywhere;min-height:50px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:3px 0}.stat{padding:12px 7px;border:1px solid rgba(190,205,224,.2);border-radius:12px;background:linear-gradient(145deg,rgba(27,41,60,.8),rgba(6,13,24,.8));text-align:center}
+.stat strong{display:block;color:#f0f4f9;font-size:19px;margin-bottom:5px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(210,222,238,.18)}.stat span{display:block;color:#aebdce;font-size:10px;line-height:1.7}
+.rules-title{font-size:13px;color:#d0d9e5;margin:2px 0 -5px}.tournament-rules{white-space:pre-wrap;border-right:3px solid #aebdce;padding:10px 12px;background:rgba(4,10,19,.76);border-radius:9px;color:#d6deea;line-height:2;font-size:12px;max-height:180px;overflow:auto}
+.page-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 17px;border:1px solid rgba(208,220,235,.52);border-radius:10px;color:#f0f4f9;text-decoration:none;background:linear-gradient(135deg,#53647a,#25354b 60%,#111d2e);font-size:13px;font-weight:bold;transition:.2s;margin-top:auto;box-shadow:inset 0 1px rgba(255,255,255,.15)}.page-link:hover{background:linear-gradient(135deg,#71839a,#34465e);border-color:#eef3f9}
+footer{padding:25px;color:#8797aa;font-size:12px;border-top:1px solid rgba(190,205,224,.16)}
+@media(max-width:600px){header{justify-content:center}.page-wrap{padding:0 13px 30px}.page-intro{padding:40px 16px}.stats{gap:6px}.stat{padding:10px 4px}.stat strong{font-size:16px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+/* Tournament page wallpaper: visual-only layer; keep all tournament data and controls unchanged */
+body{position:relative;isolation:isolate;background:#050a15}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(4,9,18,.14),rgba(4,9,18,.30)),url("assets/tournaments-bg.webp") top center/100% auto no-repeat;background-color:#050a15;transform:translateZ(0)}
+header{background:rgba(4,9,18,.24);backdrop-filter:blur(2px)}
+.page-intro{background:linear-gradient(135deg,rgba(19,34,55,.76),rgba(5,11,21,.68)),repeating-linear-gradient(135deg,transparent 0 22px,rgba(192,207,226,.035) 22px 24px)}
+.tournament-card{background:linear-gradient(150deg,rgba(25,39,60,.82),rgba(8,15,27,.80) 68%);backdrop-filter:blur(5px)}
+.card-top{background:linear-gradient(100deg,rgba(58,75,99,.42),rgba(12,22,37,.18))}
+#connection-status{background:rgba(10,19,33,.76);backdrop-filter:blur(5px)}
+.empty{background:rgba(13,23,39,.72)}
+
+</style></head><body>
+<header><div class="brand">APEX ARENA</div><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
+<section class="page-intro"><div class="eyebrow">THE ARENA • OFFICIAL TOURNAMENTS</div><h2>فهرست مسابقات APEX ARENA</h2><p>رقابت‌ها را بررسی کنید، ظرفیت باقی‌مانده را ببینید و وارد میدان شوید.</p></section>
+<main class="page-wrap"><p id="connection-status" class="status" role="status" aria-live="polite">در حال دریافت اطلاعات تورنمنت‌ها...</p><div id="tournament-list"></div></main>
+<footer>© APEX ARENA — All Rights Reserved</footer>
+<script>
+"use strict";
+const SUPABASE_URL=window.location.origin + "/_supabase";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+function makeElement(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined&&text!==null)el.textContent=text;return el;}
+async function loadTournaments(){
+ const status=document.getElementById("connection-status"),list=document.getElementById("tournament-list");
+ try{
+  const response=await fetch(SUPABASE_URL+"/rest/v1/rpc/get_open_tournaments",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:"{}"});
+  if(!response.ok)throw new Error("خطا در دریافت اطلاعات: "+response.status);
+  const tournaments=await response.json(),rulesByTournament=new Map();
+  if(Array.isArray(tournaments)&&tournaments.length){
+   const ids=tournaments.map(t=>t.tournament_id).filter(Boolean);
+   if(ids.length){const params=new URLSearchParams({select:"tournament_id,rules_text",tournament_id:"in.("+ids.join(",")+")"});
+    const rulesResponse=await fetch(SUPABASE_URL+"/rest/v1/tournament_public_rules?"+params.toString(),{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+    if(rulesResponse.ok){const rows=await rulesResponse.json();(rows||[]).forEach(row=>rulesByTournament.set(row.tournament_id,row.rules_text||""));}
+    else console.warn("قوانین تورنمنت‌ها فعلاً دریافت نشدند:",rulesResponse.status);
+   }
+  }
+  status.textContent="فهرست مسابقات به‌روز شد.";
+  if(!Array.isArray(tournaments)||!tournaments.length){list.replaceChildren(makeElement("p","empty","در حال حاضر تورنمنتی برای ثبت‌نام وجود ندارد."));return;}
+  list.replaceChildren();
+  tournaments.forEach(t=>{
+   const card=makeElement("article","tournament-card"),top=makeElement("div","card-top"),content=makeElement("div","card-content");
+   top.append(makeElement("div","card-kicker","APEX ARENA • TOURNAMENT"),makeElement("h3","",t.tournament_name||"تورنمنت بدون نام"));
+   content.appendChild(makeElement("p","description",t.tournament_description||"توضیحاتی برای این رقابت ثبت نشده است."));
+   const stats=makeElement("div","stats");
+   [[t.max_players,"ظرفیت کل"],[t.approved_players,"بازیکن تأییدشده"],[t.available_slots,"ظرفیت باقی‌مانده"]].forEach(([value,label])=>{const item=makeElement("div","stat");item.append(makeElement("strong","",value===null||value===undefined?"—":String(value)),makeElement("span","",label));stats.appendChild(item);});
+   content.appendChild(stats);
+   const rules=rulesByTournament.get(t.tournament_id);
+   if(rules&&rules.trim())content.append(makeElement("h4","rules-title","قوانین تورنمنت"),makeElement("p","tournament-rules",rules));
+   const link=makeElement("a","page-link","مشاهده فهرست اعضا");link.href="tournament-members.html?id="+encodeURIComponent(t.tournament_id);content.appendChild(link);
+   card.append(top,content);list.appendChild(card);
+  });
+ }catch(error){status.textContent="دریافت اطلاعات با مشکل مواجه شد. لطفاً بعداً تلاش کنید.";status.classList.add("error");console.error(error);}
+}
+loadTournaments();
+</script></body></html>

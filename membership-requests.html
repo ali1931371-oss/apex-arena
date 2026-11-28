@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101010">
+  <meta name="description" content="مدیریت درخواست‌های عضویت بازیکنان APEX ARENA">
+  <title>APEX ARENA | مدیریت درخواست‌های عضویت</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;text-align:center}
+    header{padding:18px;border-bottom:1px solid #80652e;background:#151515}
+    h1{color:#d8b45a;font-size:25px;margin:0}
+    header p{color:#c9bea5;margin:8px 0 0;font-size:13px}
+    main{max-width:900px;margin:28px auto;padding:0 15px}
+    .panel{border:1px solid #b18b3c;border-radius:14px;padding:22px;background:#191919}
+    h2{color:#e4c46e;font-size:22px}
+    p{color:#d0c8b5;line-height:2}
+    a{color:#e4c46e;text-decoration:none}
+    .top-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+    .top-actions a{display:inline-block;padding:11px 16px;border:1px solid #80652e;border-radius:8px}
+    button{width:100%;padding:13px;margin-top:10px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font-family:inherit;font-size:15px;font-weight:bold;cursor:pointer}
+    button:hover{opacity:.88}button:disabled{opacity:.5;cursor:not-allowed}
+    .secondary-button{background:#343434;color:#f5f0df;border:1px solid #80652e}
+    .danger-button{background:#7d2828;color:white}
+    .status{color:#d8b45a;font-size:14px}
+    .error{color:#ff8c8c!important}.success{color:#8be0a2!important}.empty{color:#aaa}
+    .registration-request-card{text-align:right;border:1px solid #80652e;border-radius:10px;padding:15px;margin:14px 0;background:#202020;overflow-wrap:anywhere}
+    .registration-request-card h3{color:#e4c46e;margin-top:0}
+    .request-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .request-actions button{flex:1;min-width:130px}
+    .hidden{display:none!important}
+    footer{padding:25px;color:#a99b79;font-size:13px}
+    @media(max-width:600px){.panel{padding:16px}h1{font-size:21px}}
+
+    /* APEX ARENA — premium blue membership management theme */
+    :root{color-scheme:dark}
+    body{
+      background:radial-gradient(ellipse at 50% -18%,rgba(42,112,190,.25),transparent 52%),
+                 linear-gradient(145deg,#071321 0%,#0b1b2d 48%,#08111e 100%);
+      color:#e8f2ff;
+    }
+    header{
+      background:linear-gradient(110deg,rgba(12,31,51,.98),rgba(18,48,77,.96),rgba(9,24,41,.98));
+      border-bottom:1px solid rgba(112,177,235,.42);
+      box-shadow:0 8px 28px rgba(0,0,0,.22);
+    }
+    h1{color:#9bcfff;text-shadow:0 0 22px rgba(75,158,235,.2)}
+    header p{color:#b7cce2}
+    main{max-width:960px}
+    .panel{
+      background:linear-gradient(155deg,rgba(19,42,66,.97),rgba(11,27,45,.98));
+      border:1px solid rgba(112,177,235,.48);
+      border-radius:18px;
+      box-shadow:0 18px 48px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.035);
+    }
+    h2{color:#b7dcff}
+    p{color:#c5d7e9}
+    a{color:#9bcfff}
+    .top-actions a{
+      border:1px solid rgba(117,180,235,.55);
+      background:rgba(43,91,137,.18);
+      color:#c6e3ff;
+      transition:background .2s,border-color .2s,transform .2s;
+    }
+    .top-actions a:hover{background:rgba(57,124,184,.3);border-color:#9bcfff;transform:translateY(-1px)}
+    button{
+      background:linear-gradient(135deg,#9bcfff,#5b9edb);
+      color:#07182a;
+      box-shadow:0 5px 16px rgba(54,133,202,.2);
+      transition:filter .2s,transform .2s;
+    }
+    button:hover{opacity:1;filter:brightness(1.08);transform:translateY(-1px)}
+    .secondary-button{
+      background:linear-gradient(135deg,#244e75,#173653);
+      color:#d8ebff;
+      border:1px solid rgba(133,190,239,.55);
+      box-shadow:none;
+    }
+    .danger-button{
+      background:linear-gradient(135deg,#a94755,#762c3a);
+      color:#fff;
+      border:1px solid rgba(255,160,173,.3);
+      box-shadow:none;
+    }
+    .status{color:#9bcfff}
+    .error{color:#ff9aa8!important}.success{color:#8ce0c0!important}.empty{color:#9eb4ca}
+    .registration-request-card{
+      border:1px solid rgba(105,169,226,.38);
+      border-radius:13px;
+      padding:17px;
+      background:linear-gradient(145deg,rgba(25,54,82,.88),rgba(14,35,57,.96));
+      box-shadow:0 8px 22px rgba(0,0,0,.16);
+    }
+    .registration-request-card h3{color:#b7dcff}
+    .registration-request-card p{color:#c5d7e9}
+    .request-actions{gap:10px}
+    footer{color:#819bb5}
+    @media(max-width:600px){
+      .panel{padding:16px}
+      .registration-request-card{padding:14px}
+      .request-actions button{min-width:100%}
+    }
+  </style>
+</head>
+<body>
+<header><h1>APEX ARENA</h1><p>مدیریت درخواست‌های عضویت بازیکنان</p></header>
+<main>
+  <section class="panel">
+    <h2>درخواست‌های عضویت بازیکنان</h2>
+    <p>در این صفحه می‌توانید درخواست‌های ثبت‌نام را بررسی، تأیید یا رد کنید.</p>
+    <div class="top-actions">
+      <a href="index.html#admin-section">بازگشت به پنل مدیریت</a>
+    </div>
+    <div id="access-message" class="status">در حال بررسی دسترسی مدیر...</div>
+    <div id="requests-panel" class="hidden">
+      <button type="button" id="refresh-registration-requests" class="secondary-button">به‌روزرسانی درخواست‌ها</button>
+      <p id="registration-requests-status" class="status">در حال دریافت درخواست‌ها...</p>
+      <div id="registration-requests-list"></div>
+    </div>
+  </section>
+</main>
+<footer>© APEX ARENA — All Rights Reserved</footer>
+<script src="/_vendor/supabase-js.js"></script>
+<script>
+"use strict";
+const SUPABASE_URL=window.location.origin + "/_supabase";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let currentAdmin=null;
+let registrationRequestsLoadId=0;
+const accessMessage=document.getElementById("access-message");
+const requestsPanel=document.getElementById("requests-panel");
+function makeElement(tag,className,text){
+  const element=document.createElement(tag);
+  if(className) element.className=className;
+  if(text!==undefined&&text!==null) element.textContent=text;
+  return element;
+}
+async function verifyAdmin(user){
+  if(!user) return false;
+  const {data,error}=await supabaseClient.from("profiles").select("id,role").eq("id",user.id).maybeSingle();
+  if(error){console.error("Admin verification error:",error);return false;}
+  return !!data&&data.role==="admin";
+}
+// دریافت و نمایش درخواست‌های عضویت (فقط پس از تأیید نقش admin)
+async function loadRegistrationRequests() {
+  const loadId=++registrationRequestsLoadId;
+  const status=document.getElementById("registration-requests-status");
+  const list=document.getElementById("registration-requests-list");
+  const refresh=document.getElementById("refresh-registration-requests");
+  if (!currentAdmin || !status || !list) return;
+  status.textContent="در حال دریافت درخواست‌ها..."; status.className="status"; list.replaceChildren();
+  if (refresh) refresh.disabled=true;
+  try {
+    const {data:requests,error}=await supabaseClient.from("tournament_registration_requests")
+      .select("id,tournament_id,user_id,full_name,audio_player_id,phone,username,status,created_at")
+      .eq("status","pending").order("created_at",{ascending:true});
+    if (error) throw error;
+    if (loadId!==registrationRequestsLoadId) return;
+    if (!requests || requests.length===0) { status.textContent="در حال حاضر درخواست در انتظار بررسی وجود ندارد."; return; }
+    const {data:tournaments,error:tournamentsError}=await supabaseClient.rpc("get_manageable_tournaments");
+    if (tournamentsError) throw tournamentsError;
+    const tournamentNames=new Map((tournaments || []).map(t=>[t.tournament_id,t.tournament_name]));
+    if (loadId!==registrationRequestsLoadId) return;
+    status.textContent=requests.length+" درخواست در انتظار بررسی وجود دارد.";
+    requests.forEach(request=>{
+      const card=makeElement("article","registration-request-card");
+      card.appendChild(makeElement("h3","",request.full_name || "بدون نام"));
+      const fields=[
+        ["نام کاربری",request.username],
+        ["آیدی بازیکن صوتی",request.audio_player_id],
+        ["شماره تماس",request.phone],
+        ["نام تورنمنت",tournamentNames.get(request.tournament_id) || "تورنمنت یافت نشد"],
+        ["تاریخ درخواست",request.created_at ? new Date(request.created_at).toLocaleString("fa-IR") : "نامشخص"]
+      ];
+      fields.forEach(([label,value])=>card.appendChild(makeElement("p","",label+": "+(value || "ثبت نشده"))));
+      const actions=makeElement("div","request-actions");
+      const approve=makeElement("button","","تأیید درخواست"); approve.type="button";
+      const reject=makeElement("button","danger-button","رد درخواست"); reject.type="button";
+      approve.addEventListener("click",async()=>{
+        if (!window.confirm("با تأیید این درخواست، حساب بازیکن و کد بازیکنی ساخته می‌شود. ادامه می‌دهید؟")) return;
+        approve.disabled=true; reject.disabled=true;
+        try {
+          const {data,error}=await supabaseClient.rpc("approve_player_registration",{p_request_id:request.id});
+          if (error) throw error;
+          alert("درخواست تأیید شد.\nکد بازیکن: "+(data && data.player_code ? data.player_code : "ساخته شد"));
+          await loadRegistrationRequests();
+        } catch(error) {
+          alert("تأیید درخواست انجام نشد: "+error.message); approve.disabled=false; reject.disabled=false;
+        }
+      });
+      reject.addEventListener("click",async()=>{
+        if (!window.confirm("آیا از رد این درخواست مطمئن هستید؟")) return;
+        const note=window.prompt("دلیل رد درخواست (اختیاری):");
+        if (note===null) return;
+        approve.disabled=true; reject.disabled=true;
+        try {
+          const {error}=await supabaseClient.rpc("reject_player_registration",{p_request_id:request.id,p_review_note:note.trim() || null});
+          if (error) throw error;
+          alert("درخواست با موفقیت رد شد.");
+          await loadRegistrationRequests();
+        } catch(error) {
+          alert("رد درخواست انجام نشد: "+error.message); approve.disabled=false; reject.disabled=false;
+        }
+      });
+      actions.append(approve,reject); card.appendChild(actions); list.appendChild(card);
+    });
+  } catch(error) {
+    if (loadId===registrationRequestsLoadId) {
+      status.textContent="خطا در دریافت درخواست‌ها: "+error.message; status.classList.add("error"); console.error("Registration requests error:",error);
+    }
+  } finally {
+    if (loadId===registrationRequestsLoadId && refresh) refresh.disabled=false;
+  }
+}
+
+async function initializeMembershipPage(){
+  const {data,error}=await supabaseClient.auth.getSession();
+  if(error) throw error;
+  const user=data.session&&data.session.user;
+  if(!user){
+    accessMessage.textContent="برای مشاهده درخواست‌ها ابتدا از بخش مدیریت وارد حساب مدیر شوید.";
+    accessMessage.classList.add("error");
+    return;
+  }
+  const isAdmin=await verifyAdmin(user);
+  if(!isAdmin){
+    accessMessage.textContent="این حساب دسترسی مدیریت درخواست‌های عضویت را ندارد.";
+    accessMessage.classList.add("error");
+    return;
+  }
+  currentAdmin=user;
+  accessMessage.textContent="دسترسی مدیر تأیید شد.";
+  accessMessage.classList.add("success");
+  requestsPanel.classList.remove("hidden");
+  await loadRegistrationRequests();
+}
+document.getElementById("refresh-registration-requests").addEventListener("click",loadRegistrationRequests);
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+  if(event==="SIGNED_OUT"){
+    currentAdmin=null;
+    requestsPanel.classList.add("hidden");
+    accessMessage.textContent="نشست کاربری پایان یافته است. دوباره از پنل مدیریت وارد شوید.";
+    accessMessage.className="status error";
+  }
+  if(event==="SIGNED_IN"&&session&&session.user){
+    setTimeout(()=>initializeMembershipPage().catch(error=>{
+      accessMessage.textContent="بررسی دسترسی با خطا مواجه شد: "+error.message;
+      accessMessage.className="status error";
+    }),0);
+  }
+});
+initializeMembershipPage().catch(error=>{
+  accessMessage.textContent="بررسی دسترسی با خطا مواجه شد: "+error.message;
+  accessMessage.className="status error";
+});
+</script>
+</body>
+</html>

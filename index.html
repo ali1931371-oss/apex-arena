@@ -8,19 +8,47 @@
   <title>APEX ARENA | ورزشگاه رقابت</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin:0; background:#101010; color:#f5f0df; font-family:Tahoma,Arial,sans-serif; text-align:center; }
-    header { padding:25px 15px; border-bottom:1px solid #80652e; }
-    h1 { color:#d8b45a; letter-spacing:2px; font-size:32px; }
-    h2 { font-size:25px; }
-    p { color:#d0c8b5; line-height:2; }
-    .hero { padding:75px 20px; background:radial-gradient(circle,#382b12,#101010 70%); }
-    .tagline { color:#e4c46e; font-size:18px; margin:25px auto; }
+    :root { --arena-silver:#dce8f4; --arena-blue:#54bfff; --arena-deep:#071321; --arena-panel:#0c1b2b; }
+    body { margin:0; background:linear-gradient(145deg,#071321,#0b1725 52%,#101d2d); color:#eaf4ff; font-family:Tahoma,Arial,sans-serif; text-align:center; }
+    header { position:relative; z-index:5; padding:14px clamp(14px,3vw,34px); border-bottom:1px solid rgba(133,195,235,.35); background:linear-gradient(100deg,rgba(5,13,23,.97),rgba(18,38,58,.94)); backdrop-filter:blur(14px); display:flex; align-items:center; justify-content:space-between; gap:20px; box-shadow:0 8px 30px #0006; }
+    h1 { color:#eaf7ff; letter-spacing:5px; font-family:Arial,sans-serif; font-size:clamp(25px,3vw,38px); font-weight:900; margin:0; text-shadow:0 0 7px #b5e8ff,0 0 18px #36aaff,0 0 34px #168cff; }
+    h2 { font-size:clamp(23px,3vw,32px); color:#e6f4ff; text-shadow:0 0 18px #5abaff55; }
+    p { color:#c5d7e8; line-height:2; }
+    .hero { position:relative; isolation:isolate; overflow:hidden; min-height:570px; padding:clamp(80px,12vw,150px) 20px 100px; border-bottom:1px solid rgba(125,195,239,.45); background:radial-gradient(ellipse at 50% 38%,rgba(73,135,183,.30),transparent 44%),linear-gradient(180deg,rgba(3,10,19,.45),rgba(4,13,24,.91)),url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201800%20760%22%3E%0A%3Cdefs%3E%0A%20%3ClinearGradient%20id%3D%22sky%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23173b59%22%2F%3E%3Cstop%20offset%3D%22.52%22%20stop-color%3D%22%2310283e%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2306111e%22%2F%3E%3C%2FlinearGradient%3E%0A%20%3ClinearGradient%20id%3D%22glass%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23477b9e%22%20stop-opacity%3D%22.8%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%2310283e%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23071522%22%2F%3E%3C%2FlinearGradient%3E%0A%20%3ClinearGradient%20id%3D%22tower%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23244e6d%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23081522%22%2F%3E%3C%2FlinearGradient%3E%0A%20%3Cpattern%20id%3D%22windows%22%20width%3D%2228%22%20height%3D%2234%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Cpath%20d%3D%22M5%207h13v17H5z%22%20fill%3D%22%238bd7ff%22%20opacity%3D%22.34%22%2F%3E%3Cpath%20d%3D%22M22%200v34%22%20stroke%3D%22%23a9ddf8%22%20stroke-opacity%3D%22.13%22%2F%3E%3C%2Fpattern%3E%0A%20%3Cpattern%20id%3D%22fine%22%20width%3D%2212%22%20height%3D%2212%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Cpath%20d%3D%22M0%200v12%22%20stroke%3D%22%23b4e7ff%22%20stroke-opacity%3D%22.12%22%2F%3E%3C%2Fpattern%3E%0A%20%3CradialGradient%20id%3D%22glow%22%3E%3Cstop%20stop-color%3D%22%236dcaff%22%20stop-opacity%3D%22.36%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%236dcaff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FradialGradient%3E%0A%3C%2Fdefs%3E%0A%3Crect%20width%3D%221800%22%20height%3D%22760%22%20fill%3D%22url(%23sky)%22%2F%3E%0A%3Ccircle%20cx%3D%22900%22%20cy%3D%22260%22%20r%3D%22470%22%20fill%3D%22url(%23glow)%22%2F%3E%0A%3Cpath%20d%3D%22M0%20630%20180%20530%20330%20585%20510%20470%20690%20560%20870%20420%201040%20545%201220%20455%201410%20555%201600%20465%201800%20560V760H0Z%22%20fill%3D%22%230a1b2b%22%20opacity%3D%22.7%22%2F%3E%0A%3Cg%20stroke%3D%22%238acdf0%22%20stroke-opacity%3D%22.32%22%20stroke-width%3D%222%22%3E%0A%20%3Cpath%20d%3D%22M0%20760V360h105V280h42v-60h75v540z%22%20fill%3D%22url(%23tower)%22%2F%3E%0A%20%3Cpath%20d%3D%22M170%20760V310h80v-75h35v-80h70v605z%22%20fill%3D%22url(%23glass)%22%2F%3E%0A%20%3Cpath%20d%3D%22M330%20760V390h65V250h40V125h95v-55h38v690z%22%20fill%3D%22url(%23tower)%22%2F%3E%0A%20%3Cpath%20d%3D%22M520%20760V285h90V190h42V95h68v-55h36v720z%22%20fill%3D%22url(%23glass)%22%2F%3E%0A%20%3Cpath%20d%3D%22M730%20760V350h85V220h42V115h58V35h44v725z%22%20fill%3D%22url(%23tower)%22%2F%3E%0A%20%3Cpath%20d%3D%22M920%20760V270h70V185h65V100h40V45h70v715z%22%20fill%3D%22url(%23glass)%22%2F%3E%0A%20%3Cpath%20d%3D%22M1120%20760V345h95V245h45V150h70v-65h55v675z%22%20fill%3D%22url(%23tower)%22%2F%3E%0A%20%3Cpath%20d%3D%22M1340%20760V300h85V215h42V120h80v-45h45v685z%22%20fill%3D%22url(%23glass)%22%2F%3E%0A%20%3Cpath%20d%3D%22M1550%20760V385h90V270h60V190h55v570z%22%20fill%3D%22url(%23tower)%22%2F%3E%0A%20%3Cpath%20d%3D%22M1690%20760V330h75v-95h35v525z%22%20fill%3D%22url(%23glass)%22%2F%3E%0A%3C%2Fg%3E%0A%3Cg%20fill%3D%22url(%23windows)%22%20opacity%3D%22.9%22%3E%0A%20%3Cpath%20d%3D%22M0%20360h222v400H0zM170%20310h185v450H170zM330%20125h238v635H330zM520%2095h236v665H520zM730%2035h234v725H730zM920%2045h245v715H920zM1120%2085h265v675h-265zM1340%2075h252v685h-252zM1550%20190h250v570h-250z%22%2F%3E%0A%3C%2Fg%3E%0A%3Cg%20fill%3D%22none%22%20stroke%3D%22%23a8e0ff%22%20stroke-opacity%3D%22.38%22%3E%0A%20%3Cpath%20d%3D%22M470%20125v635M680%2095v665M915%2035v725M1080%2045v715M1300%2085v675M1510%2075v685%22%2F%3E%0A%20%3Cpath%20d%3D%22M730%2035h234M920%2045h245M1340%2075h252%22%20stroke-width%3D%223%22%2F%3E%0A%20%3Cpath%20d%3D%22M0%20690h1800%22%20stroke-opacity%3D%22.22%22%2F%3E%0A%3C%2Fg%3E%0A%3Cg%20fill%3D%22%239cddff%22%20opacity%3D%22.7%22%3E%0A%20%3Ccircle%20cx%3D%22880%22%20cy%3D%2228%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%221110%22%20cy%3D%2238%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%221375%22%20cy%3D%2268%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%22540%22%20cy%3D%2282%22%20r%3D%223%22%2F%3E%0A%3C%2Fg%3E%0A%3Crect%20y%3D%22610%22%20width%3D%221800%22%20height%3D%22150%22%20fill%3D%22%2306111e%22%20opacity%3D%22.42%22%2F%3E%0A%3C%2Fsvg%3E") center/cover no-repeat; }
+    .hero:before { content:""; position:absolute; z-index:-1; inset:0; background:linear-gradient(90deg,rgba(3,10,19,.55),transparent 48%,rgba(3,10,19,.45)); }
+    .hero:after { content:""; position:absolute; z-index:-1; left:0;right:0;bottom:0;height:130px;background:linear-gradient(transparent,#071321); }
+    .tagline { color:#c7eaff; font-size:clamp(19px,3vw,26px); margin:22px auto; text-shadow:0 0 15px #48aaff88; }
+    .site-brand { display:flex; align-items:center; gap:12px; text-align:right; flex-shrink:0; } .site-brand p { margin:4px 0 0; font-size:11px; color:#9ebbd2; letter-spacing:.4px; }
+    .brand-mark { width:48px;height:48px;flex:0 0 48px;filter:drop-shadow(0 0 10px #42b9ff88); }
+    .brand-wordmark { text-align:left; direction:ltr; }
+    .main-nav { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:7px; }
+    .main-nav a { color:#c8d9e8; text-decoration:none; padding:9px 12px; border:1px solid transparent; border-radius:8px; font-size:13px; transition:.2s; }
+    .main-nav a:hover,.main-nav a:focus-visible { color:#fff; border-color:#4aa9e9; background:#15314a; outline:none; box-shadow:0 0 14px #36aaff33; }
+    .hero-actions { display:flex; justify-content:center; flex-wrap:wrap; gap:14px; margin-top:34px; }
+    .hero-actions a { display:inline-flex;align-items:center;justify-content:center;min-width:190px;padding:15px 22px;border-radius:11px;text-decoration:none;font-weight:bold;color:#fff;border:1px solid transparent;box-shadow:0 9px 25px #0005;transition:transform .2s,filter .2s,box-shadow .2s; }
+    .hero-actions a:hover { transform:translateY(-4px);filter:brightness(1.12);box-shadow:0 13px 30px #0008; }
+    .hero-actions .btn-tournaments { background:linear-gradient(135deg,#178bdb,#07518f);border-color:#68c7ff;box-shadow:0 0 22px #168bdb55; }
+    .hero-actions .btn-academy { background:linear-gradient(135deg,#9be900,#4c8e00);border-color:#c7ff59;color:#102000;box-shadow:0 0 22px #8bdb0055; }
+    .hero-actions .btn-register { background:linear-gradient(135deg,#f04c59,#941b2b);border-color:#ff8790;box-shadow:0 0 22px #e52c4655; }
+    .hero-actions .btn-judges { background:linear-gradient(135deg,#252d38,#05080d);border-color:#8794a3;color:#f0f5fa;box-shadow:0 0 22px #0009; }
+    .hero-actions .btn-results { background:linear-gradient(135deg,#f2cf70,#a87518);border-color:#ffe4a0;color:#211500;box-shadow:0 0 22px #d5a63e55; }
+    .section { scroll-margin-top:100px; } .tournament { transition:transform .2s,border-color .2s; }
+    .tournament:hover { transform:translateY(-2px); border-color:#d8b45a; }
+    button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:2px solid #e4c46e; outline-offset:2px; }
     .section { max-width:900px; margin:25px auto; padding:25px; border:1px solid #59451e; border-radius:14px; background:#191919; }
     .tournament { border:1px solid #80652e; border-radius:10px; padding:18px; margin:15px 0; text-align:right; background:#202020; }
     .tournament h3,.academy-card h3 { color:#e4c46e; }
+    .tournament-rules { white-space:pre-wrap; border-right:3px solid #80652e; padding:9px 12px; background:#191919; border-radius:7px; color:#e4d7b8; line-height:2; }
     .status { color:#d8b45a; font-size:14px; }
     .error { color:#ff8c8c !important; } .success { color:#8be0a2 !important; } .empty { color:#aaa; }
     .admin-box { max-width:600px; margin:20px auto; text-align:right; }
+    .registration-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; }
+    .registration-grid .full-row { grid-column:1/-1; }
+    .field-hint { color:#a99b79; font-size:12px; margin:2px 0 8px; }
+    .consent-row { display:flex; align-items:flex-start; gap:10px; color:#d0c8b5; font-size:13px; line-height:1.9; margin:18px 0; }
+    .consent-row input { width:auto; margin:5px 0 0; accent-color:#d8b45a; }
+    .section-intro { max-width:720px; margin:0 auto 18px; }
+    .trust-note { border-right:3px solid #d8b45a; padding:10px 14px; background:#211b10; border-radius:8px; text-align:right; color:#d8cba9; font-size:13px; line-height:2; }
     input,textarea,select { display:block; width:100%; margin:12px 0; padding:13px; border:1px solid #80652e; border-radius:8px; background:#101010; color:white; font-family:inherit; font-size:15px; }
     textarea { min-height:130px; resize:vertical; line-height:2; }
     input[type="file"] { padding:10px; }
@@ -43,39 +71,119 @@
     .admin-post { text-align:right; border:1px solid #59451e; padding:14px; margin:12px 0; border-radius:8px; background:#202020; }
     .admin-post strong { color:#e4c46e; }
     .preview-image { max-width:100%; max-height:220px; border-radius:8px; margin-top:10px; }
-    .registration-request-card { text-align:right; border:1px solid #80652e; border-radius:10px; padding:15px; margin:14px 0; background:#202020; overflow-wrap:anywhere; }
-    .registration-request-card h3 { color:#e4c46e; margin-top:0; }
-    .request-actions { display:flex; gap:10px; flex-wrap:wrap; }
-    .request-actions button { flex:1; min-width:130px; }
     footer { padding:25px; color:#a99b79; font-size:13px; }
-    @media(max-width:600px) { .section { margin:15px 10px; padding:17px; } .hero { padding:50px 15px; } h1 { font-size:27px; } h2 { font-size:21px; } }
+    .home-ads{position:static!important;display:none;clear:both;width:min(1120px,calc(100% - 40px));margin:24px auto 30px;padding:0}.home-ads-shell{position:relative;overflow:hidden;border:1px solid rgba(92,190,255,.62);border-radius:22px;background:radial-gradient(circle at 8% 5%,rgba(38,146,255,.32),transparent 34%),radial-gradient(circle at 92% 100%,rgba(0,220,255,.16),transparent 35%),linear-gradient(125deg,#123b67,#07182d 58%,#06101e);box-shadow:0 18px 48px rgba(0,0,0,.42),0 0 30px rgba(30,144,255,.13);isolation:isolate}.home-ads-shell:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;background-image:linear-gradient(rgba(125,205,255,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(125,205,255,.25) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(110deg,#000,transparent 75%)}.home-ads-heading{position:relative;padding:14px 22px 4px;color:#91dcff;font-size:12px;font-weight:bold;letter-spacing:2.2px;text-align:right}.home-ad-slide{display:none;position:relative;min-height:0;text-align:right}.home-ad-slide.active{display:block}.home-ad-slide a{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:0;width:100%;padding:16px 22px 18px;color:inherit;text-decoration:none}.home-ad-slide img{display:block;grid-column:1;grid-row:1;width:100%;height:auto;max-height:520px;object-fit:contain;object-position:center;border-radius:14px;border:1px solid rgba(110,190,255,.42);background:rgba(2,12,25,.55);filter:drop-shadow(0 12px 22px rgba(0,0,0,.3))}.home-ad-copy{grid-column:1;grid-row:2;position:relative;padding:18px 22px 8px;margin-top:12px;border-top:2px solid rgba(85,200,255,.55);background:linear-gradient(100deg,rgba(4,20,38,.2),rgba(4,20,38,.55));border-radius:0 0 14px 14px}.home-ad-copy:before{content:"ARENA SPOTLIGHT";display:block;color:#6bcaff;font-size:11px;font-weight:bold;letter-spacing:2px;margin-bottom:9px}.home-ad-copy h3{color:#fff;font-size:clamp(22px,3vw,34px);line-height:1.55;margin:0 0 8px;text-shadow:0 2px 12px #0008}.home-ad-copy p{color:#d2e9ff;margin:7px 0 0;line-height:2;font-size:clamp(15px,1.7vw,18px);overflow-wrap:anywhere}.home-ad-slide.portrait a{grid-template-columns:minmax(260px,.85fr) minmax(0,1fr);gap:26px;align-items:center;padding:20px 26px}.home-ad-slide.portrait img{grid-column:1;grid-row:1;width:100%;height:auto;max-height:min(72vh,680px);object-fit:contain}.home-ad-slide.portrait .home-ad-copy{grid-column:2;grid-row:1;margin:0;padding:24px 22px;border-top:0;border-right:3px solid #55c8ff;border-radius:0 14px 14px 0;background:linear-gradient(100deg,rgba(4,20,38,.2),rgba(4,20,38,.72))}.home-ad-slide.portrait .home-ad-copy p{padding:7px 0;border-bottom:1px solid rgba(110,190,255,.15)}.home-ad-controls{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 14px 16px}.home-ad-controls button{width:38px;height:36px;margin:0;padding:0;border:1px solid #4aa9e9;border-radius:10px;background:linear-gradient(145deg,#14558b,#092846);color:#eaf7ff;font-size:23px;cursor:pointer}.home-ad-dots{display:flex;gap:7px;align-items:center}.home-ad-dot{width:8px;height:8px;border-radius:50%;background:#42617e}.home-ad-dot.active{width:22px;border-radius:9px;background:#4bbcff;box-shadow:0 0 12px #4bbcff88}.home-ad-controls .home-ad-dot{width:8px;height:8px;padding:0;margin:0;border-radius:50%}.home-ad-controls .home-ad-dot.active{width:22px;border-radius:9px}@media(max-width:650px){.home-ads{width:calc(100% - 20px);margin:16px auto 22px}.home-ads-shell{border-radius:17px}.home-ads-heading{padding:11px 14px 2px;font-size:10px}.home-ad-slide a,.home-ad-slide.portrait a{grid-template-columns:1fr;gap:10px;padding:12px}.home-ad-slide img,.home-ad-slide.portrait img{grid-column:1;grid-row:1;width:100%;height:auto;max-height:68vh;min-height:0;object-fit:contain}.home-ad-copy,.home-ad-slide.portrait .home-ad-copy{grid-column:1;grid-row:2;margin:8px 0 0;padding:12px 14px;border-top:2px solid rgba(85,200,255,.55);border-right:0;border-radius:0 0 12px 12px}.home-ad-copy:before{font-size:9px;margin-bottom:5px}.home-ad-copy h3{font-size:20px;line-height:1.6;margin-bottom:5px}.home-ad-copy p{font-size:15px;line-height:1.9}.home-ad-controls{padding-bottom:12px}}
+    @media(max-width:850px) { header{flex-direction:column;gap:12px}.main-nav{justify-content:center}.site-brand{justify-content:center}.brand-wordmark{text-align:center} }
+    @media(max-width:600px) { .section { margin:15px 10px; padding:17px; } h1 { font-size:25px; } h2 { font-size:21px; } .hero{min-height:620px;padding:85px 16px 90px;background-position:center,center,58% center}.hero-actions{gap:11px}.hero-actions a { width:100%; max-width:340px; } .registration-grid { grid-template-columns:1fr; } .registration-grid .full-row { grid-column:auto; } }
+  
+    /* APEX silver-blue identity for the lower tournament and management panels */
+    .section {
+      border:1px solid rgba(103,190,245,.48);
+      background:linear-gradient(145deg,rgba(16,39,60,.96),rgba(7,19,33,.98));
+      box-shadow:0 14px 38px rgba(0,0,0,.28),inset 0 1px 0 rgba(190,225,250,.06);
+    }
+    .section h2 { color:#e6f4ff; text-shadow:0 0 16px rgba(84,191,255,.28); }
+    .section .section-intro { color:#c5d7e8; }
+    .tournament {
+      border:1px solid rgba(91,177,232,.48);
+      background:linear-gradient(135deg,#102b43,#0a1929);
+      box-shadow:0 8px 24px rgba(0,0,0,.22);
+    }
+    .tournament:hover { border-color:#79ceff; box-shadow:0 10px 28px rgba(27,145,220,.16); }
+    .tournament h3,.academy-card h3 { color:#9bdcff; }
+    .tournament-rules { border-right-color:#54bfff; background:#0a1a2a; color:#d6eaff; }
+    .admin-panel {
+      border:1px solid rgba(103,190,245,.55);
+      background:linear-gradient(145deg,#10263a,#091725);
+      box-shadow:0 12px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(190,225,250,.06);
+    }
+    #admin-dashboard a:not([href="homepage-ads.html"]) {
+      border-color:rgba(103,190,245,.65)!important;
+      color:#a9ddff!important;
+      background:linear-gradient(135deg,rgba(29,82,120,.28),rgba(8,24,40,.5));
+      border-radius:9px;
+      transition:.2s;
+    }
+    #admin-dashboard a:hover { border-color:#8bd8ff!important; box-shadow:0 0 16px rgba(54,170,255,.2); }
+    #admin-dashboard a.academy-admin-entry {
+      display:inline-block;
+      padding:12px 18px;
+      border:1px solid rgba(103,190,245,.65)!important;
+      border-radius:9px;
+      color:#a9ddff!important;
+      background:linear-gradient(135deg,rgba(29,82,120,.28),rgba(8,24,40,.5));
+      text-decoration:none;
+      line-height:1.5;
+      box-shadow:0 6px 16px rgba(0,0,0,.2);
+    }
+    #admin-dashboard a.academy-admin-entry:hover {
+      border-color:#8bd8ff!important;
+      box-shadow:0 0 16px rgba(54,170,255,.2);
+    }
+
+    /* Admin login color refinement */
+    #login-button {
+      background: linear-gradient(135deg, #172b49, #0b1b32);
+      color: #f1f6ff;
+      border: 1px solid #42658f;
+      box-shadow: 0 7px 18px rgba(3, 15, 32, .38);
+    }
+    #login-button:hover { background: linear-gradient(135deg, #203d63, #102744); }
+    #admin-email, #admin-password {
+      background: linear-gradient(135deg, #102f52, #0b2340);
+      color: #edf6ff;
+      border: 1px solid #3986c7;
+      box-shadow: inset 0 1px 5px rgba(0, 0, 0, .28);
+    }
+    #admin-email::placeholder, #admin-password::placeholder { color: #a9c8e6; }
+    #admin-email:focus, #admin-password:focus {
+      outline: 2px solid #63b8ff;
+      border-color: #83ccff;
+    }
+    #show-recovery { color: #c5ccd6; }
+    #show-recovery:hover { color: #f0f3f8; }
+
   </style>
 </head>
 <body>
-<header><h1>APEX ARENA</h1><p>ورزشگاه رقابت‌های حرفه‌ای مافیا صوتی</p></header>
+<header>
+  <div class="site-brand">
+    <svg class="brand-mark" viewBox="0 0 100 100" role="img" aria-label="نشان APEX ARENA">
+      <defs><linearGradient id="apexMetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3fbff"/><stop offset=".48" stop-color="#72caff"/><stop offset="1" stop-color="#647f9d"/></linearGradient></defs>
+      <path d="M50 5 94 84H6Z" fill="none" stroke="url(#apexMetal)" stroke-width="5"/>
+      <path d="m50 25 29 51H21Z" fill="none" stroke="#d9f2ff" stroke-width="2" opacity=".8"/>
+      <path d="M50 25 37 76h26Z" fill="#4bbcff" opacity=".22"/>
+      <path d="M30 67h40M39 50h22" stroke="#eaf8ff" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-wordmark"><h1>APEX ARENA</h1><p>ورزشگاه رقابت‌های حرفه‌ای مافیا صوتی</p></div>
+  </div>
+  <nav class="main-nav" aria-label="منوی اصلی">
+    <a href="#home">خانه</a><a href="tournaments.html">مشاهده مسابقات</a><a href="registration.html">ورود به رقابت</a><a href="academy.html">آکادمی آموزش</a><a href="judge-directory.html">ورود به پنل داوری</a><a href="judge-results.html">نتایج بازیکنان</a><a href="#admin-section">مدیریت</a>
+  </nav>
+</header>
 <main>
-  <section class="hero"><h2>به میدان رقابت خوش آمدید</h2><p class="tagline">در میدان اقتدار و برتری فقط نخبگان ماندگارند</p><p>جایی برای نمایش استعداد، مهارت و تفکر حرفه‌ای</p></section>
+  <section class="home-ads" id="home-ads" aria-label="تبلیغات و بنرهای تورنمنت">
+    <div class="home-ads-shell"><div class="home-ads-heading">APEX ARENA • PROMOTIONS</div><div id="home-ad-slides"></div>
+      <div class="home-ad-controls"><button type="button" id="home-ad-prev" aria-label="بنر قبلی">‹</button><div class="home-ad-dots" id="home-ad-dots"></div><button type="button" id="home-ad-next" aria-label="بنر بعدی">›</button></div>
+    </div>
+  </section>
+  <section class="hero" id="home">
+    <h2>به قلمرو رقابت‌های حرفه‌ای خوش آمدید</h2>
+    <p class="tagline">در میدان اقتدار و برتری، فقط نخبگان ماندگارند</p>
+    <p>اینجا ادعا پایان می‌یابد و شایستگی آغاز می‌شود.</p>
+    <div class="hero-actions">
+      <a class="btn-tournaments" href="tournaments.html">مشاهده مسابقات</a>
+      <a class="btn-academy" href="academy.html">آکادمی آموزش</a>
+      <a class="btn-register" href="registration.html">ورود به رقابت</a>
+      <a class="btn-judges" href="judge-directory.html">ورود به پنل داوری</a>
+      <a class="btn-results" href="judge-results.html">نتایج بازیکنان</a>
+    </div>
+  </section>
   <section class="section"><h2>تورنمنت‌های APEX ARENA</h2><p>بستری برای برگزاری رقابت‌های متنوع مافیا صوتی، با قوانین، سناریوها و سیستم داوری قابل تنظیم.</p></section>
-  <section class="section"><h2>تورنمنت‌های آماده ثبت‌نام</h2><p id="connection-status" class="status">در حال دریافت اطلاعات تورنمنت‌ها...</p><div id="tournament-list"></div></section>
 
-  <section class="section" id="player-registration">
-    <h2>ثبت‌نام بازیکنان</h2><p>اطلاعات خود را با دقت وارد کنید. درخواست ثبت‌نام پس از بررسی مدیر تأیید می‌شود.</p>
-    <form id="registration-form" class="admin-box">
-      <label for="reg-tournament">انتخاب تورنمنت</label><select id="reg-tournament" required><option value="">در حال دریافت تورنمنت‌ها...</option></select>
-      <label for="reg-full-name">نام و نام خانوادگی</label><input id="reg-full-name" type="text" minlength="3" maxlength="120" required>
-      <label for="reg-audio-id">آیدی بازیکن در اپلیکیشن صوتی</label><input id="reg-audio-id" type="text" minlength="2" maxlength="120" required>
-      <label for="reg-phone">شماره تماس</label><input id="reg-phone" type="tel" inputmode="tel" maxlength="25" required>
-      <label for="reg-username">نام کاربری انگلیسی</label><input id="reg-username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,29}" required>
-      <label for="reg-password">رمز عبور</label><input id="reg-password" type="password" minlength="12" maxlength="128" required>
-      <button id="registration-button" type="submit" disabled>ارسال درخواست ثبت‌نام</button>
-      <p id="registration-message" class="message" role="status"></p>
-    </form>
-  </section>
 
-  <section class="section" id="academy-section">
-    <h2>آکادمی APEX ARENA</h2><p>دانش، تجربه و مهارت؛ مسیر تبدیل شدن به یک بازیکن حرفه‌ای.</p>
-    <p id="academy-status" class="status">در حال دریافت مطالب آکادمی...</p><div id="academy-list" class="academy-grid"></div>
-  </section>
+
+
 
   <section class="section" id="admin-section">
     <h2>ورود مدیریت APEX ARENA</h2>
@@ -97,42 +205,25 @@
 
     <div id="admin-dashboard" class="admin-panel hidden">
       <p class="success">دسترسی مدیر تأیید شد.</p>
+      <p><a href="judge-management.html" style="display:inline-block;padding:11px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">ورود به پنل مدیریت داوران</a></p>
+      <p><a href="tournament-management.html" style="display:inline-block;padding:11px 16px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">ورود به پنل مدیریت تورنمنت‌ها</a></p>
 
-      <!-- مدیریت درخواست‌های عضویت بازیکنان -->
-      <section class="admin-box" id="registration-requests-section">
-        <h2>مدیریت درخواست‌های عضویت بازیکنان</h2>
-        <p>درخواست‌های در انتظار بررسی در این قسمت نمایش داده می‌شوند.</p>
-        <button type="button" id="refresh-registration-requests" class="secondary-button">به‌روزرسانی درخواست‌ها</button>
-        <p id="registration-requests-status" class="status">در حال دریافت درخواست‌ها...</p>
-        <div id="registration-requests-list"></div>
-      </section>
+      <p><a href="membership-requests.html" style="display:inline-block;padding:12px 18px;border:1px solid #80652e;border-radius:8px;color:#e4c46e;text-decoration:none">مدیریت درخواست‌های عضویت بازیکنان</a></p>
+      <p><a href="homepage-ads.html" style="display:inline-block;padding:12px 18px;border:1px solid #168bff;border-radius:8px;color:#8bd8ff;text-decoration:none">مدیریت تبلیغات صفحه اصلی</a></p>
 
-      <hr style="border-color:#59451e;margin:25px 0;">
-      <h2>پنل مدیریت آکادمی</h2>
-      <div class="admin-box">
-        <h3 id="form-title">افزودن مطلب جدید</h3><input type="hidden" id="edit-post-id">
-        <label for="post-title">عنوان مطلب</label><input id="post-title" type="text" maxlength="180" placeholder="عنوان آموزش یا مقاله">
-        <label for="post-slug">آدرس کوتاه مطلب (اختیاری)</label><input id="post-slug" type="text" maxlength="180" placeholder="مثلاً: amoozesh-negotiator">
-        <label for="post-summary">خلاصه مطلب</label><textarea id="post-summary" maxlength="1000" placeholder="خلاصه‌ای کوتاه برای نمایش در صفحه آکادمی"></textarea>
-        <label for="post-body">متن کامل مطلب</label><textarea id="post-body" placeholder="متن آموزش یا مقاله را اینجا وارد کن..."></textarea>
-        <label for="post-type">نوع محتوا</label><select id="post-type"><option value="article">مقاله یا آموزش متنی</option><option value="video">ویدئو</option><option value="mixed">ترکیبی (متن، تصویر و ویدئو)</option></select>
-        <label for="post-image">تصویر مطلب</label><input id="post-image" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><img id="image-preview" class="preview-image hidden" alt="پیش‌نمایش تصویر">
-        <label for="post-video">لینک ویدئوی YouTube</label><input id="post-video" type="url" placeholder="https://www.youtube.com/watch?v=...">
-        <button id="save-post-button">ذخیره پیش‌نویس</button><button id="publish-post-button" class="secondary-button">ذخیره و انتشار</button>
-        <button id="cancel-edit-button" class="secondary-button hidden">لغو ویرایش</button><p id="academy-admin-message" class="message"></p>
-      </div>
-      <hr style="border-color:#59451e;margin:25px 0;"><h3>مدیریت مطالب ثبت‌شده</h3><div id="admin-post-list"></div>
+      <p><a href="academy-management.html" class="academy-admin-entry">ورود به پنل مدیریت آکادمی</a></p>
       <button id="logout-button" class="danger-button">خروج از حساب مدیریت</button>
     </div>
   </section>
+
   <section class="section"><h2>رقابت، اعتبار، ماندگاری</h2><p>مسیر پیشرفت بازیکنان از طریق عملکرد و نتایج رقابت‌ها ثبت و دنبال خواهد شد.</p></section>
 </main>
 <footer>© APEX ARENA — All Rights Reserved</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/_vendor/supabase-js.js"></script>
 <script>
 "use strict";
-const SUPABASE_URL = "https://vzythswxlvubytzmvhep.supabase.co";
+const SUPABASE_URL = window.location.origin + "/_supabase";
 const SUPABASE_KEY = "sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
 const BUCKET_NAME = "apex-education";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -172,6 +263,34 @@ function makeElement(tag, className, text) {
   return element;
 }
 
+// اسلایدر تبلیغات تورنمنت‌ها؛ مستقل از محتوای اصلی و هیرو صفحه
+async function loadHomepageAds(){
+  const section=document.getElementById("home-ads"),slides=document.getElementById("home-ad-slides"),dots=document.getElementById("home-ad-dots");
+  if(!section||!slides||!dots)return;
+  try{
+    const {data,error}=await supabaseClient.from("homepage_ads").select("id,title,subtitle,image_path,target_url,tournament_id,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("created_at",{ascending:false});
+    if(error)throw error;
+    if(!data||!data.length)return;
+    section.style.display="block";slides.replaceChildren();dots.replaceChildren();
+    let current=0,timer=null;const slideNodes=[],dotNodes=[];
+    data.forEach((ad,index)=>{
+      const slide=makeElement("div","home-ad-slide"),link=makeElement("a"),image=makeElement("img"),copy=makeElement("div","home-ad-copy");
+const rawTarget=typeof ad.target_url==="string"?ad.target_url:"";const safePage=/^[a-zA-Z0-9_-]+[.]html([?#].*)?$/.test(rawTarget);const target=(rawTarget.startsWith("https://")||(rawTarget.startsWith("/")&&!rawTarget.startsWith("//"))||safePage)?rawTarget:"tournaments.html";
+      link.href=target;image.src=supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(ad.image_path).data.publicUrl;image.alt=ad.title||"بنر تبلیغاتی APEX ARENA";image.loading=index===0?"eager":"lazy";image.addEventListener("load",()=>{slide.classList.toggle("portrait",image.naturalHeight>image.naturalWidth);slide.classList.toggle("landscape",image.naturalWidth>=image.naturalHeight);},{once:true});
+      copy.append(makeElement("h3","",ad.title||"رقابت جدید در APEX ARENA"));if(ad.subtitle){const sentences=ad.subtitle.match(/[^.!?؟\n]+[.!?؟]?/g)||[ad.subtitle];sentences.map(sentence=>sentence.trim()).filter(Boolean).forEach(sentence=>copy.appendChild(makeElement("p","",sentence)));}
+      link.append(image,copy);slide.appendChild(link);slides.appendChild(slide);slideNodes.push(slide);
+      const dot=makeElement("button","home-ad-dot");dot.type="button";dot.setAttribute("aria-label","نمایش بنر "+(index+1));dot.addEventListener("click",()=>show(index));dots.appendChild(dot);dotNodes.push(dot);
+    });
+    function show(index){current=(index+slideNodes.length)%slideNodes.length;slideNodes.forEach((s,i)=>s.classList.toggle("active",i===current));dotNodes.forEach((d,i)=>d.classList.toggle("active",i===current));}
+    function start(){if(slideNodes.length>1){clearInterval(timer);timer=setInterval(()=>show(current+1),5500);}}
+    document.getElementById("home-ad-prev").addEventListener("click",()=>{show(current-1);start();});
+    document.getElementById("home-ad-next").addEventListener("click",()=>{show(current+1);start();});
+    section.addEventListener("mouseenter",()=>clearInterval(timer));section.addEventListener("mouseleave",start);
+    if(slideNodes.length<2)document.querySelector(".home-ad-controls").style.display="none";
+    show(0);start();
+  }catch(error){console.warn("Homepage ads could not be loaded:",error);}
+}
+
 // دریافت تورنمنت‌های آماده ثبت‌نام
 async function loadTournaments() {
   const status = document.getElementById("connection-status");
@@ -184,9 +303,25 @@ async function loadTournaments() {
     });
     if (!response.ok) throw new Error("خطا در دریافت اطلاعات: " + response.status);
     const tournaments = await response.json();
+    const rulesByTournament = new Map();
+    if (Array.isArray(tournaments) && tournaments.length) {
+      const ids = tournaments.map(t => t.tournament_id).filter(Boolean);
+      if (ids.length) {
+        const params = new URLSearchParams({select:"tournament_id,rules_text",tournament_id:"in.("+ids.join(",")+")"});
+        const rulesResponse = await fetch(SUPABASE_URL + "/rest/v1/tournament_public_rules?" + params.toString(), {
+          headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}
+        });
+        if (rulesResponse.ok) {
+          const rulesRows = await rulesResponse.json();
+          (rulesRows || []).forEach(row => rulesByTournament.set(row.tournament_id, row.rules_text || ""));
+        } else {
+          console.warn("قوانین تورنمنت‌ها فعلاً دریافت نشدند:", rulesResponse.status);
+        }
+      }
+    }
     updateRegistrationTournamentOptions(tournaments);
-    status.textContent = "اتصال به پایگاه داده برقرار شد.";
-    status.classList.remove("error");
+    if (status) { status.textContent = "اتصال به پایگاه داده برقرار شد."; status.classList.remove("error"); }
+    if (!list) return;
     if (!Array.isArray(tournaments) || tournaments.length === 0) {
       list.replaceChildren(makeElement("p","empty","در حال حاضر تورنمنتی برای ثبت‌نام وجود ندارد."));
       return;
@@ -201,17 +336,26 @@ async function loadTournaments() {
         makeElement("p","","بازیکنان تأییدشده: " + tournament.approved_players),
         makeElement("p","","ظرفیت باقی‌مانده: " + tournament.available_slots)
       );
+      const rulesText = rulesByTournament.get(tournament.tournament_id);
+      if (rulesText && rulesText.trim()) {
+        const rulesHeading = makeElement("h4","","قوانین تورنمنت");
+        const rules = makeElement("p","tournament-rules",rulesText);
+        card.append(rulesHeading,rules);
+      }
+      const membersLink=makeElement("a","link secondary","مشاهده فهرست اعضا");
+      membersLink.href="tournament-members.html?id="+encodeURIComponent(tournament.tournament_id);
+      card.appendChild(membersLink);
       list.appendChild(card);
     });
   } catch (error) {
-    status.textContent = "دریافت اطلاعات با مشکل مواجه شد. لطفاً بعداً تلاش کنید.";
-    status.classList.add("error");
+    if (status) { status.textContent = "دریافت اطلاعات با مشکل مواجه شد. لطفاً بعداً تلاش کنید."; status.classList.add("error"); }
     console.error(error);
   }
 }
 function updateRegistrationTournamentOptions(tournaments) {
   const select = document.getElementById("reg-tournament");
   const button = document.getElementById("registration-button");
+  if (!select || !button) return;
   const items = Array.isArray(tournaments) ? tournaments : [];
   select.replaceChildren();
   const placeholder = document.createElement("option");
@@ -227,46 +371,6 @@ function updateRegistrationTournamentOptions(tournaments) {
   });
   button.disabled = select.options.length <= 1;
 }
-function normalizeRegistrationPhone(value) {
-  return value.replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
-    .replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
-}
-document.getElementById("registration-form").addEventListener("submit", async function(event) {
-  event.preventDefault();
-  const form = event.currentTarget;
-  const button = document.getElementById("registration-button");
-  const status = document.getElementById("registration-message");
-  const tournamentId = document.getElementById("reg-tournament").value;
-  const fullName = document.getElementById("reg-full-name").value.trim();
-  const audioPlayerId = document.getElementById("reg-audio-id").value.trim();
-  const phone = normalizeRegistrationPhone(document.getElementById("reg-phone").value.trim());
-  const username = document.getElementById("reg-username").value.trim().toLowerCase();
-  const password = document.getElementById("reg-password").value;
-  status.textContent = ""; status.className = "message";
-  if (!tournamentId) { status.textContent="لطفاً یک تورنمنت انتخاب کنید."; status.classList.add("error"); return; }
-  if (fullName.length<3 || audioPlayerId.length<2) { status.textContent="نام و آیدی بازیکن را بررسی کنید."; status.classList.add("error"); return; }
-  if (!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(username)) { status.textContent="نام کاربری باید ۳ تا ۳۰ نویسه انگلیسی باشد."; status.classList.add("error"); return; }
-  if (password.length<12 || password.length>128) { status.textContent="رمز عبور باید بین ۱۲ تا ۱۲۸ نویسه باشد."; status.classList.add("error"); return; }
-  const phoneDigits = phone.replace(/[^0-9]/g,"");
-  if (phoneDigits.length<7 || phoneDigits.length>15) { status.textContent="شماره تماس معتبر وارد کنید."; status.classList.add("error"); return; }
-  button.disabled=true; button.textContent="در حال ارسال...";
-  try {
-    const response = await fetch(SUPABASE_URL+"/functions/v1/register-player",{
-      method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify({full_name:fullName,audio_player_id:audioPlayerId,phone:phoneDigits,username,password,tournament_id:tournamentId})
-    });
-    const result = await response.json().catch(()=>({}));
-    if (!response.ok || !result.ok) throw new Error(result.message || result.error || "ثبت‌نام ناموفق بود.");
-    status.textContent=result.message || "درخواست شما ارسال شد و در انتظار تأیید مدیر است.";
-    status.classList.add("success"); form.reset();
-  } catch(error) {
-    console.error("Registration error:",error); status.textContent=error.message || "ارتباط با سامانه برقرار نشد."; status.classList.add("error");
-  } finally {
-    button.disabled=document.getElementById("reg-tournament").options.length<=1;
-    button.textContent="ارسال درخواست ثبت‌نام";
-  }
-});
-
 // تبدیل لینک YouTube به آدرس قابل نمایش
 function getYouTubeEmbedUrl(input) {
   if (!input) return null;
@@ -285,6 +389,7 @@ function getYouTubeEmbedUrl(input) {
 async function loadAcademyPosts() {
   const status=document.getElementById("academy-status");
   const list=document.getElementById("academy-list");
+  if (!status || !list) return;
   status.textContent="در حال دریافت مطالب آکادمی..."; list.replaceChildren();
   try {
     const {data,error}=await supabaseClient.from("educational_posts")
@@ -325,68 +430,19 @@ async function verifyAdmin(user) {
   return !!data && data.role==="admin";
 }
 
-// دریافت و نمایش درخواست‌های عضویت (فقط پس از تأیید نقش admin)
-async function loadRegistrationRequests() {
-  const status=document.getElementById("registration-requests-status");
-  const list=document.getElementById("registration-requests-list");
-  const refresh=document.getElementById("refresh-registration-requests");
-  if (!currentAdmin || !status || !list) return;
-  status.textContent="در حال دریافت درخواست‌ها..."; status.className="status"; list.replaceChildren();
-  if (refresh) refresh.disabled=true;
-  try {
-    const {data:requests,error}=await supabaseClient.from("tournament_registration_requests")
-      .select("id,tournament_id,user_id,full_name,audio_player_id,phone,username,status,created_at")
-      .eq("status","pending").order("created_at",{ascending:true});
-    if (error) throw error;
-    if (!requests || requests.length===0) { status.textContent="در حال حاضر درخواست در انتظار بررسی وجود ندارد."; return; }
-    status.textContent=requests.length+" درخواست در انتظار بررسی وجود دارد.";
-    requests.forEach(request=>{
-      const card=makeElement("article","registration-request-card");
-      card.appendChild(makeElement("h3","",request.full_name || "بدون نام"));
-      const fields=[
-        ["نام کاربری",request.username],
-        ["آیدی بازیکن صوتی",request.audio_player_id],
-        ["شماره تماس",request.phone],
-        ["شناسه تورنمنت",request.tournament_id],
-        ["تاریخ درخواست",request.created_at ? new Date(request.created_at).toLocaleString("fa-IR") : "نامشخص"]
-      ];
-      fields.forEach(([label,value])=>card.appendChild(makeElement("p","",label+": "+(value || "ثبت نشده"))));
-      const actions=makeElement("div","request-actions");
-      const approve=makeElement("button","","تأیید درخواست"); approve.type="button";
-      const reject=makeElement("button","danger-button","رد درخواست"); reject.type="button";
-      approve.addEventListener("click",async()=>{
-        if (!window.confirm("با تأیید این درخواست، حساب بازیکن و کد بازیکنی ساخته می‌شود. ادامه می‌دهید؟")) return;
-        approve.disabled=true; reject.disabled=true;
-        try {
-          const {data,error}=await supabaseClient.rpc("approve_player_registration",{p_request_id:request.id});
-          if (error) throw error;
-          alert("درخواست تأیید شد.\nکد بازیکن: "+(data && data.player_code ? data.player_code : "ساخته شد"));
-          await loadRegistrationRequests();
-        } catch(error) {
-          alert("تأیید درخواست انجام نشد: "+error.message); approve.disabled=false; reject.disabled=false;
-        }
-      });
-      reject.addEventListener("click",async()=>{
-        if (!window.confirm("آیا از رد این درخواست مطمئن هستید؟")) return;
-        const note=window.prompt("دلیل رد درخواست (اختیاری):");
-        if (note===null) return;
-        approve.disabled=true; reject.disabled=true;
-        try {
-          const {error}=await supabaseClient.rpc("reject_player_registration",{p_request_id:request.id,p_review_note:note.trim() || null});
-          if (error) throw error;
-          alert("درخواست با موفقیت رد شد.");
-          await loadRegistrationRequests();
-        } catch(error) {
-          alert("رد درخواست انجام نشد: "+error.message); approve.disabled=false; reject.disabled=false;
-        }
-      });
-      actions.append(approve,reject); card.appendChild(actions); list.appendChild(card);
-    });
-  } catch(error) {
-    status.textContent="خطا در دریافت درخواست‌ها: "+error.message; status.classList.add("error"); console.error("Registration requests error:",error);
-  } finally {
-    if (refresh) refresh.disabled=false;
+async function updateAdminInterface(user) {
+  if (!user) {
+    currentAdmin=null; adminDashboard.classList.add("hidden"); loginBox.classList.remove("hidden"); return;
   }
+  const isAdmin=await verifyAdmin(user);
+  if (!isAdmin) {
+    currentAdmin=null; adminDashboard.classList.add("hidden"); loginBox.classList.remove("hidden");
+    showMessage("این حساب دسترسی مدیریت APEX ARENA را ندارد.",true);
+    await supabaseClient.auth.signOut(); return;
+  }
+  currentAdmin=user; loginBox.classList.add("hidden"); recoveryBox.classList.add("hidden"); newPasswordBox.classList.add("hidden");
+  adminDashboard.classList.remove("hidden"); showMessage("ورود مدیر با موفقیت انجام شد.");
+  await loadAdminPosts();
 }
 
 async function updateAdminInterface(user) {
@@ -401,118 +457,7 @@ async function updateAdminInterface(user) {
   }
   currentAdmin=user; loginBox.classList.add("hidden"); recoveryBox.classList.add("hidden"); newPasswordBox.classList.add("hidden");
   adminDashboard.classList.remove("hidden"); showMessage("ورود مدیر با موفقیت انجام شد.");
-  await Promise.all([loadAdminPosts(),loadRegistrationRequests()]);
 }
-
-// نمایش مطالب در پنل مدیر
-async function loadAdminPosts() {
-  const list=document.getElementById("admin-post-list"); list.replaceChildren();
-  const {data,error}=await supabaseClient.from("educational_posts")
-    .select("id,title,content_type,is_published,created_at,published_at,image_path,video_url,summary,body,slug")
-    .order("created_at",{ascending:false});
-  if (error) { list.textContent="خطا در دریافت مطالب: "+error.message; return; }
-  if (!data || data.length===0) { list.appendChild(makeElement("p","empty","هنوز مطلبی ثبت نشده است.")); return; }
-  data.forEach(post=>{
-    const item=makeElement("div","admin-post");
-    item.appendChild(makeElement("strong","",post.title));
-    item.appendChild(makeElement("p","","وضعیت: "+(post.is_published ? "منتشرشده" : "پیش‌نویس")));
-    item.appendChild(makeElement("p","","نوع محتوا: "+postTypeLabel(post.content_type)));
-    const actions=makeElement("div","post-actions");
-    const edit=makeElement("button","secondary-button","ویرایش"); edit.type="button"; edit.addEventListener("click",()=>fillEditForm(post));
-    const del=makeElement("button","danger-button","حذف"); del.type="button"; del.addEventListener("click",()=>deletePost(post));
-    const toggle=makeElement("button","secondary-button",post.is_published ? "انتقال به پیش‌نویس" : "انتشار"); toggle.type="button"; toggle.addEventListener("click",()=>togglePublish(post));
-    actions.append(edit,toggle,del); item.appendChild(actions); list.appendChild(item);
-  });
-}
-function postTypeLabel(type) { if(type==="video") return "ویدئو"; if(type==="mixed") return "ترکیبی"; return "مقاله و آموزش متنی"; }
-
-function fillEditForm(post) {
-  document.getElementById("edit-post-id").value=post.id;
-  document.getElementById("post-title").value=post.title || "";
-  document.getElementById("post-slug").value=post.slug || "";
-  document.getElementById("post-summary").value=post.summary || "";
-  document.getElementById("post-body").value=post.body || "";
-  document.getElementById("post-type").value=post.content_type || "article";
-  document.getElementById("post-video").value=post.video_url || "";
-  currentImagePath=post.image_path || null;
-  const preview=document.getElementById("image-preview");
-  if (currentImagePath) { const {data}=supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(currentImagePath); preview.src=data.publicUrl; preview.classList.remove("hidden"); }
-  else { preview.removeAttribute("src"); preview.classList.add("hidden"); }
-  document.getElementById("form-title").textContent="ویرایش مطلب";
-  document.getElementById("cancel-edit-button").classList.remove("hidden");
-  showAcademyAdminMessage("اطلاعات مطلب برای ویرایش بارگذاری شد.");
-  document.getElementById("admin-dashboard").scrollIntoView({behavior:"smooth"});
-}
-function resetPostForm() {
-  ["edit-post-id","post-title","post-slug","post-summary","post-body","post-video","post-image"].forEach(id=>document.getElementById(id).value="");
-  document.getElementById("post-type").value="article"; currentImagePath=null;
-  const preview=document.getElementById("image-preview"); preview.removeAttribute("src"); preview.classList.add("hidden");
-  document.getElementById("form-title").textContent="افزودن مطلب جدید";
-  document.getElementById("cancel-edit-button").classList.add("hidden");
-}
-async function uploadPostImage(file) {
-  if (!file) return currentImagePath;
-  const allowed=["image/jpeg","image/png","image/webp","image/gif"];
-  if (!allowed.includes(file.type)) throw new Error("فرمت تصویر باید JPG، PNG، WEBP یا GIF باشد.");
-  if (file.size>5*1024*1024) throw new Error("حجم تصویر نباید بیشتر از ۵ مگابایت باشد.");
-  const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"}[file.type];
-  const path=currentAdmin.id+"/"+Date.now()+"-"+Math.random().toString(36).slice(2)+"."+ext;
-  const {data,error}=await supabaseClient.storage.from(BUCKET_NAME).upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
-  if (error) throw error; return data.path;
-}
-async function savePost(publish) {
-  if (!currentAdmin) { showAcademyAdminMessage("ابتدا باید با حساب مدیر وارد شوید.",true); return; }
-  const title=document.getElementById("post-title").value.trim();
-  const slug=document.getElementById("post-slug").value.trim();
-  const summary=document.getElementById("post-summary").value.trim();
-  const body=document.getElementById("post-body").value.trim();
-  const contentType=document.getElementById("post-type").value;
-  const videoUrl=document.getElementById("post-video").value.trim();
-  const imageFile=document.getElementById("post-image").files[0];
-  const editId=document.getElementById("edit-post-id").value;
-  if (!title) { showAcademyAdminMessage("لطفاً عنوان مطلب را وارد کن.",true); return; }
-  if (!body && !videoUrl && !imageFile && !currentImagePath) { showAcademyAdminMessage("برای مطلب، متن یا ویدئو یا تصویر وارد کن.",true); return; }
-  if (videoUrl && !getYouTubeEmbedUrl(videoUrl)) { showAcademyAdminMessage("لینک ویدئو معتبر نیست. لطفاً لینک YouTube را وارد کن.",true); return; }
-  const saveButton=document.getElementById(publish ? "publish-post-button" : "save-post-button");
-  setButtonLoading(saveButton,true,"در حال ذخیره...");
-  try {
-    let imagePath=currentImagePath; if (imageFile) imagePath=await uploadPostImage(imageFile);
-    const now=new Date().toISOString();
-    const record={title,slug:slug || null,summary:summary || null,body:body || null,content_type:contentType,image_path:imagePath || null,video_url:videoUrl || null,is_published:!!publish,published_at:publish ? now : null,updated_at:now};
-    if (!editId) { record.created_by=currentAdmin.id; record.created_at=now; const {error}=await supabaseClient.from("educational_posts").insert(record); if(error) throw error; }
-    else { const {error}=await supabaseClient.from("educational_posts").update(record).eq("id",editId); if(error) throw error; }
-    showAcademyAdminMessage(publish ? "مطلب با موفقیت ذخیره و منتشر شد." : "مطلب با موفقیت به‌عنوان پیش‌نویس ذخیره شد.");
-    resetPostForm(); await loadAdminPosts(); await loadAcademyPosts();
-  } catch(error) {
-    console.error("Save post error:",error); showAcademyAdminMessage("ذخیره مطلب انجام نشد: "+error.message,true);
-  } finally { setButtonLoading(saveButton,false); }
-}
-async function togglePublish(post) {
-  if (!currentAdmin) return;
-  const next=!post.is_published;
-  const {error}=await supabaseClient.from("educational_posts").update({is_published:next,published_at:next ? new Date().toISOString() : null,updated_at:new Date().toISOString()}).eq("id",post.id);
-  if (error) { showAcademyAdminMessage("تغییر وضعیت انجام نشد: "+error.message,true); return; }
-  showAcademyAdminMessage(next ? "مطلب منتشر شد." : "مطلب به پیش‌نویس منتقل شد.");
-  await loadAdminPosts(); await loadAcademyPosts();
-}
-async function deletePost(post) {
-  if (!currentAdmin || !window.confirm("آیا از حذف این مطلب مطمئن هستی؟")) return;
-  const {error}=await supabaseClient.from("educational_posts").delete().eq("id",post.id);
-  if (error) { showAcademyAdminMessage("حذف مطلب انجام نشد: "+error.message,true); return; }
-  if (post.image_path) {
-    const {error:storageError}=await supabaseClient.storage.from(BUCKET_NAME).remove([post.image_path]);
-    if (storageError) console.warn("Image could not be deleted:",storageError);
-  }
-  showAcademyAdminMessage("مطلب حذف شد."); await loadAdminPosts(); await loadAcademyPosts();
-}
-
-// پیش‌نمایش تصویر
-document.getElementById("post-image").addEventListener("change",event=>{
-  const file=event.target.files[0]; const preview=document.getElementById("image-preview");
-  if (!file) return;
-  if (!file.type.startsWith("image/")) { showAcademyAdminMessage("فایل انتخاب‌شده تصویر نیست.",true); event.target.value=""; return; }
-  preview.src=URL.createObjectURL(file); preview.classList.remove("hidden");
-});
 
 // دکمه‌های ورود و بازیابی
 document.getElementById("show-recovery").onclick=()=>{
@@ -533,8 +478,11 @@ document.getElementById("login-button").onclick=async()=>{
   if (!email || !password) { showMessage("ایمیل و رمز عبور را وارد کنید.",true); return; }
   const button=document.getElementById("login-button"); setButtonLoading(button,true,"در حال ورود...");
   try {
-    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-    if (error) throw error; await updateAdminInterface(data.user);
+    const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if (error) throw error;
+    // The SIGNED_IN auth-state listener below loads the admin interface.
+    // Do not call updateAdminInterface here as well; that caused duplicate
+    // concurrent registration-request loads and duplicate cards.
   } catch(error) { showMessage("ورود ناموفق بود: "+error.message,true); }
   finally { setButtonLoading(button,false); }
 };
@@ -560,10 +508,6 @@ document.getElementById("logout-button").onclick=async()=>{
   if (error) { showMessage("خروج انجام نشد: "+error.message,true); return; }
   currentAdmin=null; adminDashboard.classList.add("hidden"); loginBox.classList.remove("hidden"); showMessage("از حساب مدیریت خارج شدی.");
 };
-document.getElementById("refresh-registration-requests").addEventListener("click",loadRegistrationRequests);
-document.getElementById("save-post-button").onclick=()=>savePost(false);
-document.getElementById("publish-post-button").onclick=()=>savePost(true);
-document.getElementById("cancel-edit-button").onclick=()=>{ resetPostForm(); showAcademyAdminMessage("ویرایش لغو شد."); };
 
 async function checkExistingSession() {
   const {data,error}=await supabaseClient.auth.getSession();
@@ -578,6 +522,7 @@ supabaseClient.auth.onAuthStateChange((event,session)=>{
     setTimeout(()=>updateAdminInterface(session.user),0);
   }
 });
+loadHomepageAds();
 loadTournaments();
 loadAcademyPosts();
 checkExistingSession();

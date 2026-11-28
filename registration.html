@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010"><meta name="description" content="فرم ثبت‌نام در تورنمنت‌های APEX ARENA"><title>ورود به رقابت | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}
+:root{color-scheme:dark;--red:#e32636;--red-hot:#ff3448;--red-deep:#75121d;--ink:#09090c;--panel:#141216;--line:#51232a;--muted:#c7bfc1;--white:#fff4f4}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(119,16,29,.28),transparent 42%),linear-gradient(145deg,#09090c 0%,#151014 52%,#09090c 100%);color:var(--white);font-family:Tahoma,Arial,sans-serif;text-align:center;position:relative}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background:repeating-linear-gradient(135deg,transparent 0 42px,rgba(255,255,255,.035) 43px,transparent 44px 86px);z-index:0}
+header,.page-intro,main,footer{position:relative;z-index:1}
+header{padding:17px 22px;border-bottom:1px solid rgba(227,38,54,.48);background:rgba(10,9,12,.92);box-shadow:0 8px 30px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+h1{color:#fff;letter-spacing:3px;font-size:25px;margin:0;text-shadow:0 0 18px rgba(255,45,65,.38)}
+h2{font-size:23px;color:#fff;margin-top:0}
+p{color:#d2c8ca;line-height:2}
+.page-intro{padding:54px 18px 46px;background:radial-gradient(ellipse at 50% 20%,rgba(193,22,42,.42),transparent 58%),linear-gradient(180deg,rgba(46,9,16,.86),rgba(12,10,13,.55));border-bottom:1px solid rgba(227,38,54,.24);overflow:hidden}
+.page-intro:before{content:"";display:block;width:72px;height:3px;margin:0 auto 18px;background:linear-gradient(90deg,transparent,var(--red-hot),transparent);box-shadow:0 0 18px rgba(255,52,72,.75)}
+.page-intro h2{font-size:clamp(27px,5vw,42px);letter-spacing:1px;text-shadow:0 4px 22px rgba(255,35,58,.35);margin-bottom:10px}
+.page-intro p{max-width:700px;margin:0 auto;color:#e4d7da}
+.section{max-width:930px;margin:30px auto;padding:30px;border:1px solid #57242c;border-radius:18px;background:linear-gradient(145deg,rgba(28,20,24,.98),rgba(15,13,17,.98));box-shadow:0 18px 55px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.035);position:relative;overflow:hidden}
+.section:before{content:"";position:absolute;top:0;right:8%;left:8%;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);box-shadow:0 0 15px rgba(227,38,54,.6)}
+.section>h2{color:#ff5968}
+.admin-box{max-width:660px;margin:24px auto;text-align:right}
+.registration-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+.registration-grid .full-row{grid-column:1/-1}
+.field-hint{color:#b7a8ac;font-size:12px;margin:2px 0 8px;line-height:1.9}
+.consent-row{display:flex;align-items:flex-start;gap:10px;color:#e0d6d8;font-size:13px;line-height:1.9;margin:18px 0}
+.consent-row input{width:auto;margin:5px 0 0;accent-color:var(--red-hot)}
+.trust-note{border-right:3px solid var(--red);padding:12px 15px;background:linear-gradient(90deg,rgba(75,15,25,.22),rgba(112,18,31,.22));border-radius:9px;text-align:right;color:#e2cdd1;font-size:13px;line-height:2}
+input,select{display:block;width:100%;margin:12px 0;padding:14px 15px;border:1px solid #633039;border-radius:9px;background:linear-gradient(135deg,#21171c,#120f13);color:#fff5f5;font-family:inherit;font-size:15px;transition:border-color .2s,box-shadow .2s,background .2s}
+input::placeholder{color:#9f8d92}
+input:focus,select:focus{outline:none;border-color:#ff5365;background:linear-gradient(135deg,#2a171e,#171015);box-shadow:0 0 0 3px rgba(227,38,54,.17),0 0 18px rgba(227,38,54,.12)}
+select option{background:#171116;color:#fff}
+label{display:block;margin-top:16px;color:#ff7783;font-weight:bold;font-size:14px}
+button{width:100%;padding:15px;margin-top:12px;border:1px solid #ff6876;border-radius:9px;background:linear-gradient(120deg,#9e1425,#ed263b 55%,#a70f24);color:#fff;font-family:inherit;font-size:16px;font-weight:bold;letter-spacing:.2px;cursor:pointer;box-shadow:0 8px 24px rgba(190,20,43,.28),inset 0 1px rgba(255,255,255,.16);transition:transform .2s,filter .2s,box-shadow .2s}
+button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 12px 28px rgba(190,20,43,.4)}
+button:disabled{opacity:.48;cursor:not-allowed;box-shadow:none}
+.message{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;margin-top:15px}
+.error{color:#ff929c!important}.success{color:#91e0aa!important}.hidden{display:none!important}
+.page-link{display:inline-block;padding:10px 16px;border:1px solid #8f3441;border-radius:8px;color:#ffdce0;text-decoration:none;background:rgba(105,17,30,.18);transition:background .2s,border-color .2s}
+.page-link:hover{background:rgba(190,25,48,.25);border-color:#ff5365}
+footer{padding:25px;color:#a9979c;font-size:13px;border-top:1px solid rgba(227,38,54,.18)}
+@media(max-width:600px){header{display:block}.page-link{margin-top:12px}.page-intro{padding:42px 15px 35px}.section{margin:18px 10px;padding:19px 16px}.registration-grid{grid-template-columns:1fr}.registration-grid .full-row{grid-column:auto}.admin-box{margin:20px auto}}
+
+
+/* Exact supplied APEX competition artwork + real interactive registration controls */
+body{background:#080608;color:#fff4f4}
+body:before{display:none}
+header,.page-intro{display:none!important}
+.registration-hero{position:relative;width:100%;max-width:1100px;aspect-ratio:512/290;margin:0 auto;line-height:0;overflow:hidden;background:#090609}
+.registration-hero img{display:block;width:100%;height:100%;object-fit:cover;object-position:top center}
+.hero-home-link{position:absolute;left:2.2%;top:4.5%;width:24%;height:9%;border-radius:30px;z-index:2}
+main{isolation:isolate;position:relative;padding:0 14px 36px;background:radial-gradient(ellipse at 50% 0%,rgba(120,8,26,.22),transparent 55%),#080608}
+main:before,main:after{display:none!important}
+.section{max-width:780px;margin:0 auto;padding:25px clamp(16px,4vw,38px) 30px;border:1px solid #f02a42;border-radius:0 0 26px 26px;background:linear-gradient(145deg,rgba(20,8,12,.98),rgba(5,4,7,.98));box-shadow:0 0 8px rgba(255,30,55,.8),0 0 30px rgba(255,20,45,.25),inset 0 0 35px rgba(110,8,22,.18);backdrop-filter:blur(8px)}
+.section:before{height:2px;right:5%;left:5%;background:linear-gradient(90deg,transparent,#ff304b,transparent);box-shadow:0 0 18px #ff203e}
+.section>h2{color:#ff334d;font-size:clamp(20px,3vw,27px);text-shadow:0 0 12px rgba(255,25,50,.35);margin:0 0 12px}
+.section>p{color:#d9c9cd;line-height:2;font-size:14px}
+.trust-note{border-right:3px solid #ff304b;background:rgba(96,8,22,.2);color:#e7d9dc}
+.admin-box{max-width:650px;margin:20px auto 0}
+.registration-grid{gap:0 16px}
+label{color:#ff4057;font-size:14px;margin-top:17px}
+input,select{background:rgba(4,3,5,.9);border:1px solid #e92742;border-radius:13px;min-height:54px;padding:14px 16px;box-shadow:inset 0 0 12px rgba(140,10,30,.12)}
+input:focus,select:focus{border-color:#ff6072;box-shadow:0 0 0 2px rgba(255,40,65,.18),0 0 16px rgba(255,30,55,.28)}
+input::placeholder{color:#b8a6ab}
+.field-hint{color:#bdaeb2}
+.consent-row{color:#eee1e4}
+.consent-row input{min-height:auto;width:20px;height:20px;accent-color:#fa2945}
+button{min-height:62px;border:1px solid #ff6979;border-radius:14px;background:linear-gradient(100deg,#a6001d,#fa1837 48%,#9e001c);box-shadow:0 0 12px rgba(255,25,55,.8),inset 0 0 14px rgba(255,255,255,.15);font-size:18px}
+button:hover:not(:disabled){filter:brightness(1.12);box-shadow:0 0 20px rgba(255,25,55,.9)}
+.page-link{border-color:#ed2942}
+footer{background:#080608;color:#8f777d}
+@media(max-width:600px){
+ .registration-hero{width:100%}
+ .hero-home-link{left:2%;top:4%;width:25%;height:10%}
+ main{padding:0 10px 24px}
+ .section{padding:21px 15px 25px;border-radius:0 0 20px 20px}
+ .registration-grid{grid-template-columns:1fr}
+ .registration-grid .full-row{grid-column:auto}
+ input,select{min-height:50px;font-size:14px}
+}
+</style></head><body>
+<header><div class="brand-lockup"><svg class="apex-mark" viewBox="0 0 64 64" role="img" aria-label="لوگوی APEX ARENA"><path d="M32 4 59 56H5L32 4Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M32 20 47 50H17L32 20Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M23 39h18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><h1>APEX ARENA</h1></div><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
+<section class="page-intro"><h2>ورود به رقابت</h2><p>فرم ثبت‌نام تورنمنت را تکمیل کن تا درخواست شرکت در مسابقه برای مدیریت ارسال شود.</p></section><section class="registration-hero" aria-label="فضای رقابت APEX ARENA"><img src="assets/apex-mafia-hero.webp" alt="سالن تاریک و قرمز رقابت مافیا با میز بازی، کارت‌ها و صندلی چرمی"><a class="hero-home-link" href="index.html" aria-label="بازگشت به صفحه اصلی"></a></section>
+
+<main><section class="section" id="player-registration">
+<h2>ورود بازیکنان و ثبت درخواست شرکت</h2>
+<p>هر بازیکن فقط یک حساب و یک پروفایل دارد. با همان حساب می‌توانی در چند تورنمنت مختلف شرکت کنی؛ برای هر تورنمنت فقط یک درخواست ثبت‌نام مجاز است.</p>
+<p class="trust-note">اگر هنوز حساب نداری، «بازیکن جدید» را انتخاب کن. پس از ساخت حساب، برای تورنمنت‌های بعدی همیشه از گزینه «بازیکن دارای حساب» استفاده کن؛ حساب جدید نساز.</p>
+<form id="registration-form" class="admin-box">
+<div class="registration-grid">
+<div class="full-row"><label for="reg-tournament">انتخاب تورنمنت</label><select id="reg-tournament" required><option value="">در حال دریافت تورنمنت‌ها...</option></select></div>
+<div><label for="reg-full-name">نام و نام خانوادگی</label><input id="reg-full-name" type="text" minlength="3" maxlength="120" autocomplete="name" placeholder="نام واقعی شما" required></div>
+<div><label for="reg-audio-id">آیدی بازیکن در اپلیکیشن صوتی</label><input id="reg-audio-id" type="text" minlength="2" maxlength="120" placeholder="آیدی دقیق داخل اپلیکیشن" required></div>
+<div><label for="reg-phone">شماره تماس</label><input id="reg-phone" type="tel" inputmode="tel" maxlength="25" autocomplete="tel" placeholder="شماره همراه" required></div>
+<div class="full-row"><label for="reg-account-type">نوع حساب</label><select id="reg-account-type"><option value="new">بازیکن جدید — ساخت حساب</option><option value="existing">بازیکن دارای حساب — ورود و ثبت‌نام در تورنمنت</option></select><p class="field-hint">اگر قبلاً در APEX ARENA حساب ساخته‌ای، گزینه دوم را انتخاب کن.</p></div>
+<div><label for="reg-username">نام کاربری انگلیسی</label><input id="reg-username" type="text" minlength="3" maxlength="30" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,29}" autocomplete="username" placeholder="فقط حروف انگلیسی و اعداد" required><p class="field-hint">۳ تا ۳۰ نویسه؛ حروف انگلیسی، عدد، نقطه، خط تیره یا زیرخط.</p></div>
+<div><label for="reg-password">رمز عبور حساب</label><input id="reg-password" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="حداقل ۱۲ نویسه" required></div>
+<div id="reg-password-confirm-wrap"><label for="reg-password-confirm">تکرار رمز عبور</label><input id="reg-password-confirm" type="password" minlength="12" maxlength="128" autocomplete="new-password" placeholder="رمز را دوباره وارد کنید" required></div>
+</div>
+<label class="consent-row"><input id="reg-consent" type="checkbox" required><span>اطلاعات واردشده صحیح است و می‌دانم درخواست من پس از بررسی و تأیید مدیریت نهایی می‌شود.</span></label>
+<p class="trust-note">رمز عبور خود را با هیچ‌کس به اشتراک نگذارید. اطلاعات تماس شما برای سایر بازیکنان نمایش داده نمی‌شود.</p>
+<button id="registration-button" type="submit" disabled>ارسال درخواست ثبت‌نام</button>
+<p id="registration-message" class="message" role="status"></p>
+</form></section></main><footer>© APEX ARENA — All Rights Reserved</footer>
+<script src="/_vendor/supabase-js.js"></script><script>
+"use strict";
+const SUPABASE_URL=window.location.origin + "/_supabase";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+function updateRegistrationTournamentOptions(tournaments){
+ const select=document.getElementById("reg-tournament"),button=document.getElementById("registration-button"),items=Array.isArray(tournaments)?tournaments:[];
+ select.replaceChildren();const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent=items.length?"یک تورنمنت انتخاب کنید":"تورنمنتی برای ثبت‌نام وجود ندارد";select.appendChild(placeholder);
+ items.forEach(t=>{if(!t.tournament_id)return;const option=document.createElement("option");option.value=t.tournament_id;option.textContent=t.tournament_name+" — ظرفیت باقی‌مانده: "+t.available_slots;select.appendChild(option);});button.disabled=select.options.length<=1;
+}
+async function loadTournaments(){
+ const select=document.getElementById("reg-tournament");
+ try{const response=await fetch(SUPABASE_URL+"/rest/v1/rpc/get_open_tournaments",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"},body:"{}"});
+ if(!response.ok)throw new Error("خطا در دریافت تورنمنت‌ها: "+response.status);const tournaments=await response.json();updateRegistrationTournamentOptions(tournaments);
+ }catch(error){console.error(error);select.replaceChildren();const option=document.createElement("option");option.value="";option.textContent="دریافت تورنمنت‌ها ناموفق بود؛ صفحه را دوباره بارگذاری کنید.";select.appendChild(option);document.getElementById("registration-message").textContent="ارتباط با فهرست تورنمنت‌ها برقرار نشد.";document.getElementById("registration-message").classList.add("error");}
+}
+function normalizeRegistrationPhone(value){return value.replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))).replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));}
+const registrationAuthClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
+const accountTypeSelect=document.getElementById("reg-account-type"),passwordConfirmWrap=document.getElementById("reg-password-confirm-wrap"),passwordConfirmInput=document.getElementById("reg-password-confirm"),passwordInput=document.getElementById("reg-password");
+accountTypeSelect.addEventListener("change",()=>{const isNew=accountTypeSelect.value==="new";passwordConfirmWrap.classList.toggle("hidden",!isNew);passwordConfirmInput.required=isNew;passwordInput.minLength=isNew?12:1;passwordInput.autocomplete=isNew?"new-password":"current-password";});
+document.getElementById("registration-form").addEventListener("submit",async function(event){
+ event.preventDefault();const form=event.currentTarget,button=document.getElementById("registration-button"),status=document.getElementById("registration-message"),tournamentId=document.getElementById("reg-tournament").value,fullName=document.getElementById("reg-full-name").value.trim(),audioPlayerId=document.getElementById("reg-audio-id").value.trim(),phone=normalizeRegistrationPhone(document.getElementById("reg-phone").value.trim()),username=document.getElementById("reg-username").value.trim().toLowerCase(),password=document.getElementById("reg-password").value,accountType=accountTypeSelect.value,isNewAccount=accountType==="new",passwordConfirm=passwordConfirmInput.value,consent=document.getElementById("reg-consent").checked;
+ status.textContent="";status.className="message";
+ if(!consent){status.textContent="برای ادامه، تأیید صحت اطلاعات و قوانین ثبت‌نام را علامت بزنید.";status.classList.add("error");return;}
+ if(isNewAccount&&password!==passwordConfirm){status.textContent="رمز عبور و تکرار آن یکسان نیستند.";status.classList.add("error");return;}
+ if(!tournamentId){status.textContent="لطفاً یک تورنمنت انتخاب کنید.";status.classList.add("error");return;}
+ if(fullName.length<3||audioPlayerId.length<2){status.textContent="نام و آیدی بازیکن را بررسی کنید.";status.classList.add("error");return;}
+ if(!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(username)){status.textContent="نام کاربری باید ۳ تا ۳۰ نویسه انگلیسی باشد.";status.classList.add("error");return;}
+ if(isNewAccount&&(password.length<12||password.length>128)){status.textContent="رمز عبور حساب جدید باید بین ۱۲ تا ۱۲۸ نویسه باشد.";status.classList.add("error");return;}
+ const phoneDigits=phone.replace(/[^0-9]/g,"");if(phoneDigits.length<7||phoneDigits.length>15){status.textContent="شماره تماس معتبر وارد کنید.";status.classList.add("error");return;}
+ button.disabled=true;button.textContent="در حال ارسال...";let temporarySession=false;
+ try{let authorization=SUPABASE_KEY;
+  if(!isNewAccount){const {data:loginData,error:loginError}=await registrationAuthClient.auth.signInWithPassword({email:username+"@users.apexarena.invalid",password});
+   if(loginError||!loginData.session||!loginData.user)throw new Error("ورود ناموفق بود؛ نام کاربری و رمز عبور حساب قبلی را بررسی کن.");authorization=loginData.session.access_token;temporarySession=true;}
+  const response=await fetch(SUPABASE_URL+"/functions/v1/register-player",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+authorization,"Content-Type":"application/json"},body:JSON.stringify({account_mode:accountType,full_name:fullName,audio_player_id:audioPlayerId,phone:phoneDigits,username,password:isNewAccount?password:undefined,tournament_id:tournamentId})});
+  const result=await response.json().catch(()=>({}));if(!response.ok||!result.ok)throw new Error(result.message||result.error||"ثبت‌نام ناموفق بود.");
+  status.textContent=result.message||"درخواست شما ارسال شد و در انتظار تأیید مدیر است.";status.classList.add("success");form.reset();accountTypeSelect.value="existing";passwordConfirmWrap.classList.add("hidden");passwordConfirmInput.required=false;document.getElementById("reg-password").autocomplete="current-password";
+ }catch(error){console.error("Registration error:",error);status.textContent=error.message||"ارتباط با سامانه برقرار نشد.";status.classList.add("error");}
+ finally{if(temporarySession)await registrationAuthClient.auth.signOut().catch(()=>{});button.disabled=document.getElementById("reg-tournament").options.length<=1;button.textContent="ارسال درخواست ثبت‌نام";}
+});
+loadTournaments();
+</script></body></html>

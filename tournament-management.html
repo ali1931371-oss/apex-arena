@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010">
+<title>مدیریت تورنمنت‌ها | APEX ARENA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101010;color:#f5f0df;font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+main{max-width:1120px;margin:auto;padding:18px 14px 55px}header,.panel{background:#191919;border:1px solid #59451e;border-radius:14px;padding:18px;margin:14px 0}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1,h2,h3{color:#e4c46e;margin-top:0}h1{font-size:23px}h2{font-size:19px}p{color:#cfc6b2}
+label{display:block;color:#e4c46e;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid #80652e;border-radius:8px;background:#101010;color:white;font:inherit}textarea{resize:vertical;min-height:130px;line-height:1.9}
+button,.link{display:inline-block;padding:11px 14px;border:0;border-radius:8px;background:#d8b45a;color:#17120a;font:inherit;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 0}
+button:disabled{opacity:.5;cursor:not-allowed}.secondary{background:#343434;color:#f5f0df;border:1px solid #80652e}
+.hidden{display:none!important}.muted{color:#aaa;font-size:13px}.status{white-space:pre-wrap;overflow-wrap:anywhere}.error{color:#ff9999}.success{color:#8be0a2}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}
+.card{border:1px solid #51401f;border-radius:10px;padding:14px;margin:10px 0;background:#202020}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-block;border:1px solid #80652e;border-radius:30px;padding:3px 10px;font-size:12px;margin:3px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}th,td{padding:9px;border-bottom:1px solid #51401f;text-align:right;vertical-align:top}th{color:#e4c46e}
+.notice{border-right:3px solid #d8b45a;padding:10px 14px;background:#211b10;border-radius:8px;color:#d8cba9;font-size:13px}
+@media(max-width:600px){header{display:block;text-align:center}table{font-size:12px}th,td{padding:7px}}
+
+.demo-banner{border:1px solid #b58a36;background:#211b10;border-radius:12px;padding:14px;margin:14px 0;color:#f0d99c}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.tabs button{flex:1;min-width:130px}
+.tabs button.active{background:#f0d27d;outline:2px solid #fff1c4}
+.demo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.demo-field{background:#202020;border:1px solid #51401f;border-radius:10px;padding:12px}
+.demo-field input,.demo-field select{margin-top:4px}
+.demo-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.demo-actions button{flex:1;min-width:130px}
+.stage-item{border:1px solid #6c5425;background:#202020;border-radius:10px;padding:12px;margin:10px 0}
+.stage-item.active{border-color:#e4c46e;box-shadow:0 0 0 1px #e4c46e}
+.small{font-size:12px;color:#aaa}
+.preview-pill{display:inline-block;padding:3px 9px;border-radius:20px;background:#302818;color:#f2d88d;margin:3px}
+.tournament-management-list{margin-top:14px;border-top:1px solid #51401f;padding-top:12px}.tournament-management-item{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:#202020;border:1px solid #51401f;border-radius:9px;padding:10px 12px;margin:8px 0}.tournament-management-item strong{overflow-wrap:anywhere}.delete-preview-button{background:#542626;color:#ffe4e4;border:1px solid #a64a4a;padding:6px 11px;font-size:13px;margin:0}.delete-preview-button:disabled{opacity:.45}
+
+/* APEX ARENA — competitive yellow edition */
+:root{color-scheme:dark;--arena-gold:#ffd229;--arena-yellow:#ffdf57;--arena-ink:#080d18;--arena-panel:#111a2b;--arena-line:rgba(255,210,41,.28);--arena-muted:#aeb9ca}
+body{background:radial-gradient(ellipse at 50% -15%,rgba(255,190,0,.16),transparent 42%),radial-gradient(ellipse at 100% 45%,rgba(27,57,94,.42),transparent 38%),linear-gradient(145deg,#070b13 0%,#0c1423 55%,#080d18 100%);color:#f5f7fb}
+main{max-width:1240px;padding-top:26px}
+header,.panel{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(21,32,51,.97),rgba(10,17,30,.98));border:1px solid var(--arena-line);border-radius:18px;box-shadow:0 16px 42px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035)}
+header{min-height:126px;padding:24px 26px;border-color:rgba(255,210,41,.48)}
+header:before,.panel:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,#fff0a0,var(--arena-gold),#9c7100);opacity:.9}
+header:after{content:"ARENA  /  TOURNAMENT CONTROL";position:absolute;left:24px;bottom:9px;direction:ltr;font:700 9px/1 Arial,sans-serif;letter-spacing:3px;color:rgba(255,220,90,.34)}
+h1,h2,h3{color:var(--arena-yellow);text-shadow:0 0 22px rgba(255,210,41,.13)}
+h1{font-size:clamp(21px,3vw,29px);letter-spacing:.2px}
+h2{display:flex;align-items:center;gap:10px}
+h2:before{content:"";display:inline-block;width:7px;height:22px;border-radius:5px;background:var(--arena-gold);box-shadow:0 0 14px rgba(255,210,41,.45)}
+p{color:#c3ccda}.muted,.small{color:var(--arena-muted)}
+label{color:var(--arena-yellow);font-weight:700}
+input,select,textarea{background:#080f1c;border:1px solid rgba(255,210,41,.3);color:#f8fafc;border-radius:10px;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--arena-gold);box-shadow:0 0 0 3px rgba(255,210,41,.12)}
+button,.link{background:linear-gradient(135deg,#ffe987 0%,#ffd229 48%,#d69b00 100%);color:#171304;border:1px solid #ffe987;border-radius:10px;box-shadow:0 6px 18px rgba(214,155,0,.16);transition:transform .18s,filter .18s,box-shadow .18s}
+button:hover,.link:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 9px 22px rgba(214,155,0,.23)}
+button:disabled{transform:none;box-shadow:none}
+.secondary{background:linear-gradient(135deg,#26344a,#172337);color:#f0d66b;border:1px solid rgba(255,210,41,.36);box-shadow:none}
+.card,.demo-field,.stage-item,.tournament-management-item{background:linear-gradient(145deg,#172338,#101a2b);border:1px solid rgba(255,210,41,.2);border-radius:13px}
+.stage-item.active{border-color:var(--arena-gold);box-shadow:0 0 0 1px rgba(255,210,41,.55),0 0 24px rgba(255,210,41,.1)}
+.demo-banner,.notice{background:linear-gradient(100deg,rgba(255,210,41,.13),rgba(255,210,41,.035));border:1px solid rgba(255,210,41,.3);border-right:4px solid var(--arena-gold);color:#f4df9b}
+.tabs button.active{background:linear-gradient(135deg,#fff0a6,#ffd229);color:#181303;outline:2px solid rgba(255,239,166,.4)}
+.chip,.preview-pill{background:rgba(255,210,41,.1);border:1px solid rgba(255,210,41,.34);color:#ffe58a}
+table{border-radius:10px;overflow:hidden}th{background:rgba(255,210,41,.09);color:#ffe27a}th,td{border-bottom:1px solid rgba(255,210,41,.15)}
+.tournament-management-list{border-top-color:var(--arena-line)}
+.delete-preview-button{background:linear-gradient(135deg,#702d35,#431b25);color:#ffe4e4;border:1px solid #a64a4a;box-shadow:none}
+.error{color:#ff9a9a}.success{color:#9be7b1}
+#interactiveDemo{border-color:rgba(255,210,41,.42)}
+#interactiveDemo>.row{padding-bottom:12px;border-bottom:1px solid rgba(255,210,41,.16)}
+#demoSaveTournament{min-height:48px;padding-inline:22px}
+@media(max-width:600px){main{padding:12px 10px 38px}header{padding:18px 15px}header:after{display:none}.panel{padding:15px}}
+
+
+/* Soft crimson competitive theme */
+:root{--arena-gold:#d98b91;--arena-yellow:#f0b6ba;--arena-ink:#111018;--arena-panel:#211820;--arena-line:rgba(217,139,145,.25);--arena-muted:#bdb2ba}
+body{background:radial-gradient(ellipse at 50% -15%,rgba(190,86,99,.13),transparent 44%),radial-gradient(ellipse at 100% 45%,rgba(91,43,59,.24),transparent 40%),linear-gradient(145deg,#100d14 0%,#19121a 55%,#100d14 100%);color:#f5eef1}
+header,.panel{background:linear-gradient(145deg,rgba(36,25,34,.98),rgba(22,17,25,.99));border-color:var(--arena-line);box-shadow:0 15px 38px rgba(0,0,0,.26),inset 0 1px rgba(255,255,255,.025)}
+header{border-color:rgba(217,139,145,.38)}
+header:before,.panel:before{background:linear-gradient(180deg,#f3c9cc,#d98b91,#8f4d5c)}
+header:after{color:rgba(235,170,176,.28)}
+h1,h2,h3{color:#efb9bd;text-shadow:0 0 18px rgba(217,139,145,.1)}
+h2:before{background:#d98b91;box-shadow:0 0 12px rgba(217,139,145,.3)}
+p{color:#d0c3ca}.muted,.small{color:#b9abb4}
+label{color:#e6aeb4}
+input,select,textarea{background:#130f17;border-color:rgba(217,139,145,.27);color:#fbf5f7}
+input:focus,select:focus,textarea:focus{border-color:#d98b91;box-shadow:0 0 0 3px rgba(217,139,145,.1)}
+button,.link{background:linear-gradient(135deg,#edb9bd 0%,#d98b91 55%,#bd707c 100%);color:#241318;border:1px solid #efc3c6;box-shadow:0 5px 15px rgba(155,75,89,.14)}
+button:hover,.link:hover{filter:brightness(1.05);box-shadow:0 8px 18px rgba(155,75,89,.2)}
+.secondary{background:linear-gradient(135deg,#382632,#281c28);color:#e9b7bd;border:1px solid rgba(217,139,145,.3);box-shadow:none}
+.card,.demo-field,.stage-item,.tournament-management-item{background:linear-gradient(145deg,#2b202b,#211923);border-color:rgba(217,139,145,.19)}
+.stage-item.active{border-color:#d98b91;box-shadow:0 0 0 1px rgba(217,139,145,.4),0 0 20px rgba(217,139,145,.07)}
+.demo-banner,.notice{background:linear-gradient(100deg,rgba(217,139,145,.1),rgba(217,139,145,.025));border-color:rgba(217,139,145,.25);border-right-color:#d98b91;color:#e8c5ca}
+.tabs button.active{background:linear-gradient(135deg,#f0c6c9,#d98b91);color:#28171c;outline:2px solid rgba(240,198,201,.25)}
+.chip,.preview-pill{background:rgba(217,139,145,.08);border-color:rgba(217,139,145,.28);color:#e9b9be}
+th{background:rgba(217,139,145,.075);color:#eab8bd}th,td{border-bottom-color:rgba(217,139,145,.12)}
+.tournament-management-list{border-top-color:var(--arena-line)}
+.delete-preview-button{background:linear-gradient(135deg,#743b48,#512633);color:#ffe9ec;border:1px solid #a75d6b;box-shadow:none}
+#interactiveDemo{border-color:rgba(217,139,145,.34)}
+#interactiveDemo>.row{border-bottom-color:rgba(217,139,145,.13)}
+#demoSaveTournament{background:linear-gradient(135deg,#efc0c4,#d98b91 55%,#bd707c);color:#241318}
+
+</style>
+</head>
+<body><main>
+<header><div><h1>APEX ARENA | مدیریت تورنمنت‌ها</h1><div class="muted">مدیریت مشخصات، مراحل و گروه‌های تورنمنت</div></div><div><a class="link secondary" href="index.html">بازگشت به سایت</a><button id="logoutButton" class="secondary hidden">خروج</button></div></header>
+<section id="loginPanel" class="panel"><h2>ورود مدیر یا مسئول مسابقه</h2><p>برای مشاهده اطلاعات مدیریتی وارد حساب خود شوید.</p>
+<label for="email">ایمیل</label><input id="email" type="email" autocomplete="username">
+<label for="password">رمز عبور</label><input id="password" type="password" autocomplete="current-password">
+<button id="loginButton">ورود</button><p id="loginStatus" class="status" role="status"></p></section>
+<section id="dashboard" class="hidden">
+<section class="panel" id="interactiveDemo">
+  <div class="row"><div><h2>کارگاه تعاملی مدیریت تورنمنت</h2><p class="muted">اینجا می‌توانی فرم‌ها و انتخاب‌ها را امتحان کنی و نتیجه را همان لحظه ببینی.</p></div><span class="preview-pill">پیش‌نمایش قابل آزمایش</span></div>
+  <div class="demo-banner"><strong>توجه:</strong> این پنل فقط برای مشخصات تورنمنت، مراحل و گروه‌هاست. تنظیم سناریوها و نقش‌ها در پنل مدیریت داور انجام می‌شود.</div>
+  <div class="tabs" role="tablist">
+    <button type="button" class="active" data-demo-tab="tournament">مشخصات تورنمنت</button>
+    <button type="button" class="secondary" data-demo-tab="summary">خلاصه تنظیمات</button>
+  </div>
+  <div id="demo-tournament" class="demo-pane">
+    <h3>مشخصات و ظرفیت</h3>
+    <div class="demo-grid">
+      <div class="demo-field" style="grid-column:1/-1"><label for="demoRules">قوانین تورنمنت (نمایش عمومی)</label><textarea id="demoRules" rows="7" maxlength="12000" placeholder="قوانین این تورنمنت را به‌صورت دستی بنویس..."></textarea><p class="muted">این متن در فهرست عمومی، زیر همین تورنمنت نمایش داده می‌شود.</p></div>
+      <div class="demo-field"><label for="demoName">نام تورنمنت</label><input id="demoName" value="APEX ARENA — تورنمنت آزمایشی"></div>
+      <div class="demo-field"><label for="demoCapacity">ظرفیت کل بازیکنان</label><input id="demoCapacity" type="number" min="2" max="500" value="50"></div>
+      <div class="demo-field"><label for="demoRegistration">وضعیت ثبت‌نام</label><select id="demoRegistration"><option value="open">باز</option><option value="closed">بسته</option></select></div>
+      <div class="demo-field"><label for="demoApproval">تأیید ثبت‌نام</label><select id="demoApproval"><option value="yes">نیازمند تأیید مدیر</option><option value="no">ثبت‌نام مستقیم</option></select></div>
+    </div>
+    <p class="muted">این ظرفیت در مراحل بعدی با مجموع ظرفیت گروه‌ها مقایسه خواهد شد.</p>
+    
+    <div class="card">
+      <div class="row"><div><h3>مراحل تورنمنت</h3><p class="muted">با دکمه زیر هر تعداد مرحله لازم داری اضافه کن؛ ترتیب و تنظیمات همه مراحل با یک ذخیره ثبت می‌شود.</p></div><button type="button" id="demoAddStage">افزودن مرحله +</button></div>
+      <div id="demoStageEditor" class="card hidden"></div>
+      <div class="card"><h3>ترتیب مراحل</h3><p class="muted">مراحل به همان ترتیبی که ثبت می‌کنی نمایش داده می‌شوند؛ هر مرحله را در صورت نیاز می‌توانی حذف کنی.</p><div id="demoOrderList"></div></div>
+    </div>
+    <div class="demo-actions"><button type="button" id="demoSaveTournament">ذخیره همه مشخصات و مراحل تورنمنت</button><span id="demoSaveTournamentStatus" class="status" role="status"></span></div>
+  </div>
+  <div id="demo-summary" class="demo-pane hidden">
+    <h3>خلاصه چیزی که تنظیم کردی</h3><div id="demoSummary"></div>
+  </div>
+  <div class="demo-actions"><button type="button" id="demoReset" class="secondary">بازنشانی پیش‌نمایش</button><span id="demoStatus" class="status" role="status"></span></div>
+</section>
+
+<section class="panel"><div class="grid"><div><h2>انتخاب تورنمنت</h2><p class="muted">اطلاعات این بخش برای مشاهده است؛ تغییرات مدیریتی از کارگاه تعاملی بالا انجام می‌شود.</p></div><div><label for="tournamentSelect">تورنمنت</label><select id="tournamentSelect"><option value="">در حال دریافت...</option></select></div><div><button id="refreshButton" class="secondary">به‌روزرسانی اطلاعات</button></div></div><div id="tournamentManagementList" class="tournament-management-list"></div><p id="dashboardStatus" class="status"></p></section>
+<section class="panel"><h2>مراحل تورنمنت</h2><div id="stagesList"><p class="muted">ابتدا تورنمنت را انتخاب کنید.</p></div></section>
+<section class="panel"><h2>گروه‌ها و مسابقه‌ها</h2><div id="groupsList"><p class="muted">ابتدا تورنمنت را انتخاب کنید.</p></div></section>
+
+<section class="panel"><h2>نسخه‌های قوانین تورنمنت</h2><div id="versionsList"><p class="muted">در حال دریافت...</p></div></section>
+
+</section></main>
+<script src="/_vendor/supabase-js.js"></script>
+<script>
+"use strict";
+const SUPABASE_URL=window.location.origin + "/_supabase";
+const SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let tournaments=[];
+let currentUserRole=null;
+function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
+function status(id,text,error=false){$(id).textContent=text||"";$(id).className="status "+(error?"error":text?"success":"")}
+async function rpc(name,args={}){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+async function verifyManager(user){const {data,error}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();if(error)throw error;if(!data||!["admin","manager"].includes(data.role))throw new Error("این حساب مجوز مدیریت تورنمنت‌ها را ندارد.");currentUserRole=data.role}
+async function signIn(){const b=$("loginButton");b.disabled=true;status("loginStatus","در حال ورود...");try{const {data,error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)throw error;await verifyManager(data.user);$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");$("logoutButton").classList.remove("hidden");await loadTournaments()}catch(e){await db.auth.signOut();status("loginStatus",e.message,true)}finally{b.disabled=false}}
+function renderTournamentManagementList(){const box=$("tournamentManagementList");box.replaceChildren();if(!tournaments.length){box.append(el("p","هنوز تورنمنتی برای مدیریت وجود ندارد.","muted"));return;}box.append(el("h3","فهرست تورنمنت‌ها"));(tournaments||[]).forEach(t=>{const item=el("div",undefined,"tournament-management-item");const info=el("div");info.append(el("strong",t.tournament_name));info.append(el("div",t.tournament_status||"وضعیت نامشخص","small"));item.append(info);const members=el("a","اعضای تورنمنت","link secondary");members.href="tournament-members.html?id="+encodeURIComponent(t.tournament_id);item.append(members);if(currentUserRole==="admin"){const del=el("button","حذف","delete-preview-button");del.type="button";del.title="پیش‌نمایش دکمه حذف؛ حذف واقعی هنوز فعال نشده است";del.addEventListener("click",async()=>{const confirmed=window.confirm("هشدار: تورنمنت «"+t.tournament_name+"» و تمام اطلاعات وابسته به آن برای همیشه حذف می‌شود.\n\nاطلاعات تورنمنت‌های دیگر و حساب بازیکنان حذف نمی‌شود.\n\nآیا از حذف کامل مطمئنی؟");if(!confirmed)return;del.disabled=true;status("dashboardStatus","در حال حذف امن تورنمنت «"+t.tournament_name+"»...");try{await rpc("delete_managed_tournament",{p_tournament_id:t.tournament_id});status("dashboardStatus","تورنمنت «"+t.tournament_name+"» و اطلاعات وابسته آن حذف شد.");await loadTournaments();status("dashboardStatus","تورنمنت «"+t.tournament_name+"» و اطلاعات وابسته آن با موفقیت حذف شد.");}catch(e){status("dashboardStatus","حذف انجام نشد: "+e.message,true);del.disabled=false;}});item.append(del);}box.append(item);});if(currentUserRole!=="admin")box.append(el("p","حذف تورنمنت فقط برای حساب مدیر اصلی (admin) در نظر گرفته شده است.","muted"));}
+async function loadTournaments(){status("dashboardStatus","در حال دریافت تورنمنت‌ها...");try{tournaments=await rpc("get_manageable_tournaments");const s=$("tournamentSelect");s.replaceChildren(el("option","تورنمنت جدید"));s.firstChild.value="";(tournaments||[]).forEach(t=>{const o=el("option",t.tournament_name+" — "+t.tournament_status);o.value=t.tournament_id;s.append(o)}); s.value="";renderTournamentManagementList();demoNewTournament();if(!tournaments.length)status("dashboardStatus","هنوز تورنمنتی ثبت نشده است؛ می‌توانی تورنمنت جدید بسازی.");}catch(e){status("dashboardStatus","خطا در دریافت تورنمنت‌ها: "+e.message,true)}}
+function renderTable(target,headers,rows,empty){const box=$(target);box.replaceChildren();if(!rows.length){box.append(el("p",empty,"muted"));return}const table=el("table"),thead=el("thead"),tr=el("tr");headers.forEach(h=>tr.append(el("th",h)));thead.append(tr);table.append(thead);const body=el("tbody");rows.forEach(row=>{const r=el("tr");row.forEach(v=>r.append(el("td",v===null||v===undefined?"—":String(v))));body.append(r)});table.append(body);box.append(table)}
+async function loadTournament(){const tid=$("tournamentSelect").value;if(!tid)return;status("dashboardStatus","در حال خواندن ساختار تورنمنت...");
+const jobs=[
+["tournament",()=>db.from("tournaments").select("name").eq("id",tid).maybeSingle()],
+["rules",()=>db.from("tournament_public_rules").select("rules_text").eq("tournament_id",tid).maybeSingle()],
+["registration",()=>db.from("tournament_registration_settings").select("max_players,registration_open,require_admin_approval").eq("tournament_id",tid).maybeSingle()],
+["stages",()=>db.from("tournament_stages").select("id,name,stage_number,settings").eq("tournament_id",tid).order("stage_number")],
+["matches",()=>db.from("matches").select("id,match_number,status,stage_id,group_id").eq("tournament_id",tid).order("match_number")],
+["versions",()=>db.from("tournament_rule_versions").select("id,version_number,version_status,created_at,stage_settings,group_settings,advancement_rules").eq("tournament_id",tid).order("version_number",{ascending:false})]
+];
+const results=await Promise.all(jobs.map(async([key,fn])=>{try{const {data,error}=await fn();return [key,data||[],error]}catch(e){return [key,[],e]}}));
+const data=Object.fromEntries(results.map(([k,v,e])=>[k,{rows:v,error:e}]));
+const tournament=data.tournament.rows,registration=data.registration.rows;
+if(tournament)demo$("demoName").value=tournament.name||"";
+demo$("demoRules").value=data.rules.rows?.rules_text||"";
+if(registration){
+ demo$("demoCapacity").value=registration.max_players??"";
+ demo$("demoRegistration").value=registration.registration_open?"open":"closed";
+ demo$("demoApproval").value=registration.require_admin_approval?"yes":"no";
+}
+const stages=data.stages.rows||[],matches=data.matches.rows||[];
+demoLoadStageConfig(tid,stages);
+renderTable("stagesList",["ترتیب","نام مرحله","تعداد گروه","بازیکن در هر گروه","بازی در هر گروه"],stages.map(s=>{const x=s.settings||{};return [s.stage_number,s.name,x.groups_count??x.groups??"—",x.players_per_group??x.players??"—",x.games_per_group??x.games??"—"]}),"برای این تورنمنت مرحله‌ای ثبت نشده است.");
+const stageMap=new Map(stages.map(s=>[s.id,s.name]));
+const groupIds=[...new Set(matches.map(m=>m.group_id).filter(Boolean))];
+let groups=[];
+if(stages.length){const gr=await db.from("tournament_groups").select("id,stage_id,group_number,group_name").in("stage_id",stages.map(s=>s.id)).order("group_number");if(!gr.error)groups=gr.data||[];else data.groups={rows:[],error:gr.error}}
+const stageOrder=new Map(stages.map((stage,index)=>[stage.id,index]));
+const orderedGroups=[...groups].sort((a,b)=>{
+ const stageDifference=(stageOrder.get(a.stage_id)??Number.MAX_SAFE_INTEGER)-(stageOrder.get(b.stage_id)??Number.MAX_SAFE_INTEGER);
+ if(stageDifference!==0)return stageDifference;
+ return (Number(a.group_number)||0)-(Number(b.group_number)||0);
+});
+renderTable("groupsList",["مرحله","گروه","بازیکن در هر گروه","بازی برنامه‌ریزی‌شده برای هر گروه","مسابقه‌های ایجادشده"],orderedGroups.map(g=>{const st=stages.find(s=>s.id===g.stage_id);const x=st?.settings||{};const ms=matches.filter(m=>m.group_id===g.id);return [stageMap.get(g.stage_id)||"—",g.group_name||("گروه "+g.group_number),x.players_per_group??x.players??"—",x.games_per_group??x.games??"—",ms.length?ms.map(m=>"#"+m.match_number+" ("+m.status+")").join("، "):"هنوز مسابقه‌ای ساخته نشده"]}),"برای این تورنمنت گروهی ثبت نشده است.");
+const errors=results.filter(x=>x[2]).map(x=>x[0]+": "+x[2].message);status("dashboardStatus","نمایش اطلاعات انجام شد. "+stages.length+" مرحله، "+groups.length+" گروه، "+matches.length+" مسابقه و "+(data.versions.rows||[]).length+" نسخه قانون."+(errors.length?" برخی بخش‌ها قابل خواندن نبودند: "+errors.join("؛ "):""));
+}
+
+const demoDefaults=()=>({stages:[]});
+let demoState=demoDefaults(),demoOrderedStages=[],demoStageDraft=null;
+const demo$=id=>document.getElementById(id);
+let demoTournamentId=null;
+function demoStatus(t){demo$("demoStatus").textContent=t}
+function demoNewTournament(){
+ demoTournamentId=null;demoState=demoDefaults();demoOrderedStages=[];demoStageDraft=null;
+ ["demoName","demoCapacity","demoRules"].forEach((id,i)=>demo$(id).value=i===0?"":"");
+ demo$("demoRegistration").value="open";demo$("demoApproval").value="yes";
+ ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).disabled=false);
+ status("demoSaveTournamentStatus","","");demoRenderAll();
+}
+async function demoSaveTournament(){
+ const name=demo$("demoName").value.trim(),capacity=Number(demo$("demoCapacity").value);
+ if(!name){status("demoSaveTournamentStatus","نام تورنمنت را وارد کن.",true);return;}
+ if(!Number.isInteger(capacity)||capacity<2||capacity>500){status("demoSaveTournamentStatus","ظرفیت باید عدد صحیحی بین ۲ تا ۵۰۰ باشد.",true);return;}
+ if(!demoOrderedStages.length){status("demoSaveTournamentStatus","حداقل یک مرحله اضافه کن.",true);return;}
+ if(demoOrderedStages.length>5){status("demoSaveTournamentStatus","هر تورنمنت حداکثر می‌تواند پنج مرحله داشته باشد.",true);return;}
+ const stages=[];
+ for(const s of demoOrderedStages){
+  const groups=Number(s.settings?.groups),players=Number(s.settings?.players),games=Number(s.settings?.games);
+  if(!s.name.trim()||![groups,players,games].every(v=>Number.isInteger(v)&&v>0)){
+   status("demoSaveTournamentStatus","نام و هر سه تعدادِ تمام مراحل را کامل کن.",true);return;
+  }
+  stages.push({id:s.id||null,name:s.name.trim(),settings:{groups,players,games}});
+ }
+ const button=demo$("demoSaveTournament");button.disabled=true;
+ status("demoSaveTournamentStatus","در حال ذخیره همه اطلاعات...");
+ try{
+  if(!demoTournamentId){
+   const {data,error}=await db.rpc("create_managed_tournament_with_stages",{
+    p_name:name,p_max_players:capacity,
+    p_registration_open:demo$("demoRegistration").value==="open",
+    p_require_admin_approval:demo$("demoApproval").value==="yes",
+    p_stages:stages.map(({name,settings})=>({name,settings}))
+   });
+   if(error)throw error;
+   if(!data)throw new Error("شناسه تورنمنت از سرور دریافت نشد.");
+   await rpc("save_tournament_public_rules",{p_tournament_id:data,p_rules_text:demo$("demoRules").value});
+   await loadTournaments();
+   $("tournamentSelect").value=data;
+   await loadTournament();
+   status("demoSaveTournamentStatus","تورنمنت و تمام مراحل و گروه‌های آن با موفقیت ذخیره شد.");
+  }else{
+   const {error}=await db.rpc("save_tournament_stage_configuration",{p_tournament_id:demoTournamentId,p_stages:stages});
+   if(error)throw error;
+   await rpc("save_tournament_public_rules",{p_tournament_id:demoTournamentId,p_rules_text:demo$("demoRules").value});
+   status("demoSaveTournamentStatus","مراحل، گروه‌ها و قوانین تورنمنت با موفقیت ذخیره شدند.");
+   await loadTournament();
+  }
+ }catch(e){status("demoSaveTournamentStatus","ذخیره انجام نشد: "+e.message,true)}
+ finally{button.disabled=false}
+}
+function demoLoadStageConfig(tid,rows){
+ demoTournamentId=tid;demoStageDraft=null;
+ demoState.stages=(rows||[]).map(r=>{const x=r.settings||{};return {id:r.id,name:r.name,settings:{groups:Number(x.groups_count??x.groups??0),players:Number(x.players_per_group??x.players??0),games:Number(x.games_per_group??x.games??0)}}});
+ demoOrderedStages=[...demoState.stages];
+ ["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).disabled=true);
+ demoRenderAll();demoStatus("تنظیمات مراحل تورنمنت انتخاب‌شده بارگذاری شد.");
+}
+function demoRenderOrder(){
+ const box=demo$("demoOrderList");box.replaceChildren();
+ if(!demoOrderedStages.length){box.append(el("p","هنوز مرحله‌ای ثبت نشده است.","muted"));}
+ demoOrderedStages.forEach((s,i)=>{
+  const row=el("div",undefined,"stage-item");
+  const top=el("div",undefined,"row");
+  const details=el("div");
+  details.append(el("strong",(i+1)+". "+s.name));
+  const x=s.settings||{};
+  details.append(el("p",x.groups+" گروه، "+x.players+" بازیکن در هر گروه، "+x.games+" بازی برای هر گروه","small"));
+  const del=el("button","حذف","secondary");del.type="button";
+  del.onclick=()=>{demoOrderedStages.splice(i,1);demoRenderAll();demoStatus("مرحله حذف شد؛ برای ثبت دائمی تغییرات، تورنمنت را ذخیره کن.")};
+  top.append(details,del);row.append(top);box.append(row);
+ });
+ const add=demo$("demoAddStage");
+ add.disabled=demoOrderedStages.length>=5;
+ add.textContent=demoOrderedStages.length>=5?"حداکثر پنج مرحله ثبت شده":"افزودن مرحله +";
+}
+function demoRenderEditor(){
+ const box=demo$("demoStageEditor");box.replaceChildren();
+ if(!demoStageDraft){box.classList.add("hidden");return;}
+ box.classList.remove("hidden");
+ box.append(el("h3","تنظیم مرحله جدید"));
+ const grid=el("div",undefined,"demo-grid");
+ const fields=[["نام مرحله","name","text"],["تعداد گروه‌ها","groups","number"],["تعداد بازیکن در هر گروه","players","number"],["تعداد بازی هر گروه","games","number"]];
+ const inputs={};
+ fields.forEach(([caption,key,type])=>{
+  const wrap=el("div",undefined,"demo-field"),lab=el("label",caption),input=el("input");
+  input.type=type;input.required=true;
+  if(type==="number"){input.min="1";input.max="500";input.step="1";input.inputMode="numeric";}
+  input.placeholder=caption;
+  input.value=demoStageDraft[key]??"";
+  input.oninput=()=>{demoStageDraft[key]=input.value};
+  wrap.append(lab,input);grid.append(wrap);inputs[key]=input;
+ });
+ box.append(grid);
+ const actions=el("div",undefined,"demo-actions");
+ const register=el("button","ثبت مرحله");register.type="button";
+ register.onclick=()=>{
+  const name=String(demoStageDraft.name||"").trim();
+  const values=["groups","players","games"].map(k=>Number(demoStageDraft[k]));
+  if(!name){status("demoSaveTournamentStatus","نام مرحله را وارد کن.",true);inputs.name.focus();return;}
+  if(!values.every(v=>Number.isInteger(v)&&v>=1&&v<=500)){status("demoSaveTournamentStatus","تعداد گروه‌ها، بازیکنان و بازی‌ها باید عدد صحیح بین ۱ تا ۵۰۰ باشد.",true);return;}
+  demoOrderedStages.push({id:null,name,settings:{groups:values[0],players:values[1],games:values[2]}});
+  demoStageDraft=null;status("demoSaveTournamentStatus","","");demoRenderAll();
+  demoStatus("مرحله با موفقیت به ترتیب مراحل اضافه شد. برای ذخیره نهایی، دکمه ذخیره تورنمنت را بزن.");
+ };
+ const cancel=el("button","انصراف","secondary");cancel.type="button";cancel.onclick=()=>{demoStageDraft=null;demoRenderAll();};
+ actions.append(register,cancel);box.append(actions);
+}
+function demoRenderAll(){demoRenderOrder();demoRenderEditor();demoRenderSummary()}
+function demoRenderSummary(){
+ const box=demo$("demoSummary");if(!box)return;
+ const stageLines=demoOrderedStages.map((s,i)=>"<p><b>"+(i+1)+". "+demoEscape(s.name)+"</b>: "+(s.settings?demoEscape(s.settings.groups+" گروه، "+s.settings.players+" بازیکن در هر گروه، "+s.settings.games+" بازی برای هر گروه"):"تنظیم نشده")+"</p>").join("");
+ box.innerHTML="<div class='demo-field'><b>نام:</b> "+demoEscape(demo$("demoName").value)+"<br><b>ظرفیت:</b> "+demo$("demoCapacity").value+" نفر<br><b>ثبت‌نام:</b> "+(demo$("demoRegistration").value==="open"?"باز":"بسته")+"</div><h3>مراحل</h3>"+stageLines;
+}
+function demoEscape(v){return String(v).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
+
+document.querySelectorAll("[data-demo-tab]").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll("[data-demo-tab]").forEach(b=>{b.classList.toggle("active",b===btn);b.classList.toggle("secondary",b!==btn)});
+ document.querySelectorAll(".demo-pane").forEach(p=>p.classList.add("hidden"));
+ demo$("demo-"+btn.dataset.demoTab).classList.remove("hidden");
+}));
+demo$("demoAddStage").addEventListener("click",()=>{if(demoOrderedStages.length>=5){demoStatus("برای هر تورنمنت حداکثر پنج مرحله مجاز است.");return;}demoStageDraft={name:"",groups:"",players:"",games:""};demoRenderEditor();demoStatus("مشخصات مرحله را وارد کن و دکمه ثبت مرحله را بزن.")});
+["demoName","demoCapacity","demoRegistration","demoApproval"].forEach(id=>demo$(id).addEventListener("input",demoRenderSummary));
+demo$("demoReset").textContent="بازخوانی تنظیمات تورنمنت";
+demo$("demoReset").addEventListener("click",()=>{if($("tournamentSelect").value)loadTournament();else demoNewTournament()});
+
+demo$("demoSaveTournament").addEventListener("click",demoSaveTournament);
+
+demoRenderAll();
+
+$("loginButton").addEventListener("click",signIn);$("password").addEventListener("keydown",e=>{if(e.key==="Enter")signIn()});$("tournamentSelect").addEventListener("change",()=>{if(!$("tournamentSelect").value){demoNewTournament();status("dashboardStatus","حالت ساخت تورنمنت جدید فعال شد.");}else loadTournament()});$("refreshButton").addEventListener("click",loadTournament);$("logoutButton").addEventListener("click",async()=>{await db.auth.signOut();location.reload()});
+(async()=>{const {data}=await db.auth.getSession();if(data.session){try{await verifyManager(data.session.user);$("loginPanel").classList.add("hidden");$("dashboard").classList.remove("hidden");$("logoutButton").classList.remove("hidden");await loadTournaments()}catch(e){await db.auth.signOut()}}})();
+</script></body></html>

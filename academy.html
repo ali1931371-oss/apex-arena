@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010"><meta name="description" content="آکادمی آزاد آموزش مافیای صوتی APEX ARENA"><title>آکادمی آموزش | APEX ARENA</title><style>
+:root{--academy-green:#9be900;--academy-deep:#4c8e00;--academy-glow:#c7ff59;--academy-muted:#a7b88e;--academy-panel:#10170d}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:#050805;color:#edf5e7;font-family:Tahoma,Arial,sans-serif;text-align:center;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse at 12% 18%,#25420d55,transparent 35%),radial-gradient(ellipse at 88% 65%,#163b1d55,transparent 38%),linear-gradient(145deg,#050805 0%,#0b1209 48%,#030503 100%)}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.15;background-image:linear-gradient(#9be90012 1px,transparent 1px),linear-gradient(90deg,#9be90012 1px,transparent 1px);background-size:54px 54px;mask-image:linear-gradient(to bottom,black,transparent 85%)}
+header{position:relative;z-index:2;padding:15px clamp(16px,4vw,48px);border-bottom:1px solid #9be90045;background:#070b07d9;backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;box-shadow:0 8px 35px #0008}
+h1{color:var(--academy-green);letter-spacing:3px;font-size:clamp(21px,3vw,28px);margin:0;text-shadow:0 0 18px #9be90070}
+h2{font-size:clamp(25px,4vw,39px);color:#efffdf;margin:0 0 14px;text-shadow:0 0 24px #9be90035}
+p{color:#c3d1b7;line-height:2}
+.page-link{display:inline-flex;align-items:center;justify-content:center;padding:10px 17px;border:1px solid #baff4d;border-radius:9px;color:#101a06;text-decoration:none;background:linear-gradient(135deg,#baff35,#5d9d00);font-weight:700;box-shadow:0 0 20px #9be9002e;transition:.2s}
+.page-link:hover{transform:translateY(-2px);box-shadow:0 0 28px #9be90065}
+.page-intro{position:relative;isolation:isolate;min-height:390px;padding:clamp(35px,6vw,70px) 18px 55px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr);align-items:center;gap:28px;max-width:1200px;margin:auto;text-align:right}
+.intro-copy{position:relative;z-index:1}
+.intro-copy h2{color:var(--academy-green);letter-spacing:-.5px}
+.intro-copy p{max-width:680px;font-size:15px}
+.intro-kicker{display:inline-flex;align-items:center;gap:9px;color:#d8ff9c;font-size:12px;letter-spacing:2px;border:1px solid #9be90055;border-radius:30px;padding:8px 13px;margin-bottom:18px;background:#9be9000d}
+.intro-kicker:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--academy-green);box-shadow:0 0 12px var(--academy-green)}
+.academy-art{position:relative;min-height:270px;display:grid;place-items:center}
+.academy-art:before,.academy-art:after{content:"";position:absolute;border:1px solid #9be90030;border-radius:50%;width:250px;height:250px;box-shadow:0 0 55px #65a90018,inset 0 0 45px #65a90012}
+.academy-art:after{width:310px;height:310px;border-style:dashed;opacity:.5;animation:orbit 32s linear infinite}
+.academy-art svg{width:min(100%,390px);height:auto;position:relative;z-index:1;filter:drop-shadow(0 12px 35px #8ce90025)}
+@keyframes orbit{to{transform:rotate(360deg)}}
+.page-wrap{max-width:1120px;margin:0 auto;padding:15px 22px 55px}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;text-align:right;margin:12px 0 22px;padding-bottom:14px;border-bottom:1px solid #9be90030}
+.section-heading h3{margin:0;color:#dfffba;font-size:19px}
+.section-heading span{font-size:12px;color:#92ad7c}
+.academy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:20px}
+.academy-card{position:relative;border:1px solid #557b2d;border-radius:15px;padding:16px;text-align:right;background:linear-gradient(145deg,#172214f2,#0c120bfa);overflow:hidden;box-shadow:0 12px 35px #0006;transition:transform .25s,border-color .25s,box-shadow .25s}
+.academy-card:before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,transparent,var(--academy-green),transparent);opacity:.8}
+.academy-card:hover{transform:translateY(-5px);border-color:var(--academy-green);box-shadow:0 15px 40px #0009,0 0 22px #9be90015}
+.academy-card h3{color:var(--academy-green);font-size:18px;line-height:1.8;margin:8px 0}
+.academy-card img{width:100%;max-height:240px;object-fit:cover;border-radius:10px;margin-bottom:10px;border:1px solid #9be90035}
+.academy-card p{overflow-wrap:anywhere}
+.post-summary{color:#d9f4b9!important;background:#9be9000b;border-right:2px solid #9be900;padding:7px 10px;border-radius:5px}
+.post-date{color:#91a582;font-size:12px}
+.post-body{white-space:pre-wrap;text-align:right;line-height:2.2;overflow-wrap:anywhere;color:#e0ead8}
+.post-video{width:100%;aspect-ratio:16/9;border:1px solid #9be90045;border-radius:10px;margin:12px 0}
+.status{color:#baff55;background:#9be9000d;border:1px solid #9be90035;border-radius:10px;padding:12px 16px;display:inline-block}
+.error{color:#ff8c8c!important;border-color:#ff8c8c55}
+.empty{color:#aaa}
+footer{padding:24px;color:#8ba079;font-size:12px;border-top:1px solid #9be90024;background:#060906}
+@media(max-width:720px){header{justify-content:center}.page-intro{grid-template-columns:1fr;text-align:center;padding-top:38px;gap:5px}.intro-copy p{margin-inline:auto}.academy-art{min-height:220px;grid-row:1}.academy-art svg{max-width:300px}.academy-art:before{width:200px;height:200px}.academy-art:after{width:250px;height:250px}.page-wrap{padding:12px 14px 40px}.section-heading{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+</style></head><body>
+<header><h1>APEX ARENA</h1><a class="page-link" href="index.html">بازگشت به صفحه اصلی</a></header>
+<section class="page-intro">
+ <div class="intro-copy">
+  <span class="intro-kicker">APEX LEARNING CENTER</span>
+  <h2>آکادمی آموزش APEX ARENA</h2>
+  <p>دانش، تمرین و تجربه؛ سه گام برای ساختن بازیکنی حرفه‌ای‌تر. اینجا مهارت‌ها را یاد می‌گیری، نگاهت به بازی را عمیق‌تر می‌کنی و هر روز یک قدم جلوتر می‌روی.</p>
+  <p>تمام آموزش‌ها برای همه آزاد است؛ بدون نیاز به ثبت‌نام یا ورود.</p>
+ </div>
+ <div class="academy-art" aria-hidden="true">
+  <svg viewBox="0 0 420 330" fill="none" xmlns="http://www.w3.org/2000/svg">
+   <defs><linearGradient id="book" x1="90" y1="120" x2="330" y2="270" gradientUnits="userSpaceOnUse"><stop stop-color="#D7FF8A"/><stop offset="1" stop-color="#4C8E00"/></linearGradient><linearGradient id="bulb" x1="205" y1="28" x2="215" y2="130" gradientUnits="userSpaceOnUse"><stop stop-color="#F1FFC9"/><stop offset="1" stop-color="#9BE900"/></linearGradient></defs>
+   <path d="M210 76V48M174 91L155 72M246 91L265 72M210 20V8" stroke="#9BE900" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+   <path d="M180 57C180 39 193 25 210 25C227 25 240 39 240 57C240 70 233 78 226 87C221 93 220 101 220 107H200C200 101 199 93 194 87C187 78 180 70 180 57Z" fill="url(#bulb)" fill-opacity=".18" stroke="#B9FF55" stroke-width="3"/>
+   <path d="M200 115H220M202 123H218" stroke="#B9FF55" stroke-width="3" stroke-linecap="round"/>
+   <path d="M210 143V169" stroke="#9BE900" stroke-width="2" stroke-dasharray="4 7" opacity=".8"/>
+   <path d="M55 164C105 139 159 145 210 181V285C158 250 105 245 55 269V164Z" fill="#101D0B" stroke="url(#book)" stroke-width="4"/>
+   <path d="M365 164C315 139 261 145 210 181V285C262 250 315 245 365 269V164Z" fill="#15250E" stroke="url(#book)" stroke-width="4"/>
+   <path d="M210 181V285" stroke="#C7FF59" stroke-width="3"/>
+   <path d="M83 190C119 176 154 181 181 196M83 215C119 201 154 206 181 221M83 240C119 226 154 231 181 246M337 190C301 176 266 181 239 196M337 215C301 201 266 206 239 221M337 240C301 226 266 231 239 246" stroke="#A6D96B" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+   <path d="M210 181L210 285" stroke="#E5FFB8" stroke-width="2"/>
+   <circle cx="68" cy="104" r="5" fill="#9BE900"/><circle cx="350" cy="105" r="4" fill="#9BE900"/><circle cx="104" cy="70" r="3" fill="#C7FF59"/><circle cx="319" cy="61" r="5" fill="#C7FF59"/>
+   <path d="M48 294H372" stroke="#9BE900" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+ </div>
+</section>
+<main class="page-wrap">
+ <div class="section-heading"><h3>کتابخانه آموزش‌ها</h3><span>یادگیری را از همین‌جا شروع کن</span></div>
+ <p id="academy-status" class="status">در حال دریافت مطالب آکادمی...</p><div id="academy-list" class="academy-grid"></div>
+</main><footer>© APEX ARENA — All Rights Reserved</footer>
+<script src="/_vendor/supabase-js.js"></script><script>
+"use strict";
+const SUPABASE_URL=window.location.origin + "/_supabase",SUPABASE_KEY="sb_publishable_aKHWCQLdnGFMB5_SADJT5Q_h7-8eK69",BUCKET_NAME="apex-education";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+function makeElement(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined&&text!==null)el.textContent=text;return el;}
+function getYouTubeEmbedUrl(input){if(!input)return null;try{const url=new URL(input.trim()),host=url.hostname.replace(/^www\./,"");let id="";if(host==="youtu.be")id=url.pathname.split("/").filter(Boolean)[0]||"";else if(["youtube.com","m.youtube.com","youtube-nocookie.com"].includes(host)){if(url.pathname==="/watch")id=url.searchParams.get("v")||"";else if(url.pathname.startsWith("/embed/")||url.pathname.startsWith("/shorts/"))id=url.pathname.split("/")[2]||"";}else return null;return /^[a-zA-Z0-9_-]{11}$/.test(id)?"https://www.youtube-nocookie.com/embed/"+id:null;}catch(e){return null;}}
+async function loadAcademyPosts(){
+ const status=document.getElementById("academy-status"),list=document.getElementById("academy-list");list.replaceChildren();
+ try{
+  const {data,error}=await supabaseClient.from("educational_posts").select("id,title,slug,summary,body,content_type,image_path,video_url,published_at,created_at").eq("is_published",true).order("published_at",{ascending:false});
+  if(error)throw error;if(!data||!data.length){status.textContent="هنوز مطلبی در آکادمی منتشر نشده است.";return;}status.textContent="مطالب منتشرشده آکادمی";
+  data.forEach(post=>{const card=makeElement("article","academy-card");
+   if(post.image_path){const {data:imageData}=supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(post.image_path);if(imageData&&imageData.publicUrl){const img=makeElement("img");img.src=imageData.publicUrl;img.alt=post.title||"تصویر آکادمی";img.loading="lazy";card.appendChild(img);}}
+   card.appendChild(makeElement("h3","",post.title));if(post.summary)card.appendChild(makeElement("p","post-summary",post.summary));
+   const video=getYouTubeEmbedUrl(post.video_url);if(video){const iframe=makeElement("iframe","post-video");iframe.src=video;iframe.title=post.title||"ویدئوی آموزشی";iframe.loading="lazy";iframe.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";iframe.allowFullscreen=true;card.appendChild(iframe);}
+   if(post.body)card.appendChild(makeElement("p","post-body",post.body));if(post.published_at)card.appendChild(makeElement("p","post-date","تاریخ انتشار: "+new Date(post.published_at).toLocaleDateString("fa-IR")));list.appendChild(card);
+  });
+ }catch(error){status.textContent="دریافت مطالب آکادمی با مشکل مواجه شد.";status.classList.add("error");console.error("Academy public loading error:",error);}
+}
+loadAcademyPosts();
+</script></body></html>
